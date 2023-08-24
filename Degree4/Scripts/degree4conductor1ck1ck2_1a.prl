@@ -1,0 +1,326 @@
+#!/usr/bin/perl -w
+
+######################
+#
+#  Search for CkRd, for fixed 2kappa and a range of lambda
+#
+#######################
+
+if($#ARGV != 4){  # 4
+     die "\nThis program searches at {kappa, lamstart}, {kappa, lamstart + 1/step}, ..., {kappa, lamstart + (numsteps-1)/step}  \n",
+            "The syntax is:  \n\t  degree4conductor1ck1ck2_1a.prl k1 k2 lamstart step numsteps\n\n",$#ARGV
+} # ARGV if
+
+my ($twokappa1, $twokappa2, $lamstart) = ($ARGV[0],$ARGV[1],$ARGV[2]);
+$twokappa1 =~ s/n/-/;
+$twokappa2 =~ s/n/-/;
+$lamstart =~ s/n/-/;
+
+my ($recipstep, $numsteps) = ($ARGV[3],$ARGV[4]);
+
+# my $username = "farmer";
+my $username = `whoami`;
+chomp $username;
+
+my $mmafile = "/home/$username/L-pointsBU/Degree4/Tmp/searchCkCkx1a".$twokappa1."_".$twokappa2."_".$lamstart."_".$recipstep."_".$numsteps.".m";
+my $batchfile = "/home/$username/L-pointsBU/Degree4/Tmp/batchCkCkx1a".$twokappa1."_".$twokappa2."_".$lamstart."_".$recipstep."_".$numsteps.".txt";
+my $outbatchfile = "~/L-pointsBU/Degree4/Tmp/out.batchCkCkx1a".$twokappa1."_".$twokappa2."_".$lamstart."_".$recipstep."_".$numsteps.".out";
+
+open(OUTmmaFILE, ">$mmafile") or die "the file $mmafile can't be opened: $! \n";
+open(OUTbatchFILE, ">$batchfile") or die "the file $batchfile can't be opened: $! \n";
+
+print OUTmmaFILE <<header;
+
+Print["input 1"];
+
+<< ~/L-pointsBU/Code/findL1b.m;
+
+Print["input 2"];
+<< ~/L-pointsBU/Code/searchgrd4s.txt;
+
+Print["input 3"];
+<< ~/L-pointsBU/Code/solveeqns7f.m;
+
+versionnumber = "L1b_searchgrd4s_solveeqns7f"
+
+versioneqns = "mygandslistD1"
+
+useWarnings = False
+
+Print["starting"];
+
+myEV = {3, 13}
+
+EPSL3Z = {{3, {1}}, {{}, {}}}
+
+EPSL4Zsd = {{-4, {1}}, {{}, {}}}
+
+EPSL4Z = {{4, {1}}, {{}, {}}}
+
+mydatadir = "~/L-pointsBU/Degree4/Data/Ck1Ck2/Run1";
+
+FEGL3twodim[0, 0, 0] := {
+    {0, 0, 0}, {XX[1], XX[2], -XX[1] - XX[2]}, {1/2, 1/2, 1/2}, 1/ (Pi^(3/2)), 1}
+
+FEGL3twodim[0, 1, 1] := {
+     {0, 1/2, 1/2}, {XX[1], XX[2], -XX[1] - XX[2]}, {1/2, 1/2, 1/2}, 1/ (Pi^(3/2)), -1}
+
+(*
+FEGL3onedimSplit[0, kappa_] := {{0, kappa/2, (kappa + 1)/2}, {-XX[1], XX[1]/2,
+   XX[1]/2}, {1/2, 1/2, 1/2}, 1/Pi^(3/2), (-1)^((2 kappa + 1)/2)}
+
+FEGL3onedimSplit[1, kappa_] := {{1/2, kappa/2, (kappa + 1)/2}, {-XX[1], XX[1]/2,
+   XX[1]/2}, {1/2, 1/2, 1/2}, 1/Pi^(3/2), (-1)^(kappa + 1)}
+*)
+
+(* better to do it as 2 Gamma functions *)
+(*
+FEGL3onedimSplit[0, kappa_] := {{0, kappa}, {-XX[1], XX[1]}, {1/2, 1}, 1/(2 Pi^(3/2)), (-1)^((2 kappa + 1)/2), 2^(-I XX[1])}
+
+FEGL3onedimSplit[1, kappa_] := {{1/2, kappa}, {-XX[1], XX[1]}, {1/2, 1}, 1/(2 Pi^(3/2)), (-1)^(kappa + 1), 2^(-I XX[1])}
+*)
+
+(* new, proper FE notation *)
+FEGL3onedimSplit[0, kappa_] := { {{0, -2 XX[1]}}, {{kappa, XX[1]}}, 1, (-1)^((2 kappa + 1)/2) } 
+
+FEGL3onedimSplit[1, kappa_] := { {{1, -2 XX[1]}}, {{kappa, XX[1]}}, 1, (-1)^(kappa + 1) } 
+
+Print["ck1ck2"];
+FEGL4ck1ck2[kappa1_, kappa2_] := { {}, {{kappa1, XX[1]},{kappa2,-XX[1]}}, 1, (-1)^( ((2 kappa1 + 1)+(2 kappa2 + 1))/2 ) } 
+
+
+
+FEGL4CkRdRdSelfdual[0, kappa_] := {{0, 0, kappa/2, (kappa + 1)/2}, {-XX[1], XX[1],
+   0,0}, {1/2, 1/2, 1/2, 1/2}, 1/Pi^(2), (I)^(2 kappa + 1)}
+
+FEGL4CkRdRdSelfdual[1, kappa_] := {{1/2, 1/2, kappa/2, (kappa + 1)/2}, {-XX[1], XX[1],
+   0,0}, {1/2, 1/2, 1/2, 1/2}, 1/Pi^(2), -(I)^(2 kappa + 1)}
+
+mystarpts1 = {{-11/10}, {9/10}}
+
+mystarpts2 = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+
+myabsflag = 1
+
+mygflag = 1
+
+globalc = 0
+
+mygandslistA4 = {{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I}, 
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I}, 
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistB4 = {
+{{0, 0, 0}, {0, 28/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 27/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 26/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 25/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 24/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I}, 
+{{0, 0, 0}, {0, 1, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I}, 
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistC4 = {
+{{0, 0, 0}, {0, 5/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 7/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 8/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 9/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I}, 
+{{0, 0, 0}, {0, 10/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I}, 
+{{0, 0, 0}, {0, 11/23, globalc}, 1/2+4I},
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistC4orig = {
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I},
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2},
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I},
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2},
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I},
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistD1 = {
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 54/53, globalc}, 1/2},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 55/53, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I},
+{{0, 0, 0}, {0, 56/53, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 57/53, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2},
+{{0, 0, 0}, {0, 58/53, globalc}, 1/2},
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I},
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 59/53, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2},
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I},
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 1/12, globalc}, 1/2}, {{0, 0, 0}, {0, 5/12, globalc}, 1/2},
+{{0, 0, 0}, {0, 7/12, globalc}, 1/2}, {{0, 0, 0}, {0, 11/12, globalc}, 1/2},
+{{0, 0, 0}, {0, 1/13, globalc}, 1/2}, {{0, 0, 0}, {0, 2/13, globalc}, 1/2},
+{{0, 0, 0}, {0, 3/13, globalc}, 1/2}, {{0, 0, 0}, {0, 4/13, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/13, globalc}, 1/2}, {{0, 0, 0}, {0, 6/13, globalc}, 1/2},
+{{0, 0, 0}, {0, 7/13, globalc}, 1/2}, {{0, 0, 0}, {0, 8/13, globalc}, 1/2},
+{{0, 0, 0}, {0, 9/13, globalc}, 1/2}, {{0, 0, 0}, {0, 10/13, globalc}, 1/2},
+{{0, 0, 0}, {0, 11/13, globalc}, 1/2}, {{0, 0, 0}, {0, 12/13, globalc}, 1/2}
+};
+
+
+startlis = { {1, 1, 1, 1, 1, 1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1, -1, -1, -1, -1, -1, -1,1,1,1,1,1,1,1,1,1,1,1,1}, {1, -1, 1, -1, 1, -1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1, 1, -1, 1, -1, 1, -1,1,1,1,1,1,1,1,1,1,1,1,1} };
+
+Print["searching near", {$twokappa1, $twokappa2, $lamstart}];
+
+thislabel = "C" <> ToString[$twokappa1] <> "_C" <> ToString[$twokappa2] <>"_x1a";
+
+Print["this label: ", thislabel];
+
+boxsizeIN = 1/1000
+
+truncationerrorIN = 1/1000000
+
+(*
+truncationerrorIN = 1/10000000000
+*)
+
+For[ij=0, ij < $numsteps, ++ij,
+  startindex = Mod[Floor[ij + 10 $lamstart] + 1, 4];
+  startcoefval = startlis[[startindex + 1]];
+
+  thestartingvalues = findstartingvalues[{$lamstart + ij/$recipstep}, 1/1000, truncationerrorIN, mygandslistD1,
+    FEGL4ck1ck2[$twokappa1/2,$twokappa2/2], myEV, startcoefval, mygflag, 40, 
+    myabsflag, EPSL4Z];
+
+  Print["found ", Length[thestartingvalues], " starting values",thestartingvalues];
+
+  For[ee=1,ee<=Length[thestartingvalues],++ee,
+          startcoefvalX = thestartingvalues[[ee]];
+
+  testandsave[{$lamstart + ij/$recipstep}, mystarpts1, boxsizeIN, truncationerrorIN, mygandslistD1,
+    FEGL4ck1ck2[$twokappa1/2,$twokappa2/2], myEV, startcoefvalX, mygflag, 40, 
+    myabsflag, EPSL4Z, thislabel, 9, 2, 10^-12];  (* changed NUMSTEPS from 6 to 9: should make more GOOD and fewer UGLY *)
+
+  ]; (* for thestartingvalues *)
+
+];  (* For numsteps *)
+
+
+Print["about to quit"];
+
+Quit[]
+
+
+
+header
+
+print OUTbatchFILE <<batch;
+#!/bin/bash
+#SBATCH -p short # partition (queue)
+#SBATCH -N 1 # (leave at 1 unless using multi-node specific code)
+#SBATCH -n 1 # number of cores
+#SBATCH --mem-per-cpu=8192 # memory per core
+#SBATCH --job-name="D3N1_job" # job name
+#SBATCH -o /home/$username/L-pointsBU/Degree4/Tmp/slurm.%N.%j.stdout.txt # STDOUT
+#SBATCH -e /home/$username/L-pointsBU/Degree4/Tmp/slurm.%N.%j.stderr.txt # STDERR
+#SBATCH --mail-user=$username\@bucknell.edu # address to email
+#SBATCH --mail-type=ALL # mail events (NONE, BEGIN, END, FAIL, ALL)
+
+module load mathematica
+
+# run the program using the relative path
+math < $mmafile >> $outbatchfile
+
+
+batch
+
+close(OUTmmaFILE);
+close(OUTbatchFILE);
+
+select(undef, undef, undef, 1);  #pause for 1 second
+
+system("sbatch $batchfile");
+
+print "\n batched to Q \n";
+
