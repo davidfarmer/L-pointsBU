@@ -24,7 +24,7 @@ not change the number of unknowns needed, and will make it twice as fast.
 
 4e: changed gg to begin at 1/2
 
-L1b: changing the FE format
+L1b: changing the FE format.  Added functions to convert between formats.
 ****************************** *)
 
 (* the new format for functional equations is
@@ -56,6 +56,30 @@ FEnewtoold[fe_]:= Block[{j, reshifts, imshifts, sfactors, Qfactor, sign, phasefa
         {reshifts, imshifts, sfactors, Qfactor, sign, phasefactor}
 ];
 
+FEoldtonew[fe_] := Block[{j,thegammaRs,thegammaCs,theConductor,theSign,thereshifts,theimshifts,thekappas,thisdel,thislam,thiskappa,thisGammaR,thisGammaC},
+  thegammaRs = {};
+  thegammaCs = {};
+  theConductor = fe[[4]]^2;
+  theSign = fe[[5]];
+  thereshifts = fe[[1]];
+  theimshifts = fe[[2]];
+  thekappas = fe[[3]];
+  For[j = 1, j <= Length[thekappas], ++j,
+   If[thekappas[[j]] == 1/2,
+    thisdel = 2 thereshifts[[j]];
+    thislam = 2 theimshifts[[j]];
+    thisGammaR = {thisdel, thislam};
+    AppendTo[thegammaRs, thisGammaR];
+    theConductor *= Pi (* because we squared initially*),
+    (* else, this kappa is 1*)
+    thiskappa = thereshifts[[j]];
+    thislam = theimshifts[[j]];
+    thisGammaC = {thiskappa, thislam};
+    AppendTo[thegammaCs, thisGammaC];
+    theConductor *= (2 Pi)^2]
+   ];
+  {thegammaRs, thegammaCs, theConductor, theSign}
+  ];
 
 (* Rubinstein's g(s): test function in the approximate functional equation *)
 (* gg[b_,w_]:= (1+w)^(b[[1]]) E^(-1*b[[2]] I w + b[[3]] w^2) *)
