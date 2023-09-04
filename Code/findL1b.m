@@ -118,6 +118,15 @@ Lambda[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Block[{QQ,omega,nu,istep,ev,del,LIMS,gs,ex
 L[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Lold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS];
 Z[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Zold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS];
 
+evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] := 
+  Block[{numterms},
+   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
+    numterms = NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms};
+   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawZ /. theseAnSubs];
+
 Lold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambda[FE,b,s,Ev,gflag,PRECIS]/H[FE,s,PRECIS];
 
 Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambda[FE,b,s,Ev,gflag,PRECIS]/Abs[H[FE,s,PRECIS]];
