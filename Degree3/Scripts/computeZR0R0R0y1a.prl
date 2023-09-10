@@ -45,7 +45,6 @@ Print["input 4"];
 versionnumber = "L1b_searchgrd4s_solveeqns7f"
 
 mydatadir = "~/L-pointsBU/Degree3/Data/R0R0R0/Zvalues1";
-need to create
 
 Print["computing between", {$startindex, $endindex}];
 
@@ -56,6 +55,15 @@ evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
    If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
     numterms = NextPrime[Length[ap]/2] - 1];
    thisEv = {Ev[[1]], numterms};
+   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawZ /. theseAnSubs];
+
+evaluateZfromApEXTRA[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_,
+   extra_] := Block[{numterms},
+   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
+    numterms = NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms + extra};
    rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
    theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
    rawZ /. theseAnSubs];
@@ -129,7 +137,7 @@ zvalsanderror[ind_, srclis_, llim_, ulim_] := Block[{},
      Print["Error: Z not real ", {ind, jl, thisbeta, thiszval}]];
     AppendTo[thislistofvalues, {jl, Re[thiszval]}]
     ];
-   {thislistofvalues, goodbetadata}
+   {thislistofvalues, basebetadata}
    ];
 
 For[ij=$startindex, ij <= $endindex, ++ij,
@@ -144,11 +152,13 @@ For[ij=$startindex, ij <= $endindex, ++ij,
 
   Print["thislabel", thislabel];
 
-  mydatafile = mydatadir <> "/" <> thislabeli;
+  mydatafile = mydatadir <> "/" <> thislabel;
 
   thesezvalsplus = zvalsanderror[ij, degree3conductor1r0r0r0, -60, 60];
 
   itemtosave = {degree3conductor1r0r0r0[[ij]], thesezvalsplus};
+
+  Print["saving to ", mydatafile];
 
   Save[mydatafile, itemtosave];
   
