@@ -156,7 +156,13 @@ For[ij=$startindex, ij <= $endindex, ++ij,
 
   mydatafile = mydatadir <> "/" <> thislabel;
 
-  thesezvalsplus = zvalsanderror[ij, degree3conductor1r0r0r0, -60, 60];
+  plotlim = 60;
+  tmp = degree3conductor1r0r0r0[[ij]];
+  plotlim = Max[10 Ceiling[(tmp[[1, 1, 1]] + tmp[[1, 1, 2]] + 10)/10], plotlim];
+
+  Print["plotting on range ", {-plotlim,plotlim}];
+
+  thesezvalsplus = zvalsanderror[ij, degree3conductor1r0r0r0, -plotlim, plotlim];
 
   itemtosave = {degree3conductor1r0r0r0[[ij]], thesezvalsplus};
 

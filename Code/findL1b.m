@@ -115,8 +115,8 @@ Lambda[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Block[{QQ,omega,nu,istep,ev,del,LIMS,gs,ex
             Sum[(bb1[n] - I bb2[n])/n^(1-s) f2[FE,b,1-s,n,ev,gflag,PRECIS],{n,1,LIMS}])];
 
 
-L[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Lold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS];
-Z[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Zold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS];
+L[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Lold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
+Z[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Zold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
 
 evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] := 
   Block[{numterms},

@@ -427,8 +427,11 @@ for inputfile, outputfile in component.iofilepairs:
 component.foundvalues.sort()
 if component.filetype_plus == "ldata":
     with open(outputfile, 'w') as outfile:
-        for lam1lam2 in component.foundvalues:
-            outfile.write(lam1lam2 + ",\n")
+        outfile.write("summary = {" + "\n")
+        for idx, lam1lam2 in enumerate(component.foundvalues):
+            if idx: outfile.write(",\n")
+            outfile.write(lam1lam2)
+        outfile.write("};\n")
 
 if component.filetype_plus in ['ptx_permid', 'xml_permid'] and component.all_permid:
     component.all_permid.sort()
