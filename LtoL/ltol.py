@@ -433,6 +433,15 @@ if component.filetype_plus == "ldata":
             outfile.write(lam1lam2)
         outfile.write("};\n")
 
+    with open("tmpfile.m", 'w') as mmafile:
+        mmafile.write("module load mathematica" + "\n")
+        mmafile.write('Import["~/L-pointsBU/Code/searchgrd4t.m", "NB"];' + "\n")
+        mmafile.write('Import["' + outputfile + '", "NB"];' + "\n")
+        mmafile.write('trimmedsummary = tossRepeats[summary];;' + "\n")
+        trimmedoutputfile = re.sub("summary","trimmedsummary", outputfile)
+        mmafile.write('Save["' + trimmedoutputfile + '", trimmedsummary];' + "\n")
+        mmafile.write('Quit[]'+ "\n")
+
 if component.filetype_plus in ['ptx_permid', 'xml_permid'] and component.all_permid:
     component.all_permid.sort()
 #    with open(outputdir + 'allpermid.txt', 'w') as f:
