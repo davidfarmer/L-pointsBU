@@ -9,6 +9,7 @@ import glob
 import shutil
 import fnmatch
 import codecs
+import time
 
 import component
 import utilities
@@ -241,7 +242,8 @@ if component.filetype_plus in ['ptx_permid', 'xml_permid']:
     component.current_permid = component.permid_base_number
     print("starting permid:", component.current_permid)
 
-print("about to loop over files:", component.iofilepairs)
+if component.filetype_plus not in  ['ldata']:
+    print("about to loop over files:", component.iofilepairs)
 
 for inputfile, outputfile in component.iofilepairs:
 
@@ -260,7 +262,8 @@ for inputfile, outputfile in component.iofilepairs:
     component.inputstub = re.sub(".*/","",component.inputstub)
     component.inputfilename = component.inputstub
     component.inputstub = re.sub("\..*","",component.inputstub)
-    print("file is ",inputfile)
+    if component.filetype_plus not in  ['ldata']:
+        print("file is ",inputfile)
     component.filestubs.append(component.inputstub)
 
     with open(inputfile) as infile:
@@ -422,7 +425,8 @@ for inputfile, outputfile in component.iofilepairs:
             outfile.write(component.onefile)
 
     elif component.filetype_plus == "ldata":
-        print("the file starts", component.onefile[:150])
+        pass
+  #      print("the file starts", component.onefile[:150])
 
 component.foundvalues.sort()
 if component.filetype_plus == "ldata":
@@ -433,14 +437,22 @@ if component.filetype_plus == "ldata":
             outfile.write(lam1lam2)
         outfile.write("};\n")
 
-    with open("tmpfile.m", 'w') as mmafile:
-        mmafile.write("module load mathematica" + "\n")
-        mmafile.write('Import["~/L-pointsBU/Code/searchgrd4t.m", "NB"];' + "\n")
-        mmafile.write('Import["' + outputfile + '", "NB"];' + "\n")
-        mmafile.write('trimmedsummary = tossRepeats[summary];;' + "\n")
+    with open("tmpfile1.m", 'w') as mmafile1:
+        mmafile1.write("module load mathematica" + "\n")
+        mmafile1.write("math < ~/L-pointsBU/LtoL/tmpfile2.m" + "\n")
+
+    with open("tmpfile2.m", 'w') as mmafile2:
+        mmafile2.write('Import["~/L-pointsBU/Code/searchgrd4t.m", "NB"];' + "\n")
+        mmafile2.write('Import["' + outputfile + '", "NB"];' + "\n")
+        mmafile2.write('trimmedsummary = tossRepeats[summary];' + "\n")
         trimmedoutputfile = re.sub("summary","trimmedsummary", outputfile)
-        mmafile.write('Save["' + trimmedoutputfile + '", trimmedsummary];' + "\n")
-        mmafile.write('Quit[]'+ "\n")
+        mmafile2.write('DeleteFile["' + trimmedoutputfile + '"];' + "\n")
+        mmafile2.write('Save["' + trimmedoutputfile + '", trimmedsummary];' + "\n")
+        mmafile2.write('Quit[]'+ "\n")
+
+    print("preparing to eliminate repeats")
+    time.sleep(1)
+    os.system("source ~/L-pointsBU/LtoL/tmpfile1.m")
 
 if component.filetype_plus in ['ptx_permid', 'xml_permid'] and component.all_permid:
     component.all_permid.sort()

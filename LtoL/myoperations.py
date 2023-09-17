@@ -217,7 +217,7 @@ def mytransform_ldata(text):
       thetext = re.sub('^itemtosave *= *{"R0_R1_R1", *', "", thetext)
       startval, thetext = utilities.first_bracketed_string(thetext)
       thetext = re.sub("^\s*,*", "", thetext)
-      print(thetext[:50])
+#      print(thetext[:50])
 
       if len(startval) > 40:  # startval is actually lamset
           lamset = startval
@@ -225,7 +225,7 @@ def mytransform_ldata(text):
       else:
           lamset, thetext = utilities.first_bracketed_string(thetext)
           thetext = re.sub("^\s*,*", "", thetext)
-          print(thetext[:50])
+#          print(thetext[:50])
 
       func_eq, thetext = utilities.first_bracketed_string(thetext)
       thetext = re.sub("^\s*,*", "", thetext)
@@ -273,7 +273,7 @@ def mytransform_ldata(text):
    #     thesortofweight = re.search(r'^itemtosave *= *{"R[0,1]_C([0-9]+)",', thetext).group(1)
 ###          thesortofweight = re.search(r'^itemtosave *= *{"ckappa_rdelta_([0-9]+)",', thetext).group(1)
           thesortofweight = "unused"
-          print("found thesortofweight", thesortofweight)
+#          print("found thesortofweight", thesortofweight)
    #     thetext = re.sub('^itemtosave *= *{"R[0,1]_C([0-9]+)", *', "", thetext)
 ###          thetext = re.sub('^itemtosave *= *{"R[0,1]_C([0-9]+)[^"]+", *', "", thetext)
           thetext = re.sub('^itemtosave *= *{"[^,]+", *', "", thetext)
@@ -299,14 +299,14 @@ def mytransform_ldata(text):
           startingsearchparameters, othersearchparameters = utilities.first_bracketed_string(searchparameters)
           startingsearchparameters = re.sub("^\s*,*", "", startingsearchparameters)
           othersearchparameters = re.sub("^\s*,*", "", othersearchparameters)
-          print("startingsearchparameters", startingsearchparameters)
-          print("othersearchparameters 0", othersearchparameters)
+#          print("startingsearchparameters", startingsearchparameters)
+#          print("othersearchparameters 0", othersearchparameters)
           othersearchparameters = othersearchparameters[1:-1]  # remove first and last characers, which are { and }
           finalsearchparameters, othersearchparameters = utilities.first_bracketed_string(othersearchparameters)
           othersearchparameters = re.sub("^\s*,*", "", othersearchparameters)
-          print("othersearchparameters 1", othersearchparameters)
+#          print("othersearchparameters 1", othersearchparameters)
           othersearchparameters = re.sub('^[^,]*,', "", othersearchparameters)  # throw away the number of iterations
-          print("othersearchparameters 2", othersearchparameters)
+#          print("othersearchparameters 2", othersearchparameters)
           finalprecision, othersearchparameters = utilities.first_bracketed_string(othersearchparameters)
 
           parameterchanges, thetext = utilities.first_bracketed_string(thetext)
@@ -333,13 +333,13 @@ def mytransform_ldata(text):
         else:
 
           thesortofweight = re.search(r'^itemtosave *= *{"R[0,1]_C([0-9]+)",', thetext).group(1)
-          print("found thesortofweight", thesortofweight)
+#          print("found thesortofweight", thesortofweight)
           thetext = re.sub('^itemtosave *= *{"R[0,1]_C([0-9]+)", *', "", thetext)
 
 
           startval, thetext = utilities.first_bracketed_string(thetext)
           thetext = re.sub("^\s*,*", "", thetext)
-          print(thetext[:50])
+#          print(thetext[:50])
 
           if len(startval) > 40:  # startval is actually lamset
               lamset = startval
@@ -363,7 +363,7 @@ def mytransform_ldata(text):
           thetext = re.sub("^\s*,*", "", thetext)
           coeff_precision, thetext = utilities.first_bracketed_string(thetext)
           thetext = re.sub("^\s*,*", "", thetext)
-          print("lamset", lamset, "coefficients_set", coefficients_set[:20])
+#          print("lamset", lamset, "coefficients_set", coefficients_set[:20])
 
           if not (eig_precision.startswith("{0.0") or eig_precision.startswith("{0``")) and "*^-" not in eig_precision:
       #  if not eig_precision.startswith("{0.0") and "*^-" not in eig_precision:
