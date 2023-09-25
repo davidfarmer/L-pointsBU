@@ -92,13 +92,13 @@ gg[u_,b_,v_]:= (1+v-u)^(b[[1]]) E^(-1*b[[2]] I (v-u) + b[[3]] (v-u)^2)
 gg[gflag_,u_,b_,v_]:=If[gflag==0,gg[b,v],gg[u,b,v]];  (* gflag ==1 is Stefan's g*)
 
 (* Gamma factors in the functional equation: H(s)L(s)=H(1-s)L(1-s) *)
-H[FE_,s_,PRECIS_]:=Block[{lambdaR,lambdaI,kappa,Qa,FACTORQ},
+HOLD[FE_,s_,PRECIS_]:=Block[{lambdaR,lambdaI,kappa,Qa,FACTORQ},
         lambdaR=FE[[1]]; lambdaI=FE[[2]]; kappa=FE[[3]]; QQ=FE[[4]];
         FACTOR=If[Length[FE] < 6, 1, FE[[6]]];
         FACTOR (QQ^s  Product[
         Gam[kappa[[j1]] (s) + lambdaR[[j1]] + I lambdaI[[j1]],PRECIS],{j1,1,Length[kappa]}])];
 
-Lambda[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Block[{QQ,omega,nu,istep,ev,del,LIMS,gs,extrafactor},
+Lambdaold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Block[{QQ,omega,nu,istep,ev,del,LIMS,gs,extrafactor},
         QQ=FE[[4]]; omega=FE[[5]];
         extrafactor = If[Length[FE] < 6, 1, FE[[6]]];
         nu=Ev[[1]];
@@ -114,9 +114,22 @@ Lambda[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Block[{QQ,omega,nu,istep,ev,del,LIMS,gs,ex
             Conjugate[extrafactor] omega QQ^(1-s) *
             Sum[(bb1[n] - I bb2[n])/n^(1-s) f2[FE,b,1-s,n,ev,gflag,PRECIS],{n,1,LIMS}])];
 
-
+H[FE_,s_,PRECIS_] := HOLD[FEnewtoold[FE],s,PRECIS];
+Lambda[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Lambdaold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
 L[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Lold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
 Z[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Zold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
+
+fourpoints[thisL_, fcn_] := Block[{},
+   testcase = thisL;
+   testfe = testcase[[1, 2]] /. {XX[1] -> testcase[[1, 1, 1]], XX[2] -> testcase[[1, 1, 2]]};
+   lhalf = evaluateLfromAp[testfe, fcn, 1/2, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
+   lone = evaluateLfromAp[testfe, fcn, 1, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
+   lambdahalf = evaluateLambdafromAp[testfe, fcn, 1/2, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
+   lambdaone = evaluateLambdafromAp[testfe, fcn, 1, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
+   lamsize = Floor[Log[10, Abs[lambdahalf]]] - 9;
+   N[Chop[{{"L(1/2)", lhalf}, {"L(1)", lone}, {"Lambda(1/2)", lambdahalf}, {"Lambda(1)", lambdaone}}, 10^lamsize], 16]
+   ];
+fourpoints[thisL_] := fourpoints[thisL, {0, 0, 0}];
 
 evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] := 
   Block[{numterms},
@@ -127,9 +140,9 @@ evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
    theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
    rawZ /. theseAnSubs];
 
-Lold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambda[FE,b,s,Ev,gflag,PRECIS]/H[FE,s,PRECIS];
+Lold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FE,b,s,Ev,gflag,PRECIS]/HOLD[FE,s,PRECIS];
 
-Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambda[FE,b,s,Ev,gflag,PRECIS]/Abs[H[FE,s,PRECIS]];
+Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FE,b,s,Ev,gflag,PRECIS]/Abs[HOLD[FE,s,PRECIS]];
 
 Lold[FE_,b_,s_List,Ev_,gflag_,PRECIS_]:=Table[{s[[js]], L[FE,b,s[[js]],Ev,gflag,PRECIS]},{js,1,Length[s]}];
 Zold[FE_,b_,s_List,Ev_,gflag_,PRECIS_]:=Table[{s[[js]], Z[FE,b,s[[js]],Ev,gflag,PRECIS]},{js,1,Length[s]}];
@@ -200,7 +213,7 @@ findSumlim[FE_, b_, s_, Ev_, del_,gflag_,PRECIS_,absflag_] := (* determine how m
                 Returns a pair, where the first element is
                 the number of terms needed *)
   Block[{QQ,HH,thescale}, QQ = FE[[4]];
-   HH = Abs[H[FE, s,PRECIS]];
+   HH = Abs[HOLD[FE, s,PRECIS]];
    GG = Abs[gg[gflag,s, b, s]];
 (*    nu=Ev[[1]];
     istep=stepsizeRM[nu, PRECIS];
