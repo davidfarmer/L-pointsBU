@@ -83,7 +83,7 @@ if len(sys.argv) == 5 and sys.argv[4] == 'R':
 print(component.inputname)
 print(component.outputname)
 
-print("component.current_permid", component.current_permid)
+# print("component.current_permid", component.current_permid)
 junk=[]
 
 if component.filetype_plus not in conversion_options:
@@ -471,7 +471,8 @@ if component.generic_counter:
 if component.extra_macros:
     print("component.extra_macros", component.extra_macros)
 
-print("need to start again at",  component.startagain)
+if component.startagain:
+    print("need to start again at",  component.startagain)
 
 #print "all found values"
 #for j in range(20):

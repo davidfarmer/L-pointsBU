@@ -879,7 +879,7 @@ tossRepeats[lis_] := tossRepeats[lis, 0.01];
 tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
   slis = Sort[lis];
   Print["Initial number of items: ", Length[slis]];
-  counter = 1;
+  counter = 0;
   For[j = 1, j <= Length[slis] - 1, ++j,
    thisitem = slis[[j]];
    nextitem = slis[[j + 1]];
@@ -892,7 +892,7 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
      theyareclose = False
      ]
     ];
-   If[theyareclose,(*Print[N[thisitem],"is close to",N[nextitem]];*)
+   If[theyareclose,Print[N[thisitem],"is close to",N[nextitem]];
     counter += 1;
     If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
      slis = Delete[slis, j],
