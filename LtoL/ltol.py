@@ -30,7 +30,7 @@ conversion_options = ["xml", "ptx_pp", "xml_pp", "ptx_fix", "ptx_transform",
                       "iso",
                       "ptx",
                       "fixptx",
-                      "ldata", 'ldatagood', 'ldataugly',
+                      "ldata", 'ldata_good', 'ldata_ugly',
                       "reprints",
                       "html_ptx",
                       "aimplstructure",
@@ -142,10 +142,10 @@ elif component.filetype_plus in ["svg"]:
 elif component.filetype_plus in ["ldata"]:
     fileextension_in = ""
     fileextension_out = ""
-elif component.filetype_plus in ['ldatagood']:
+elif component.filetype_plus in ['ldata_good']:
     fileextension_in = "good"
     fileextension_out = ""
-elif component.filetype_plus in ['ldataugly']:
+elif component.filetype_plus in ['ldata_ugly']:
     fileextension_in = "ugly"
     fileextension_out = ""
 elif component.filetype_plus in ["ptx_transform"]:
@@ -190,7 +190,7 @@ elif os.path.isdir(component.inputname) and os.path.isdir(component.outputname) 
         thefiles = glob.glob(inputdir + "/*")
 
     for component.inputfilename in thefiles:
-        if component.filetype_plus in ["ldata", 'ldatagood', 'ldataugly']:
+        if component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly']:
             outputfilename = outputdir + "summary" + fileextension_in + ".txt"
         else:
             outputfilename = re.sub(".*/([^/]+)", outputdir + r"\1", component.inputfilename)
@@ -248,7 +248,7 @@ if component.filetype_plus in ['ptx_permid', 'xml_permid']:
     component.current_permid = component.permid_base_number
     print("starting permid:", component.current_permid)
 
-if component.filetype_plus not in ['ldata', 'ldatagood', 'ldataugly']:
+if component.filetype_plus not in ['ldata', 'ldata_good', 'ldata_ugly']:
     print("about to loop over files:", component.iofilepairs)
 
 for inputfile, outputfile in component.iofilepairs:
@@ -268,7 +268,7 @@ for inputfile, outputfile in component.iofilepairs:
     component.inputstub = re.sub(".*/","",component.inputstub)
     component.inputfilename = component.inputstub
     component.inputstub = re.sub("\..*","",component.inputstub)
-    if component.filetype_plus not in ['ldata', 'ldatagood', 'ldataugly']:
+    if component.filetype_plus not in ['ldata', 'ldata_good', 'ldata_ugly']:
         print("file is ",inputfile)
     component.filestubs.append(component.inputstub)
 
@@ -317,7 +317,7 @@ for inputfile, outputfile in component.iofilepairs:
         component.onefile = myoperations.mytransform_ptx_transform(component.onefile)
     elif component.filetype_plus in ['svg']:
         component.onefile = myoperations.mytransform_svg(component.onefile)
-    elif component.filetype_plus in ['ldata', 'ldatagood', 'ldataugly']:
+    elif component.filetype_plus in ['ldata', 'ldata_good', 'ldata_ugly']:
         component.onefile = myoperations.mytransform_ldata(component.onefile)
     elif component.filetype_plus in ['reprints']:
         component.onefile = myoperations.mytransform_reprints(component.onefile)
@@ -420,7 +420,7 @@ for inputfile, outputfile in component.iofilepairs:
         with open(outputfile, 'w') as outfile:
             outfile.write(this_matrix_formatted)
                 
-    elif component.onefile and component.filetype_plus not in ["ldata", 'ldatagood', 'ldataugly']:
+    elif component.onefile and component.filetype_plus not in ["ldata", 'ldata_good', 'ldata_ugly']:
         if component.filetype_plus == "probhtml":
             outputfile = re.sub("/([^/]+)$", "/" + component.aimplid + r"-\1", outputfile)
 
@@ -430,12 +430,12 @@ for inputfile, outputfile in component.iofilepairs:
         with open(outputfile, 'w') as outfile:
             outfile.write(component.onefile)
 
-    elif component.filetype_plus in ["ldata", 'ldatagood', 'ldataugly']:
+    elif component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly']:
         pass
   #      print("the file starts", component.onefile[:150])
 
 component.foundvalues.sort()
-if component.filetype_plus in ["ldata", 'ldatagood', 'ldataugly']:
+if component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly']:
     with open(outputfile, 'w') as outfile:
         outfile.write("summary = {" + "\n")
         for idx, lam1lam2 in enumerate(component.foundvalues):

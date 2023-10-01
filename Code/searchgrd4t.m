@@ -880,11 +880,16 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
   slis = Sort[lis];
   Print["Initial number of items: ", Length[slis]];
   counter = 0;
+  fullcounter = 0;
   For[j = 1, j <= Length[slis] - 1, ++j,
+   fullcounter += 1;
    thisitem = slis[[j]];
    nextitem = slis[[j + 1]];
    (* check if the spectral parameters are close *)
    theyareclose = True;
+   (* first check same funcitonal equation *)
+   If[thisitem[[1, 2]] != nextitem[[1, 2]],
+    theyareclose = False];
    If[Norm[thisitem[[1, 1]] - nextitem[[1, 1]]] > tolerance,
     theyareclose = False];
    For[nn = 1, nn <= 4, ++nn,
@@ -892,7 +897,7 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
      theyareclose = False
      ]
     ];
-   If[theyareclose,Print[N[thisitem],"is close to",N[nextitem]];
+   If[theyareclose,Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];
     counter += 1;
     If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
      slis = Delete[slis, j],
