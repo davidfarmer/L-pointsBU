@@ -175,7 +175,8 @@ testandsave[initguessIN_ (* the initial guess *),
     ];
     Print["Round ",myct," done, stareps: ", starepsX];
     Print[relativeerror, "   ",relativeerror0,"   "];
-    Print["RESULTS SO FAR: ", tmpY];
+ (*   Print["RESULTS SO FAR: ", tmpY];  *)
+    Print["RESULTS SO FAR: ", Take[tmpY,5]];
     ++myct;
     If[hasbeenfound[tmpY[[1]],0.01],
         Print["Has already found ",tmpY[[1]] ]; Return[]
