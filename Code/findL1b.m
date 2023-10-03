@@ -121,7 +121,11 @@ Z[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Zold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS
 
 fourpoints[thisL_, fcn_] := Block[{},
    testcase = thisL;
-   testfe = testcase[[1, 2]] /. {XX[1] -> testcase[[1, 1, 1]], XX[2] -> testcase[[1, 1, 2]]};
+   If[Length[testcase[[1,1]]]==2,
+      testfe = testcase[[1, 2]] /. {XX[1] -> testcase[[1, 1, 1]], XX[2] -> testcase[[1, 1, 2]]},
+      If[Length[testcase[[1,1]]]==3,
+         testfe = testcase[[1, 2]] /. {XX[1] -> testcase[[1, 1, 1]], XX[2] -> testcase[[1, 1, 2]], XX[3] -> testcase[[1, 1, 3]]}]
+   ];
    lhalf = evaluateLfromAp[testfe, fcn, 1/2, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
    lone = evaluateLfromAp[testfe, fcn, 1, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
    lambdahalf = evaluateLambdafromAp[testfe, fcn, 1/2, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
