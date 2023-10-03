@@ -152,8 +152,12 @@ ToDo:	bad degree 3 case
 7f:     Make scalelist much longer and more expansive at the end.
         Have findsolone, but hard code the number of times it tries.
 
+        Add functions for evaluating the Z-function:
+        fefromdata, evaluateZfromAp, evaluateZfromApEXTRA, quickZ, quickZEXTRA, boundtailsimple
+
 In next version:  adjust secant method to use a smaller perturbation when the coefficiient
                   is already known with some accuracy (line 1171)
+                  consider removing a_32 as an unknown
 
 ********************)
 
@@ -1389,4 +1393,46 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
     ];  (*for *)
 Flatten[ans]
 ];
+
+fefromdata[dat_] := Block[{j},
+   dat[[1, 2]]/.Table[XX[j] -> dat[[1, 1, j]], {j, 1, Length[dat[[1, 1]]]}]
+(*
+   If[Length[dat[[1,1]]] == 2,
+      (dat[[1, 2]] /. {XX[1] -> dat[[1, 1, 1]], XX[2] -> dat[[1, 1, 2]]}),
+      (dat[[1, 2]] /. {XX[1] -> dat[[1, 1, 1]], XX[2] -> dat[[1, 1, 2]], XX[3] -> dat[[1, 1, 3]]})]
+*)
+];
+
+evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] := Block[{numterms},
+   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
+    numterms = NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms};
+   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawZ /. theseAnSubs];
+
+evaluateZfromApEXTRA[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_, extra_] := Block[{numterms},
+   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
+    numterms = NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms + extra};
+   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawZ /. theseAnSubs];
+
+quickZ[ell_, b_, t_] := 
+  evaluateZfromAp[fefromdata[ell], b, 1/2 + t I, {2, 0}, 1, 40, 
+   ell[[1, 3]], ell[[1, 4]]];
+
+quickZEXTRA[ell_, b_, t_, extra_] := Block[{},
+  Expand[evaluateZfromApEXTRA[fefromdata[ell], b, 1/2 + t I, {2, 0}, 
+    0, 40, ell[[1, 3]], ell[[1, 4]], extra]]];
+
+boundtailsimple[obj_, lim_, deg_] := Block[{theerr},
+  theerr = 0;
+  For[j = 1, j <= lim, ++j, 
+   theerr += 
+    deg (Abs[Coefficient[obj, bb1[j]]] + Abs[Coefficient[obj, bb2[j]]])
+   ];
+  theerr
+  ];
 
