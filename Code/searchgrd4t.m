@@ -340,6 +340,8 @@ thestarpts[3] = {{0,0,0},{1, -1, -1/2}, {-1, 1, -1/2}, {-1, -1, 1/2}, {1, 1, 1/2
 *)
 thestarpts[3] = {{9/10, -21/20, -31/30}, {-11/10, 19/20, -31/30}, {-11/10, -21/20, 29/30}, {9/10, 19/20, 29/30}};
 
+thestarpts[4] = {{9/10, -21/20, -31/30,-41/40}, {-11/10, 19/20, -31/30,-42/41}, {-11/10, -21/20, 29/30, -16/15}, {-13/12, -14/13,-20/10, 12/13}, {9/10, 19/20, 29/30, 26/25}};
+
 findstartingvalues[initguessIN_ (* the initial guess *),
 	starepsIN_ (* how far to move the starpts *),
 	numtermsIN_ (* number of terms or truncation error *),
