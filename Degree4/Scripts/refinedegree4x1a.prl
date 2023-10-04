@@ -378,13 +378,13 @@ mygandslistD1g = {
 
 startlis = { {1, 1, 1, 1, 1, 1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1, -1, -1, -1, -1, -1, -1,1,1,1,1,1,1,1,1,1,1,1,1}, {1, -1, 1, -1, 1, -1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1, 1, -1, 1, -1, 1, -1,1,1,1,1,1,1,1,1,1,1,1,1} };
 
-Print["refining between", {$startindex, $endindex}];
-
 boxsizeIN = 1/1000
 
 truncationerrorIN = 1/1000000
 
 thislist =  $listname;
+
+Print["refining ", {$startindex, $endindex}, " out of ", Length[thislist]];
 
 For[ij=$startindex, ij <= $endindex, ++ij,
 

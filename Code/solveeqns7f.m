@@ -154,6 +154,7 @@ ToDo:	bad degree 3 case
 
         Add functions for evaluating the Z-function:
         fefromdata, evaluateZfromAp, evaluateZfromApEXTRA, quickZ, quickZEXTRA, boundtailsimple
+        (TODO:  fix quickZ and quickZEXTRA so that precision is from input (currently 40))
 
 In next version:  adjust secant method to use a smaller perturbation when the coefficiient
                   is already known with some accuracy (line 1171)

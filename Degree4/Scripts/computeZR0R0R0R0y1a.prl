@@ -88,7 +88,7 @@ zvalsanderror[ind_, srclis_, llim_, ulim_] := Block[{},
    thislistofvalues = {};
    basebetadata = 
     Table[{jq, findreasonablebeta[srclis[[ind]], jq, ind]}, {jq, llim,
-       ulim, 10}];
+       ulim, 5}];
    Print["beta error data ", basebetadata];
    goodbetadata = 
     Table[{basebetadata[[j, 1]], basebetadata[[j, 2, 1]]}, {j, 1, 
