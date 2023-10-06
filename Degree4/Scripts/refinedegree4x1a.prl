@@ -40,9 +40,7 @@ Print["input 3"];
 << ~/L-pointsBU/Code/solveeqns7f.m;
 
 Print["input 4"];
-(*
-<< ~/L-pointsBU/Degree4/Scripts/degree4conductor1r0r0r0r0.txt;
-*)
+
 << $inputfile;
 
 versionnumber = "L1b_searchgrd4t_solveeqns7f"
@@ -61,9 +59,6 @@ EPSL4Zsd = {{-4, {1}}, {{}, {}}}
 
 EPSL4Z = {{4, {1}}, {{}, {}}}
 
-(*
-mydatadir = "~/L-pointsBU/Degree4/Data/R0R0R0R0/Refine1b";
-*)
 mydatadir = "$outputdirectory";
 
 FEGL3twodim[0, 0, 0] := {
@@ -388,7 +383,7 @@ Print["refining ", {$startindex, $endindex}, " out of ", Length[thislist]];
 
 For[ij=$startindex, ij <= $endindex, ++ij,
 
-  thislabel = "refdegree3_";
+  thislabel = "refdegree4_";
 
   If[ij < 1000, thislabel = thislabel <> "0"];
   If[ij < 100, thislabel = thislabel <> "0"];
