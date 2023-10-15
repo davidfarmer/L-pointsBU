@@ -373,7 +373,7 @@ findstartingvalues[initguessIN_ (* the initial guess *),
 *)
     FE = (FE/.Table[XX[j]->initguess[[j]],{j,1,Length[initguess]}]);
 
-    lev=FE[[-2]];
+    lev=FE[[3]];
     nu=EvIN[[1]];
     istep=stepsizeRM[nu, PRECIS];
     ev={nu,istep};
@@ -505,7 +505,7 @@ searchonce[initguessIN_ (* the initial guess *),
 *)
     FE = (FE/.Table[XX[j]->initguess[[j]],{j,1,Length[initguess]}]);
 
-    lev=FE[[-2]];
+    lev=FE[[3]];
     nu=EvIN[[1]];
     istep=stepsizeRM[nu, PRECIS];
     ev={nu,istep};
@@ -874,6 +874,15 @@ If[Length[EP] > 2,
        Print["Error:  unimplemented bad factor"]
     ]
 ];
+  If[Length[EP[[2,1]]] == 1,
+    thebadprime = EP[[2,1,1]];
+    If[EP[[2,2,1]] != EP[[1,1]]-1,
+       Print["Error: only prime level case implemented"],
+       (* so bb1[p] and bb2[p] are not unknowns, but theta and phi are *)
+       neweqns = {bb1[thebadprime] - (Cos[theta]+Cos[phi]/Sqrt[thebadprime]), bb2[thebadprime] - (Sin[theta]+Sin[phi]/Sqrt[thebadprime])}
+    ]
+  ];
+Print["made findbadfactoreqns",neweqns, "from", {EP[[2,1,1]],EP[[2,2,1]],EP[[1,1]]-1}];
 neweqns
 ];
 

@@ -1065,6 +1065,14 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
         ]  (* if which prime case *)
      ]  (* if we are at a prime power *)
     ];  (*for *)
+  If[Length[ep[[2,1]]] == 1,
+    thebadprime = ep[[2,1,1]];
+    If[ep[[2,2,1]] != ep[[1,1]]-1,
+       Print["Error: only prime level case implemented"],
+       (* so bb1[p] and bb2[p] are not unknowns, but theta and phi are *)
+       ans = ans/.{bb1[p]->theta, bb2[p]->phi}
+    ]
+  ];
 Flatten[ans]
 ];
 
