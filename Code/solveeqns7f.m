@@ -600,6 +600,17 @@ realize500R[xxlis_] :=  (* Warning:  assumes fewer than 500 coefficients *)
      , {k1, 1,
     Length[xxlis]}]];
 
+realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
+  Block[{j}, Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
+    realscalefactor = (Coefficient[xx, bb1[1]] /. 
+       Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
+    realscalefactor = realscalefactor /. phi -> 3/4;
+    If[realscalefactor == 0,(*Print["zero for realscalefactor"];*)
+     realscalefactor = 1];
+    yy = Expand[xx/realscalefactor];
+    Simplify[ComplexExpand[Re[yy]], 
+     Flatten[{{theta \[Element] Reals, phi \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]], {k1, 1, Length[xxlis]}]
+];
 
 killunknownsGE[lim_]:=Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,lim,2 lim+50}]];
 

@@ -450,6 +450,8 @@ Print["testing ",starN,", :",thept];
 
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
 
+tmpeqsolv = eqsolv[starN];
+
   (* should the badfactorsubstitutions be called from converteqnsALL? *)
         If[Length[badfactorsubstitutions]>0,
             Print["adding badfactorsubstitutions", badfactorsubstitutions];
