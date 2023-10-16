@@ -399,7 +399,10 @@ and the same for the detectors.  We use 8 detectors.
 
     degree2eqns= finddegree2eqns[EP,unknowns];
 
+(*
     badfactoreqns = findbadfactoreqns[EP];
+*)
+    badfactorsubstitutions = findbadfactorsubstitutions[EP];
 
     (* the following was the wrong way to do it, because it accidentally
     decreased the number of detectors *)
@@ -445,12 +448,13 @@ Print["testing ",starN,", :",thept];
             eq[starN] = Flatten[{degree2eqns,eq[starN]}];
         ];
 
-        If[Length[badfactoreqns]>0 && Not[debugging1],
-            Print["adding badfactoreqns", badfactoreqns];
-            eq[starN] = Flatten[{badfactoreqns,eq[starN]}];
-        ];
-
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
+
+  (* should the badfactorsubstitutions be called from converteqnsALL? *)
+        If[Length[badfactorsubstitutions]>0,
+            Print["adding badfactorsubstitutions", badfactorsubstitutions];
+            eqsolv[starN] = Expand[eqsolv[starN]/.badfactorsubstitutions];
+        ];
 
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
@@ -531,7 +535,10 @@ and the same for the detectors.  We use 8 detectors.
 
     degree2eqns= finddegree2eqns[EP,unknowns];
 
+(*
     badfactoreqns = findbadfactoreqns[EP];
+*)
+    badfactorsubstitutions = findbadfactorsubstitutions[EP];
 
     (* the following was the wrong way to do it, because it accidentally
     decreased the number of detectors *)
@@ -583,17 +590,17 @@ Print["is", InputForm[eq[starN]]];
             eq[starN] = Flatten[{degree2eqns,eq[starN]}];
         ];
 
-        If[Length[badfactoreqns]>0 && Not[debugging1],
-            Print["adding badfactoreqns", badfactoreqns];
-            eq[starN] = Flatten[{badfactoreqns,eq[starN]}];
-        ];
-
- (*       Print["checking on badfactoreqns", N[eq[starN]]]; *)
-
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
 
+        If[Length[badfactorsubstitutions]>0,
+            Print["adding badfactorsubstitutions", badfactorsubstitutions];
+            eqsolv[starN] = Expand[eqsolv[starN]/.badfactorsubstitutions];
+        ];
+
+ (*       Print["checking on badfactorsubstitutions", N[eq[starN]]]; *)
+
 (*
-        Print["rechecking on badfactoreqns", N[eqsolv[starN]]];
+        Print["rechecking on badfactorsubstitutions", N[eqsolv[starN]]];
 *)
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
     (*    ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,0.001,{4,0.1}];  *)
@@ -620,6 +627,11 @@ Print[ans[starN]]
 
         detecteq[starN]=makeequationsNEW[FEin, thept, detectg, detects, Ev,gflag,DETECTPRECIS];
         detecteq[starN]=converteqnsALL[EP, detecteq[starN],numterms,1];
+
+        If[Length[badfactorsubstitutions]>0,
+            Print["adding badfactorsubstitutions", badfactorsubstitutions];
+            detecteq[starN] = Expand[detecteq[starN]/.badfactorsubstitutions];
+        ];
 
         (* we want to use the value we just found as the starting value
            for the next point *)
@@ -885,6 +897,34 @@ If[Length[EP] > 2,
 Print["made findbadfactoreqns",neweqns, "from", {EP[[2,1,1]],EP[[2,2,1]],EP[[1,1]]-1}];
 neweqns
 ];
+
+findbadfactorsubstitutions[EP_]:= Block[{neweqns,thisp},
+neweqns = {};
+If[Length[EP] > 2 && False,
+    If[EP[[3,1]] == 3 && EP[[3,3]] == "IVa",
+       thisp = EP[[3,2]];
+       AppendTo[neweqns, bb1[thisp]^2 + bb2[thisp]^2 - bb1[1]],
+       If[EP[[1,1]] == 3 && EP[[3,3]] == "IIIa",
+         thisp = EP[[2,1,1]];
+         Print["assigning specific value to a sub", thisp];
+         Print["the values are", EP[[3,1]], "plus I times", EP[[3,2]]];
+         AppendTo[neweqns, bb1[thisp] -  bb1[1]] EP[[3,1]];
+         AppendTo[neweqns, bb2[thisp] - bb1[1] EP[[3,2]]]],
+       Print["Error:  unimplemented bad factor"]
+    ]
+];
+  If[Length[EP[[2,1]]] == 1,
+    thebadprime = EP[[2,1,1]];
+    If[EP[[2,2,1]] != EP[[1,1]]-1,
+       Print["Error: only prime level case implemented"],
+       (* so bb1[p] and bb2[p] are not unknowns, but theta and phi are *)
+       neweqns = {bb1[thebadprime] -> (Cos[theta]+Cos[phi]/Sqrt[thebadprime]), bb2[thebadprime] -> (Sin[theta]+Sin[phi]/Sqrt[thebadprime])}
+    ]
+  ];
+Print["made findbadfactorsubstitutions",neweqns, "from", {EP[[2,1,1]],EP[[2,2,1]],EP[[1,1]]-1}];
+neweqns
+];
+
 
 tossRepeats[lis_] := tossRepeats[lis, 0.01];
 
