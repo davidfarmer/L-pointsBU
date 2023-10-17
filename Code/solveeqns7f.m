@@ -607,6 +607,7 @@ realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
     realscalefactor = realscalefactor /. phi -> 3/4;
     If[realscalefactor == 0,(*Print["zero for realscalefactor"];*)
      realscalefactor = 1];
+    Print["realscalefactor: ", realscalefactor];
     yy = Expand[xx/realscalefactor];
     Simplify[ComplexExpand[Re[yy]], 
      Flatten[{{theta \[Element] Reals, phi \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]], {k1, 1, Length[xxlis]}]
