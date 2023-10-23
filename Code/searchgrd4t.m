@@ -924,8 +924,8 @@ If[Length[EP] > 2 && False,
        AppendTo[neweqns, bb1[thebadprime^2] -> (1/(2 thebadprime))(Cos[2 phi] + Cos[2 phi] + 2 Sqrt[thebadprime] Cos[phi] Cos[theta] + 2 thebadprime Cos[theta]^2 - 2 Sqrt[thebadprime] Sin[phi] Sin[theta] - 2 thebadprime Sin[theta]^2)];
        AppendTo[neweqns, bb2[thebadprime^2] -> (Cos[theta] Sin[phi])/Sqrt[thebadprime] + (Cos[phi] (2 Sin[phi] + Sqrt[thebadprime] Sin[theta]))/thebadprime + Sin[2 theta]];
     ]
-  ];
 Print["made findbadfactorsubstitutions",neweqns, "from", {EP[[2,1,1]],EP[[2,2,1]],EP[[1,1]]-1}];
+  ];
 neweqns
 ];
 
