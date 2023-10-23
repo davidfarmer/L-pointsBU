@@ -665,7 +665,7 @@ Print[ans[starN]]
 printflag=0;
 
 
-Ndigits[x_,n_]:=Floor[x]+N[1+x-Floor[x],n+1]-1;
+Ndigits[x_,n_]:=If[NumberQ[x],Floor[x]+N[1+x-Floor[x],n+1]-1,Print["Error in Ndigits"]; 1234];;
 
 matchpair[xIN_,yIN_]:=Block[{len,diff,diffexp,diffpower},
 len=Min[Length[xIN],Length[yIN]];
@@ -920,7 +920,9 @@ If[Length[EP] > 2 && False,
     If[EP[[2,2,1]] != EP[[1,1]]-1,
        Print["Error: only prime level case implemented"],
        (* so bb1[p] and bb2[p] are not unknowns, but theta and phi are *)
-       neweqns = {bb1[thebadprime] -> (Cos[theta]+Cos[phi]/Sqrt[thebadprime]), bb2[thebadprime] -> (Sin[theta]+Sin[phi]/Sqrt[thebadprime])}
+       neweqns = {bb1[thebadprime] -> (Cos[theta]+Cos[phi]/Sqrt[thebadprime]), bb2[thebadprime] -> (Sin[theta]+Sin[phi]/Sqrt[thebadprime])};
+       AppendTo[neweqns, bb1[thebadprime^2] -> (1/(2 thebadprime))(Cos[2 phi] + Cos[2 phi] + 2 Sqrt[thebadprime] Cos[phi] Cos[theta] + 2 thebadprime Cos[theta]^2 - 2 Sqrt[thebadprime] Sin[phi] Sin[theta] - 2 thebadprime Sin[theta]^2)];
+       AppendTo[neweqns, bb2[thebadprime^2] -> (Cos[theta] Sin[phi])/Sqrt[thebadprime] + (Cos[phi] (2 Sin[phi] + Sqrt[thebadprime] Sin[theta]))/thebadprime + Sin[2 theta]];
     ]
   ];
 Print["made findbadfactorsubstitutions",neweqns, "from", {EP[[2,1,1]],EP[[2,2,1]],EP[[1,1]]-1}];
