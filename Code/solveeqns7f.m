@@ -607,7 +607,6 @@ realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
     realscalefactor = realscalefactor /. phi -> 3/4;
     If[realscalefactor == 0,(*Print["zero for realscalefactor"];*)
      realscalefactor = 1];
-    Print["realscalefactor: ", realscalefactor];
     yy = Expand[xx/realscalefactor];
     Simplify[ComplexExpand[Re[yy]], 
      Flatten[{{theta \[Element] Reals, phi \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]], {k1, 1, Length[xxlis]}]
@@ -1077,7 +1076,6 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
         ]  (* if which prime case *)
      ]  (* if we are at a prime power *)
     ];  (*for *)
-Print["unknowns before bad sign",ans];
   If[Length[ep[[2,1]]] == 1,
     thebadprime = ep[[2,1,1]];
     If[ep[[2,2,1]] != ep[[1,1]]-1,
@@ -1086,7 +1084,6 @@ Print["unknowns before bad sign",ans];
        ans = ans/.{bb1[thebadprime]->theta, bb2[thebadprime]->phi}
     ]
   ];
-Print["unknowns after bad sign",ans];
 Flatten[ans]
 ];
 
