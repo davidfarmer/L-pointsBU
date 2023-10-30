@@ -46,7 +46,7 @@
 
 4s: altered findstartingvalues, testandsave, and searchonce to use new FE notation.
     deleted many unused functions.
-    lowered lowest zoom factor from 1/100 to 1/200
+    lowered lowest zoom factor from 1/100 to 1/500
     rounded new starepsX to (2 digits)/100...001  at each step
     changed filenameX to filename.x for X = GOOD, BAD, UGLY
 
@@ -140,7 +140,7 @@ testandsave[initguessIN_ (* the initial guess *),
 (*
     relativeerror0=10^(-1*Max[0,Floor[Log[10,1/relativeerror]]]);
 *)
-    relativeerror0 = Min[1, Ceiling[200 relativeerror]/200];
+    relativeerror0 = Min[1, Ceiling[500 relativeerror]/500];
 
     starepsX = starepsX*relativeerror0;
     numtermsX = numtermsX*relativeerror0;

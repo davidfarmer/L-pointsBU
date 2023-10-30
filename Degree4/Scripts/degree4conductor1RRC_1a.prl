@@ -58,7 +58,7 @@ EPSL4Z = {{4, {1}}, {{}, {}}}
 
 EPSL5Z = {{5, {1}}, {{}, {}}}
 
-mydatadir = "~/L-pointsBU/Degree4/Data/CRR/Search1";
+mydatadir = "~/L-pointsBU/Degree4/Data/CRR/Search2";
 
 FEGL3twodim[0, 0, 0] := {
     {0, 0, 0}, {XX[1], XX[2], -XX[1] - XX[2]}, {1/2, 1/2, 1/2}, 1/ (Pi^(3/2)), 1}
@@ -100,7 +100,7 @@ FEGL4CkRdRdSelfdual[1, kappa_] := {{1/2, 1/2, kappa/2, (kappa + 1)/2}, {-XX[1], 
 FEGL4["r0r0r0r0"] := {{ {0,XX[1]}, {0,XX[2]}, {0,XX[3]}, {0,-XX[1]-XX[2]-XX[3]}}, {}, 1, 1};
 FEGL4["r0r0r1r1"] := {{ {0,XX[1]}, {0,XX[2]}, {1,XX[3]}, {1,-XX[1]-XX[2]-XX[3]}}, {}, 1, -1};
 
-FEGL4["CRR", del1_, del2_, kap_] := {{ {del1,XX[1]}, {del2,XX[2]} }, {{kap,(XX[1]+XX[2])(-1/2)}}, 1, I^(del2 + del2 + 2 kap + 1)};
+FEGL4["CRR", del1_, del2_, kap_] := {{ {del1,XX[1]}, {del2,XX[2]} }, {{kap,(XX[1]+XX[2])(-1/2)}}, 1, I^(del1 + del2 + 2 kap + 1)};
 
 FEGL5[] := {{ {0,XX[1]}, {0,XX[2]}, {0,XX[3]}, {0,XX[4]}, {0,-XX[1]-XX[2]-XX[3]-XX[4]}}, {}, 1, 1};
 
@@ -521,7 +521,7 @@ Print["searching near", {$lam1, $lamstart}];
 
 delta1 = 0;
 delta2 = 0;
-kappa = 9/2;
+kappa = 3/2;
 
 thislabel = "CRR_" <> ToString[delta1] <> ToString[delta2] <> "_" <> ToString[2 kappa] <> "_" <> ToString[$lam1] <> "x" <> ToString[$lamstart] <>  "_x1a";
 
@@ -567,7 +567,7 @@ header
 
 print OUTbatchFILE <<batch;
 #!/bin/bash
-#SBATCH -p medium # partition (queue)
+#SBATCH -p short # partition (queue)
 #SBATCH -N 1 # (leave at 1 unless using multi-node specific code)
 #SBATCH -n 1 # number of cores
 #SBATCH --mem-per-cpu=8192 # memory per core

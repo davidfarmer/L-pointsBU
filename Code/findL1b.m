@@ -133,7 +133,7 @@ fourpoints[thisL_, fcn_] := Block[{},
    lone = evaluateLfromAp[testfe, fcn, 1, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
    lambdahalf = evaluateLambdafromAp[testfe, fcn, 1/2, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
    lambdaone = evaluateLambdafromAp[testfe, fcn, 1, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
-   lamsize = Floor[Log[10, Abs[lambdahalf]]] - 9;
+   lamsize = Floor[Log[10, Abs[10^(-20) + lambdahalf]]] - 9;
    N[Chop[{{"L(1/2)", lhalf}, {"L(1)", lone}, {"Lambda(1/2)", lambdahalf}, {"Lambda(1)", lambdaone}}, 10^lamsize], 16]
    ];
 fourpoints[thisL_] := fourpoints[thisL, {0, 0, 0}];
