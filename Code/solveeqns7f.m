@@ -1077,7 +1077,7 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
      ]  (* if we are at a prime power *)
     ];  (*for *)
 ans = Flatten[ans];
-  If[Length[ep[[2,1]]] == 1,
+  If[ep[[1,1]]==3 && Length[ep[[2,1]]] == 1,
     thebadprime = ep[[2,1,1]];
     If[ep[[2,2,1]] != ep[[1,1]]-1,
        Print["Error: only prime level case implemented"],
@@ -1087,6 +1087,15 @@ ans = Flatten[ans];
 (* did not work
        ans = DeleteCases[ans, (# == bb1[thebadprime^2] || # == bb2[thebadprime^2]) &];
 *)
+    ]
+  ];
+  If[ep[[1,1]]==2 && Length[ep[[2,1]]] == 1,
+    thebadprime = ep[[2,1,1]];
+    If[ep[[2,2,1]] != ep[[1,1]]-1,
+       Print["Error: only prime level case implemented"],
+       (* so bb1[p] and bb2[p] are not unknowns, but theta and phi are *)
+       ans = ans/.{bb1[thebadprime]->theta};
+       ans = DeleteElement[ans,{bb2[thebadprime]}];
     ]
   ];
 ans
