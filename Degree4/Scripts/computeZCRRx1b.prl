@@ -112,7 +112,7 @@ zvalsanderror[ind_, srclis_, llim_, ulim_] := Block[{},
 
 Print["starting loop"];
 
-thissourcelist = CRRgoodOct25;
+thissourcelist = R0R0C3partial;
 
 For[ij=$startindex, ij <= $endindex, ++ij,
 
