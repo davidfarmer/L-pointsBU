@@ -974,4 +974,109 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
   Print["Trimmed list length: ", Length[slis]];
   slis];
 
+(*   for finding zeros and zero index after values have been computed  *)
+
+tossRepeatsSimple[lis_, eps_] := Block[{slis},
+  slis = Sort[lis];
+  For[j = 1, j <= Length[slis] - 1, ++j,
+   If[slis[[j + 1]] - slis[[j]] < eps,
+    slis = Delete[slis, j];
+    j -= 1]];
+  slis]
+
+trimList[lis_, lowerbound_, upperbound_] := 
+ Cases[lis, s_ /; lowerbound < s < upperbound]
+
+findallzeros[vallist_] := Block[{x(*,a,b,c,d*)},
+  thisfunction = Interpolation[vallist];
+  allroots = {};
+  (* first find crossings *)
+  For[j = 1, j <= Length[vallist] - 1, ++j,
+   If[vallist[[j, 2]] vallist[[j + 1, 2]] <= 0,
+    midpt = (vallist[[j, 1]] + vallist[[j + 1, 1]])/2;
+    thisroot = x /. FindRoot[thisfunction[x], {x, midpt}];
+    AppendTo[allroots, thisroot]
+    ]
+   ];
+  For[j = 1, j <= Length[vallist] - 3, ++j,
+   a = vallist[[j, 2]]; b = vallist[[j + 1, 2]]; 
+   c = vallist[[j + 2, 2]]; d = vallist[[j + 3, 2]];
+   If[((a - b) *(c - d) < 0 )(* local amx or min *)
+     && ( Sign[a] == Sign[b] == Sign[c] == Sign[d])
+     && ( a (b - a) < 0),
+    thisroot = 
+     x /. FindRoot[thisfunction[x], {x, vallist[[j + 1, 1]]}];
+    AppendTo[allroots, thisroot];
+    thisroot = 
+     x /. FindRoot[thisfunction[x], {x, vallist[[j + 2, 1]]}];
+    AppendTo[allroots, thisroot];
+    ]
+   ];
+  allroots = trimList[allroots, vallist[[1, 1]], vallist[[-1, 1]]];
+  checkedroots = {};
+  For[j = 1, j <= Length[allroots], ++j,
+   If[Abs[thisfunction[allroots[[j]]]] < 0.0001, 
+    AppendTo[checkedroots, allroots[[j]]]]
+   ];
+  checkedroots = tossRepeatsSimple[checkedroots, 0.00001];
+  checkedroots
+  ]
+
+addzerodatatoZ[elem_] := Block[{i, j},
+  thisitem = elem;
+  thisfedata = thisitem[[1]];
+  (*
+  If[Abs[thisfedata[[1,1,2]]]<10^-8,Print["setting ", thisfedata[[1,1,
+  2]], " to 0"];
+  thisfedata[[1,1,2]]=0];
+  *);
+  thiseigs = thisfedata[[1, 1]];
+  thisparamR = thisfedata[[1, 2, 1]];
+  thisparamC = thisfedata[[1, 2, 2]];
+  If[Length[thiseigs] == 1,
+   thistrivzeroheights = Sort[{-thiseigs[[1]], thiseigs[[1]]}]
+   ];
+  If[Length[thiseigs] == 2 && Length[thisparamC] == 0,
+   thistrivzeroheights = 
+    Sort[{-thiseigs[[1]], -thiseigs[[2]], 
+      thiseigs[[1]] + thiseigs[[2]]}]
+   ];
+  If[Length[thiseigs] == 2 && Length[thisparamC] == 1,
+   thistrivzeroheights = 
+    Sort[{-thiseigs[[1]], -thiseigs[[
+        2]], (thiseigs[[1]] + thiseigs[[2]])/2}]
+   ];
+  If[Length[thiseigs] == 3,
+   thistrivzeroheights = 
+    Sort[{-thiseigs[[1]], -thiseigs[[2]], -thiseigs[[3]], 
+      thiseigs[[1]] + thiseigs[[2]] + thiseigs[[3]]}]
+   ];
+  thisvaluedata = thisitem[[2, 1]];
+  thisvaluedata = 
+   Table[{thisvaluedata[[i, 1]], N[thisvaluedata[[i, 2]]]}, {i, 1, 
+     Length[thisvaluedata]}];
+  thisprecisiondata = thisitem[[2, 2]];
+  thisprecisiondata = 
+   Table[{thisprecisiondata[[i, 1]], {thisprecisiondata[[i, 2, 1]], 
+      N[thisprecisiondata[[i, 2, 2]]]}}, {i, 1, 
+     Length[thisprecisiondata]}];
+  jt = 1; While[thisprecisiondata[[jt, 2, 2]] > 0.1, ++jt];
+  thislowerlim = thisprecisiondata[[jt, 1]];
+  jt = -1; While[thisprecisiondata[[jt, 2, 2]] > 0.1, --jt];
+  thisupperlim = thisprecisiondata[[jt, 1]];
+  thisvaluedata = 
+   Select[thisvaluedata, thislowerlim <= #[[1]] <= thisupperlim &];
+  thesezeros = findallzeros[thisvaluedata];
+  thiszerosig = 
+   Table[Length[
+     Select[thesezeros, 
+      thistrivzeroheights[[j]] < # < 
+        thistrivzeroheights[[j + 1]] &]],
+    {j, 1, Length[thistrivzeroheights] - 1}];
+  thisspecialvalues = thisitem[[3]];
+  theanswer = {thisfedata, {thisvaluedata, 
+     thisprecisiondata}, {thesezeros, thiszerosig}, thisspecialvalues};
+  theanswer
+  ]
+
 
