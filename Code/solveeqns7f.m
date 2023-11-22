@@ -1053,7 +1053,7 @@ Flatten[ans]
 ];
 	
 
-theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponent},
+UNKNOWNSIGNtheunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponent},
         ans={};
         deg=ep[[1,1]];  (* degree of the good local factors *)
         absdeg=Abs[deg];  (* degree could be negative, to indicate real coefficients  *)
