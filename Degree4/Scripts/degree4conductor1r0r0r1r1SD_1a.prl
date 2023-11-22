@@ -6,9 +6,9 @@
 #
 #######################
 
-if($#ARGV != 3){  # 4
+if($#ARGV != 4){  # 3
      die "\nThis program searches at {lam1, lamstart}, {lam1, lamstart + 1/step}, ..., {lam1, lamstart + (numsteps-1)/step}  \n",
-            "The syntax is:  \n\t  degree4conductor1r0r0r1r1SD_1a.prl lam1 lamstart step numsteps\n\n",$#ARGV
+            "The syntax is:  \n\t  degree4conductor1r0r0r1r1SD_1a.prl lam1 lamstart step numsteps outputdir\n\n",$#ARGV
 } # ARGV if
 
 my ($lam1, $lamstart) = ($ARGV[0],$ARGV[1]);
@@ -16,6 +16,7 @@ $lam1 =~ s/n/-/;
 $lamstart =~ s/n/-/;
 
 my ($recipstep, $numsteps) = ($ARGV[2],$ARGV[3]);
+my $outputdir = $ARGV[4];
 
 # my $username = "farmer";
 my $username = `whoami`;
@@ -58,7 +59,10 @@ EPSL4Z = {{4, {1}}, {{}, {}}}
 
 EPSL5Z = {{5, {1}}, {{}, {}}}
 
+(*
 mydatadir = "~/L-pointsBU/Degree4/Data/R0R0R1R1/Search1";
+*)
+mydatadir = "$outputdir";
 
 FEGL3twodim[0, 0, 0] := {
     {0, 0, 0}, {XX[1], XX[2], -XX[1] - XX[2]}, {1/2, 1/2, 1/2}, 1/ (Pi^(3/2)), 1}
