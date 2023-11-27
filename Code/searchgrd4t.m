@@ -968,7 +968,8 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
     If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
      slis = Delete[slis, j],
      slis = Delete[slis, j + 1]];
-    j -= 1
+    j -= 1,
+     slis = Delete[slis, j]
     ];
    ];
   Print["Omitted ", counter, " duplicates"];
