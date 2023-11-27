@@ -94,7 +94,8 @@ testandsave[initguessIN_ (* the initial guess *),
      tmpY (which will immediately be set to prevtmpY).  It does not have the
      correct length, but all that are needed are the 1st and 5th entries,
      which are the spectral parameters and the coefficients, respectively. *)
-  tmpY = {initguessIN, "unused", "unused", "unused", coeffstartIN};
+  tmpY = {initguessIN, "unknown", 1, {starepsIN, numtermsIN, PRECISIN}, coeffstartIN};
+  prevtmpY = tmpY;
 
   wanderlimit = 1/2;  (* prevent poking from going too far *)
 
