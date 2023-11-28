@@ -1,0 +1,213 @@
+#!/usr/bin/perl -w
+
+######################
+#
+#  Z values for Ck1Ck2
+#
+#######################
+
+if($#ARGV != 4){  # 4
+     die "\n  \n",
+            "The syntax is:  \n\t  computeZCk1Ck2x1b.prl path_to_list listname startindex endindex path_to_outputdir\n\n",$#ARGV
+} # ARGV if
+
+# my ($startindex, $endindex, $lamstart) = ($ARGV[0],$ARGV[1],$ARGV[2]);
+my ($srcfile, $listname) = ($ARGV[0],$ARGV[1]);
+my ($startindex, $endindex) = ($ARGV[2],$ARGV[3]);
+my $outputdir = $ARGV[4];
+
+# my $username = "farmer";
+my $username = `whoami`;
+chomp $username;
+
+my $home = "home";
+
+my $mmafile = "/$home/$username/L-pointsBU/Degree4/Tmp/computeZCk1Ck2x1b".$startindex."_".$endindex.".m";
+my $batchfile = "/$home/$username/L-pointsBU/Degree4/Tmp/batchZCk1Ck2x1b".$startindex."_".$endindex.".txt";
+my $outbatchfile = "~/L-pointsBU/Degree4/Tmp/out.batchZCk1Ck2x1b".$startindex."_".$endindex.".out";
+
+open(OUTmmaFILE, ">$mmafile") or die "the file $mmafile can't be opened: $! \n";
+open(OUTbatchFILE, ">$batchfile") or die "the file $batchfile can't be opened: $! \n";
+
+print OUTmmaFILE <<header;
+
+Print["input 1"];
+
+<< ~/L-pointsBU/Code/findL1b.m;
+
+Print["input 2"];
+<< ~/L-pointsBU/Code/searchgrd4t.m;
+
+Print["input 3"];
+<< ~/L-pointsBU/Code/solveeqns7f.m;
+
+Print["input 4"];
+(*
+<< ~/L-pointsBU/Degree4/Scripts/davidgood.m;
+*)
+<< $srcfile;
+
+versionnumber = "L1b_searchgrd4t_solveeqns7f";
+
+(*
+mydatadir = "~/L-pointsBU/Degree4/Data/Ck1Ck2/Zvalues1";
+*)
+mydatadir = "$outputdir";
+
+Print["computing between", {$startindex, $endindex}];
+
+knownLtbetavalues = {};
+
+Print["part way"];
+
+findreasonablebeta[ldata_, t_, codenumber_] := Block[{thisbeta},
+   If[Abs[t] < 11, {0, 10^-10},
+    If[t >= 0, betatotest = {0, 1/2, 1, 3/2, 2}, 
+     betatotest = {0, -1/2, -1, -3/2, -2}];
+    samplevals = {};
+    foundGood = False;
+    For[jc = 1, jc <= Length[betatotest], ++jc,
+     thisbeta = betatotest[[jc]];
+     If[!MemberQ[knownLtbetavalues, {codenumber, t, betatotest[[jc]]}],
+      Lbeta[codenumber, t, thisbeta] = 
+       boundtailsimple[quickZEXTRA[ldata, {0, thisbeta, 0}, t, 15], 100, 4];
+      AppendTo[knownLtbetavalues, {codenumber, t, thisbeta}],
+      Print["reusing ", thisbeta]
+      ];
+     If[Lbeta[codenumber, t, thisbeta] < 10^(-7),
+      foundGood = True;
+      goodbeta = {thisbeta, Lbeta[codenumber, t, thisbeta]};
+      Print["found adequate on first round", goodbeta];
+      Break[],
+      AppendTo[samplevals, Lbeta[codenumber, t, thisbeta]
+        ];
+      ];
+     ];
+    If[foundGood,
+     goodbeta,
+     themin = Min[samplevals];
+     minlocation = Position[samplevals, themin][[1, 1]];
+     {betatotest[[minlocation]], samplevals[[minlocation]]}
+     ]
+    ]
+   ];
+
+zvalsanderror[ind_, srclis_, llim_, ulim_] := Block[{},
+   thislistofvalues = {};
+   basebetadata = 
+    Table[{jq, findreasonablebeta[srclis[[ind]], jq, ind]}, {jq, llim,
+       ulim, 5}];
+   Print["beta error data ", basebetadata];
+   goodbetadata = 
+    Table[{basebetadata[[j, 1]], basebetadata[[j, 2, 1]]}, {j, 1, 
+      Length[basebetadata]}];
+   Print["beta interpolation data ", goodbetadata];
+   goodbetafunction = 
+    Interpolation[goodbetadata, InterpolationOrder -> 1];
+   For[jl = llim, jl <= ulim, jl += 1/10,
+    thisbeta = goodbetafunction[jl];
+    thiszval = quickZ[srclis[[ind]], {0, thisbeta, 0}, jl];
+    If[Abs[Im[thiszval]] > 0.0000001 && Abs[Re[thiszval]] > 0.0000001,
+     Print["Error: Z not real ", {ind, jl, thisbeta, thiszval}]; thiszval = "XXXX",
+     If[Abs[Im[thiszval]] < 0.0000001,
+         thiszval = Re[thiszval],
+         thiszval = Im[thiszval] ]
+    ];
+    AppendTo[thislistofvalues, {jl, thiszval}]
+    ];
+   {thislistofvalues, basebetadata}
+   ];
+
+Print["starting loop"];
+
+thissourcelist = $listname;
+
+For[ij=$startindex, ij <= $endindex, ++ij,
+
+  thislabel = "compCk1Ck2";
+
+  If[ij < 1000, thislabel = thislabel <> "0"];
+  If[ij < 100, thislabel = thislabel <> "0"];
+  If[ij < 10, thislabel = thislabel <> "0"];
+
+  thislabel = thislabel <> ToString[ij] <>"_y1b";
+
+  Print["thislabel", thislabel];
+
+  mydatafile = mydatadir <> "/" <> thislabel;
+
+  plotlim = 60;
+  tmp = thissourcelist[[ij]];
+(*
+  If[tmp[[1, 1,3]] < 0,
+      plotlim = Min[10 Ceiling[(tmp[[1, 1,1]] + tmp[[1, 1,2]] + 10)/10], plotlim],
+       plotlim = Min[10 Ceiling[(tmp[[1, 1,1]] + tmp[[1, 1,2]] + tmp[[1, 1,3]] + 10)/10], plotlim]
+   ];
+*)
+
+  Print["calculating 4 values"];
+
+  fourLvalues = fourpoints[thissourcelist[[ij]]];
+
+  Print["found 4 values: ", N[fourLvalues]];
+
+  theotherspectralparameter = -1*tmp[[1, 1,1]];
+
+  plotlim = Min[10 Ceiling[( Abs[theotherspectralparameter] + 10.5 )/10], plotlim];
+
+  plotlim = Max[plotlim, 20];
+
+  Print["spectral parameters", N[tmp[[1,1]]], " and ", N[theotherspectralparameter]];
+
+  Print["plotting on range ", {-plotlim,plotlim}];
+
+  thesezvalsplus = zvalsanderror[ij, thissourcelist, -plotlim, plotlim];
+
+  partialdata = {thissourcelist[[ij]], thesezvalsplus, fourLvalues};
+
+  itemtosave = addzerodatatoZ[partialdata];
+
+  Print["saving to ", mydatafile];
+
+  Save[mydatafile, itemtosave];
+  
+]; (* for ij *)
+
+
+Print["about to quit"];
+
+Quit[]
+
+
+
+header
+
+print OUTbatchFILE <<batch;
+#!/bin/bash
+#SBATCH -p short # partition (queue)
+#SBATCH -N 1 # (leave at 1 unless using multi-node specific code)
+#SBATCH -n 1 # number of cores
+#SBATCH --mem-per-cpu=8192 # memory per core
+#SBATCH --job-name="D3N1_job" # job name
+#SBATCH -o /home/$username/L-pointsBU/Degree4/Tmp/slurm.%N.%j.stdout.txt # STDOUT
+#SBATCH -e /home/$username/L-pointsBU/Degree4/Tmp/slurm.%N.%j.stderr.txt # STDERR
+#SBATCH --mail-user=$username\@bucknell.edu # address to email
+#SBATCH --mail-type=ALL # mail events (NONE, BEGIN, END, FAIL, ALL)
+
+module load mathematica
+
+# run the program using the relative path
+math < $mmafile >> $outbatchfile
+
+
+batch
+
+close(OUTmmaFILE);
+close(OUTbatchFILE);
+
+select(undef, undef, undef, 1);  #pause for 1 second
+
+system("sbatch $batchfile");
+
+print "\n batched to Q \n";
+

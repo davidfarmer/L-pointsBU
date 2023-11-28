@@ -477,23 +477,25 @@ med=Median[ptlis];
 med[[1]]>minx && med[[1]]<maxx && med[[2]]>miny && med[[2]]<maxy
 ];
 
-closepts[{eps_,ptlis_}]:=Block[{med,minx,miny,maxx,maxy},
+(* is this one ever used, or only the following one? *)
+closepts[{eps_,ptlis_}]:=Block[{med,minx,miny,maxx,maxy,thiscp},
 (*
 Determine if a set of points is close together.
 *)
 If[ptlis=={},Return[Infinity]];
-If[eps[[1]]>0 && eps[[2]]>0,
-numpts=Length[ptlis];
-firstthird=Ceiling[numpts/5];  (* actually, first fifth!*)
-lastthird=Floor[4 numpts/5];  (* actually, last fifth!*)
-xpts=Sort[Transpose[ptlis][[1]]];
-ypts=Sort[Transpose[ptlis][[2]]];
-Max[(xpts[[lastthird]]-xpts[[firstthird]])/eps[[1]],
-	(ypts[[lastthird]]-ypts[[firstthird]])/eps[[2]] ],
-Infinity,Infinity]
+thiscp = If[eps[[1]]>0 && eps[[2]]>0,
+    numpts=Length[ptlis];
+    firstthird=Ceiling[numpts/5];  (* actually, first fifth!*)
+    lastthird=Floor[4 numpts/5];  (* actually, last fifth!*)
+    xpts=Sort[Transpose[ptlis][[1]]];
+    ypts=Sort[Transpose[ptlis][[2]]];
+    Max[(xpts[[lastthird]]-xpts[[firstthird]])/eps[[1]],
+	    (ypts[[lastthird]]-ypts[[firstthird]])/eps[[2]] ],
+    Infinity,Infinity];
+If[Precision[thiscp] < 1, 1/2, thiscp]
 ];
 
-closepts[epsIN_,ptlis_]:=Block[{j,numpts},
+closepts[epsIN_,ptlis_]:=Block[{j,numpts,thiscp},
 (*
 Determine if a set of points is close together.
 *)
@@ -501,16 +503,17 @@ If[ptlis=={},Return[Infinity]];
 If[NumberQ[epsIN],eps=Table[epsIN,{j,1,Length[ptlis[[1]]]}],
 	eps=epsIN];
 dim=Length[eps];
-If[Min[eps]>0,
-numpts=Length[ptlis];
-firstfifth=Ceiling[numpts/5];
-lastfifth=Floor[4 numpts/5];  
-For[j=1,j<=dim,++j,
-pt[j]=Sort[Transpose[ptlis][[j]]]
-];
-Max[Table[(pt[j][[lastfifth]]-pt[j][[firstfifth]])/eps[[j]],
+thiscp = If[Min[eps]>0,
+    numpts=Length[ptlis];
+    firstfifth=Ceiling[numpts/5];
+    lastfifth=Floor[4 numpts/5];  
+    For[j=1,j<=dim,++j,
+    pt[j]=Sort[Transpose[ptlis][[j]]]
+    ];
+    Max[Table[(pt[j][[lastfifth]]-pt[j][[firstfifth]])/eps[[j]],
 	{j,1,dim}]],
-Infinity,Infinity]
+    Infinity,Infinity];
+If[Precision[thiscp] < 1, 1/2, thiscp]
 ];
 
 

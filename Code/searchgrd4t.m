@@ -94,7 +94,7 @@ testandsave[initguessIN_ (* the initial guess *),
      tmpY (which will immediately be set to prevtmpY).  It does not have the
      correct length, but all that are needed are the 1st and 5th entries,
      which are the spectral parameters and the coefficients, respectively. *)
-  tmpY = {initguessIN, "unknown", 1, {starepsIN, numtermsIN, PRECISIN}, coeffstartIN};
+  tmpY = {initguessIN, 1, 1, {starepsIN, numtermsIN, PRECISIN}, coeffstartIN};
   prevtmpY = tmpY;
 
   wanderlimit = 1/2;  (* prevent poking from going too far *)
@@ -143,9 +143,12 @@ testandsave[initguessIN_ (* the initial guess *),
 *)
     relativeerror0 = Min[1, Ceiling[500 relativeerror]/500];
 
+    Print["starepsX was", starepsX, "relativeerror is", relativeerror];
     starepsX = starepsX*relativeerror0;
     numtermsX = numtermsX*relativeerror0;
+    Print["starepsX was", starepsX];
     starepsX = roundfraction[starepsX];
+    Print["starepsX is", starepsX];
     numtermsX = roundfraction[numtermsX];
 
     coeffstartX=tmpY[[-3]];  (* probably shodl be set before the wandering check, *)
@@ -171,6 +174,7 @@ testandsave[initguessIN_ (* the initial guess *),
 
     relativeprecision=tmpY[[3]];
     If[relativeprecision < 10,
+	Print["precision was", PRECIS];
         PRECIS=PRECIS+10,
         If[relativeprecision < 15, PRECIS = PRECIS+5]
     ];
