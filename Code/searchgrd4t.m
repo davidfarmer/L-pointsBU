@@ -953,8 +953,13 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
   fullcounter = 0;
   For[j = 1, j <= Length[slis] - 1, ++j,
    fullcounter += 1;
-   thisitem = slis[[j]];
-   nextitem = slis[[j + 1]];
+   If[NumberQ[slis[[1,1,1,1]]],  (* could be ldata or zdata *)
+       thisitem = slis[[j]];
+       nextitem = slis[[j + 1]]
+     ,
+       thisitem = slis[[j,1]];
+       nextitem = slis[[j + 1,1]]
+   ];
    (* check if the spectral parameters are close *)
    theyareclose = True;
    (* first check same funcitonal equation *)
@@ -970,12 +975,14 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
    If[theyareclose,Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];
     counter += 1;
     If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
-     slis = Delete[slis, j],
-     slis = Delete[slis, j + 1]];
-    j -= 1,
-     slis = Delete[slis, j]
-    ];
-   ];
+       slis = Delete[slis, j],
+       slis = Delete[slis, j + 1];
+       j -= 1
+      ,
+       slis = Delete[slis, j]
+    ]
+   ]
+  ];
   Print["Omitted ", counter, " duplicates"];
   Print["Trimmed list length: ", Length[slis]];
   slis];
