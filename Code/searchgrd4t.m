@@ -458,10 +458,12 @@ Print["testing ",starN,", :",thept];
 tmpeqsolv = eqsolv[starN];
 
   (* should the badfactorsubstitutions be called from converteqnsALL? *)
+  (*
         If[Length[badfactorsubstitutions]>0,
             Print["adding badfactorsubstitutions", badfactorsubstitutions];
             eqsolv[starN] = Expand[eqsolv[starN]/.badfactorsubstitutions];
         ];
+   *)
 
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
@@ -545,7 +547,9 @@ and the same for the detectors.  We use 8 detectors.
 (*
     badfactoreqns = findbadfactoreqns[EP];
 *)
+(*
     badfactorsubstitutions = findbadfactorsubstitutions[EP];
+*)
 
     (* the following was the wrong way to do it, because it accidentally
     decreased the number of detectors *)
@@ -599,10 +603,12 @@ Print["is", InputForm[eq[starN]]];
 
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
 
+(*
         If[Length[badfactorsubstitutions]>0,
             Print["adding badfactorsubstitutions", badfactorsubstitutions];
             eqsolv[starN] = Expand[eqsolv[starN]/.badfactorsubstitutions];
         ];
+*)
 
  (*       Print["checking on badfactorsubstitutions", N[eq[starN]]]; *)
 
@@ -635,10 +641,12 @@ Print[ans[starN]]
         detecteq[starN]=makeequationsNEW[FEin, thept, detectg, detects, Ev,gflag,DETECTPRECIS];
         detecteq[starN]=converteqnsALL[EP, detecteq[starN],numterms,1];
 
+(*
         If[Length[badfactorsubstitutions]>0,
             Print["adding badfactorsubstitutions", badfactorsubstitutions];
             detecteq[starN] = Expand[detecteq[starN]/.badfactorsubstitutions];
         ];
+*)
 
         (* we want to use the value we just found as the starting value
            for the next point *)
@@ -893,19 +901,21 @@ If[Length[EP] > 2,
        Print["Error:  unimplemented bad factor"]
     ]
 ];
+(*
   If[Length[EP[[2,1]]] == 1,
     thebadprime = EP[[2,1,1]];
     If[EP[[2,2,1]] != EP[[1,1]]-1,
        Print["Error: only prime level case implemented"],
-       (* so bb1[p] and bb2[p] are not unknowns, but theta and phi are *)
        neweqns = {bb1[thebadprime] - (Cos[theta]+Cos[phi]/Sqrt[thebadprime]), bb2[thebadprime] - (Sin[theta]+Sin[phi]/Sqrt[thebadprime])}
     ]
   ];
 Print["made findbadfactoreqns",neweqns, "from", {EP[[2,1,1]],EP[[2,2,1]],EP[[1,1]]-1}];
+*)
 neweqns
 ];
 
-findbadfactorsubstitutions[EP_]:= Block[{neweqns,thisp},
+(* probably wrong, and needed to be rethought anyway   *)
+DONTUSEfindbadfactorsubstitutions[EP_]:= Block[{neweqns,thisp},
 neweqns = {};
 If[Length[EP] > 2 && False,
     If[EP[[3,1]] == 3 && EP[[3,3]] == "IVa",
