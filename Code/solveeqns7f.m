@@ -557,9 +557,6 @@ knownApsubstitutions[ep_, knownAp_, lim_] := Block[{theseunknowns},
 anFromAp[ep_, knownAp_, lim_] := 
  Block[{theseunknowns, allAn}, 
   allAn = Flatten[Table[{bb1[j], bb2[j]}, {j, 1, lim}]];
-(*
-  allAn = converteqnsALL[{{3, {1}}, {{2}, {1}}}, allAn, lim];
-*)
   allAn = converteqnsALL[ep, allAn, lim];
   theseunknowns = theunknowns[ep, lim];
   allAn /. knownApsubstitutions[ep, knownAp, lim]];
@@ -576,43 +573,17 @@ normalizeequationsA1[eqs_,absflag_]:=Block[{aa},
           Sum[Abs[Coefficient[eqs,bb1[j]]]+Abs[Coefficient[eqs,bb2[j]]],{j,1,61}]]) ],
       eqs]]; 
 
-realize500R[xxlis_] :=  (* Warning:  assumes fewer than 500 coefficients *)
- Block[{j},
-  Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
-   If[tt==0 || Abs[Re[tt]] > Abs[Im[tt]],
-    Sum[Re[Coefficient[xx, bb1[j]]] bb1[j] +
-      Re[Coefficient[xx, bb2[j]]] bb2[j], {j, 1, 500}],
-    Sum[Im[Coefficient[xx, bb1[j]]] bb1[j] +
-      Im[Coefficient[xx, bb2[j]]] bb2[j], {j, 1, 500}],
-    realscalefactor = (Coefficient[xx,bb1[1]]/.Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,1,500}]]);
-    If[realscalefactor == 0, Print["zero for realscalefactor"]; realscalefactor = 1];
-    yy = Expand[xx/realscalefactor];
-    Simplify[ComplexExpand[Re[yy]],
-                Flatten[Table[{bb1[p] \[Element\] Reals, bb2[p] \[Element\] Reals}, {p, 1, 500}]]]
-     (* because the inequality is indeterminate when the sign is an unknown *)], {k1, 1,
-    Length[xxlis]}]];
-
-realize500R[xxlis_] :=  (* Warning:  assumes fewer than 500 coefficients *)
- Block[{j},
-  Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
-    realscalefactor = (Coefficient[xx,bb1[1]]/.Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,1,500}]]);
-    If[realscalefactor == 0, (* Print["zero for realscalefactor"]; *) realscalefactor = 1];
-    yy = Expand[xx/realscalefactor];
-    Simplify[ComplexExpand[Re[yy]],
-                Flatten[Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]]]
-     , {k1, 1,
-    Length[xxlis]}]];
-
 realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
-  Block[{j}, Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
-    realscalefactor = (Coefficient[xx, bb1[1]] /. 
-       Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
-    realscalefactor = realscalefactor /. phi -> 3/4;
+  Block[{j},
+  Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
+    realscalefactor = (Coefficient[xx, bb1[1]]/.Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
+    realscalefactor = realscalefactor /. {EPSILONR -> 4/5, EPSILONI -> 3/5};
     If[realscalefactor == 0,(*Print["zero for realscalefactor"];*)
-     realscalefactor = 1];
+      realscalefactor = 1];
     yy = Expand[xx/realscalefactor];
     Simplify[ComplexExpand[Re[yy]], 
-     Flatten[{{theta \[Element] Reals, phi \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]], {k1, 1, Length[xxlis]}]
+       Flatten[{{EPSILONR \[Element] Reals, EPSILONI \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]],
+  {k1, 1, Length[xxlis]}]
 ];
 
 killunknownsGE[lim_]:=Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,lim,2 lim+50}]];

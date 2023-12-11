@@ -616,7 +616,6 @@ Print["is", InputForm[eq[starN]]];
         Print["rechecking on badfactorsubstitutions", N[eqsolv[starN]]];
 *)
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
-    (*    ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,0.001,{4,0.1}];  *)
         targeteps = 10.0^(-DETECTPRECIS/2);
         ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,targeteps,{4,0.1}];
       (*  ans[starN]=Sort[ans[starN]];
@@ -625,7 +624,6 @@ Print["is", InputForm[eq[starN]]];
 
         If[ans[starN]=={},
             Print["No solution at point ",starN,". Trying again."];
-      (*    ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,0.001,{4,0.1}];  *)
             targeteps = 10.0^(-DETECTPRECIS/2);
             ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,targeteps,{4,0.1}];
        (*     ans[starN]=Sort[ans[starN]];
