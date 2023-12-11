@@ -167,10 +167,8 @@ evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
 
 Lold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FE,b,s,Ev,gflag,PRECIS]/HOLD[FE,s,PRECIS];
 
-Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FE,b,s,Ev,gflag,PRECIS]/Abs[HOLD[FE,s,PRECIS]];
-
-Lold[FE_,b_,s_List,Ev_,gflag_,PRECIS_]:=Table[{s[[js]], L[FE,b,s[[js]],Ev,gflag,PRECIS]},{js,1,Length[s]}];
-Zold[FE_,b_,s_List,Ev_,gflag_,PRECIS_]:=Table[{s[[js]], Z[FE,b,s[[js]],Ev,gflag,PRECIS]},{js,1,Length[s]}];
+Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=(Lambdaold[FE,b,s,Ev,gflag,PRECIS]/Abs[HOLD[FE,s,PRECIS]])/Sqrt[FE[[-2]]];
+     (* -2 because the old FE has a extra phase factor at the end *)
 
 SetAttributes[bb1, NHoldAll];
 SetAttributes[bb2, NHoldAll];
