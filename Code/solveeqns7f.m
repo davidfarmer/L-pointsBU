@@ -88,8 +88,10 @@ printflag=1;
 				factor at 3, and a linear factor at 5.  So a_3 and a_9 are
 				unknowns, as is a_5. (the number of unknows for that prime
 				is the same as the degree of the bad factor.)
-			ToDo:  introduce more specific bad factors as needed.
-		warning: The above description of bad factors has been superceded.
+		12/14/23 add another list to the bad part.  For example,
+                        { {4, {1}}, { {7,11}, {3,2}, {{0,0,2},{0,1}} } }
+                meaning that the reciprocal roots at 7 have size 1, 1, 1/7, and the
+                reciprocal roots at 11 have size 1, 1/Sqrt[11] .
 
 	theunknowns[ep,lim]:  list of the unknowns bb1[j],bb2[j] up to lim, for an
 		Euler product ep.  ToDo: check if that name is already used.
