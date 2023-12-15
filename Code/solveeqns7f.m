@@ -94,7 +94,7 @@ printflag=1;
                 reciprocal roots at 11 have size 1, 1/Sqrt[11] .
 
 	theunknowns[ep,lim]:  list of the unknowns bb1[j],bb2[j] up to lim, for an
-		Euler product ep.  ToDo: check if that name is already used.
+		Euler product ep.
 
 	converteqnsALL: changed first argument from "lev" to "EP"
 		modified function to convert the relations from the Euler
@@ -545,7 +545,8 @@ converteqnsALL[EP_, eqns_, numterms_,absflag_] := Block[{(*tmpeqns, tmpeqns1, tm
   tmpeqns2 = (tmpeqns1R/.multsubs[numterms]);  (* replace a_{nm} by a_n a_m for (m,n)=1 *)
   tmpeqns3 = goodprimepowersubs[EP, tmpeqns2, numterms];
   tmpeqns4 = badprimepowersubs[EP, tmpeqns3, numterms];
-  (tmpeqns4/.{bb1[1]->1,bb2[1]->0})
+  tmpeqns4noEPSILON = localsignsubs[EP, tmpeqns4];
+  (tmpeqns4noEPSILON/.{bb1[1]->1,bb2[1]->0})
 ];
 (*  tmpeqns2 = makeaALLequations[lev, tmpeqns1]]; *)
 (* need to replace makeaALLequations by several steps *)
@@ -640,8 +641,11 @@ badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprim
     badprimes=EP[[2,1]];
     absbadprimes=Abs[badprimes];
     baddegs=EP[[2,2]];
+    badtypes=Table["",{j,1,Length[badprimes]}];
+    (* obsolete, from previous attempts at specifying details about bad primes
     If[Length[EP[[2]] ] ==2, badtypes=Table["",{j,1,Length[badprimes]}],
 	badtypes=EP[[2,3]] ];
+    *)
     j=1;  (* j indexes the primes *)
     While[p=Prime[j]; p<=numterms, 
         If[MemberQ[badprimes,p],
@@ -652,6 +656,22 @@ badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprim
         ]; (* if a bad prime *)
 	++j
     ];  (* while *)
+    eqnsTMP
+];
+
+localsignsubs[EP_, eqns_]:= Block[{eqnsTMP},
+    eqnsTMP = eqns;
+    If[Length[EP[[2]]] > 2,
+      If[Length[EP[[2,1]]] ==1 && Length[EP[[2,3]]] == 1, (* simplest case *)
+        thebadprime = EP[[2,1,1]];
+        twicetheexponent = EP[[2,3,1]];
+        (* under what consitions is eps_p = Conj[a_p]/Abs[a_p] when the local factor has degree 1? *)
+        thesubs = {EPSILONR -> thebadprime^(twicetheexponent/2) bb1[thebadprime], EPSILONI -> -1*thebadprime^(twicetheexponent/2) bb2[thebadprime]};
+        Print["epsilonsubs",thesubs];
+        eqnsTMP = eqnsTMP/.thesubs
+      ],
+      Print["Error: unimplemented case", EP]
+    ];
     eqnsTMP
 ];
 
@@ -857,7 +877,7 @@ scalelist[numsolve_]:=Join[{0,1/10000000,1/100000,1/10000},
 
 findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
 {ct, theunknowns, foundsols={},residuals={},tmp(*,startvals1*)},
-If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations",Return[{}]]];
+If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
 testunks={};
 theeqns=Take[eqns,Length[testunksIN[[1]]]];
 eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
@@ -904,7 +924,7 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
 
 findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
 {ct, theunknowns, foundsols={},residuals={},tmp(*,startvals1*)},
-If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations",Return[{}]]];
+If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
 testunks={};
 theeqns=Take[eqns,Length[testunksIN[[1]]]];
 eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
@@ -1025,6 +1045,9 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
 	]  (* if which prime case *)
      ]  (* if we are at a prime power *)
     ];  (*for *)
+  If[Length[ep[[2]]] > 2, (* case of known shape of bad factor *)
+    If[Length[ep[[2,1]]] > 1 || ep[[2,2]] != {1}, Print["Error: unimplemented case"]];
+  ];
 Flatten[ans]
 ];
 	
