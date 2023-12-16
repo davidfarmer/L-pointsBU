@@ -160,6 +160,9 @@ ToDo:	bad degree 3 case
 
         deleted zoom1, searchgrid2
 
+        added substitutionsFromAp which combines subsAn and anFromAp, because those were not
+              designed to handle unknown EPSILON factors.
+
 In next version:  adjust secant method to use a smaller perturbation when the coefficiient
                   is already known with some accuracy (line 1171)
                   consider removing a_32 as an unknown
@@ -568,6 +571,7 @@ subsAn[anlis_]:=Flatten[Table[{bb1[j]->anlis[[2j-1]],bb2[j]->anlis[[2j]]},{j,1,L
 
 substitutionsFromAp[ep_, ap_, numterms_] := Block[{},
   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+(* below is bad redundancy from localsignsubs *)
   If[Length[ep[[2]]] > 2,
       If[Length[ep[[2,1]]] ==1 && Length[ep[[2,3]]] == 1, (* simplest case *)
         thebadprime = ep[[2,1,1]];
