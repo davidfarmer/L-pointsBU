@@ -566,6 +566,23 @@ anFromAp[ep_, knownAp_, lim_] :=
 
 subsAn[anlis_]:=Flatten[Table[{bb1[j]->anlis[[2j-1]],bb2[j]->anlis[[2j]]},{j,1,Length[anlis]/2}]];
 
+substitutionsFromAp[ep_, ap_, numterms_] := Block[{},
+  theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+  If[Length[ep[[2]]] > 2,
+      If[Length[ep[[2,1]]] ==1 && Length[ep[[2,3]]] == 1, (* simplest case *)
+        thebadprime = ep[[2,1,1]];
+        twicetheexponent = ep[[2,3,1]];
+        (* under what consitions is eps_p = Conj[a_p]/Abs[a_p] when the local factor has degree 1? *)
+        theEPSsubs = {EPSILONR -> thebadprime^(twicetheexponent/2) bb1[thebadprime], EPSILONI -> -1*thebadprime^(twicetheexponent/2) bb2[thebadprime]};
+        theEPSsubs = theEPSsubs/.theseAnSubs;  (* because EPr -> bb1[p] will leave bb1[p] as a parameter *)
+        theseAnSubs = Flatten[{theEPSsubs, theseAnSubs}]
+      ,
+      Print["Error: unimplemented case", ep]
+      ]
+    ];
+  theseAnSubs
+]
+
 normalizeequationsA1[eqs_,absflag_]:=Block[{aa},
 (*
    Print[Table[NumberQ[Coefficient[eqs[[aa]], bb1[1]]] && Coefficient[eqs[[aa]], bb1[1]] != 0,{aa,1,Length[eqs]}]];
@@ -669,8 +686,8 @@ localsignsubs[EP_, eqns_]:= Block[{eqnsTMP},
         thesubs = {EPSILONR -> thebadprime^(twicetheexponent/2) bb1[thebadprime], EPSILONI -> -1*thebadprime^(twicetheexponent/2) bb2[thebadprime]};
         Print["epsilonsubs",thesubs];
         eqnsTMP = eqnsTMP/.thesubs
-      ],
-      Print["Error: unimplemented case", EP]
+      , Print["Error: unimplemented case", EP]
+      ]
     ];
     eqnsTMP
 ];
@@ -1109,21 +1126,51 @@ fefromdata[dat_] := Block[{j},
 *)
 ];
 
-evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] := Block[{numterms},
+(* need to consolidate the Z, L, Lambda below *)
+evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
+  Block[{numterms},
+   numterms = If[ep[[1, 1]] > 0, NextPrime[Length[ap]] - 1, NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms};
+   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   rawZ/.substitutionsFromAp[ep, ap, numterms]
+(*
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawZ /. theseAnSubs
+*)
+];
+
+evaluateLfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
+  Block[{numterms},
    If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
     numterms = NextPrime[Length[ap]/2] - 1];
    thisEv = {Ev[[1]], numterms};
-   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   rawL = L[FE, b, s, thisEv, gflag, PRECIS];
+   rawL/.substitutionsFromAp[ep, ap, numterms]
+(*
    theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs];
+   rawL /. theseAnSubs
+*)
+];
+
+evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
+  Block[{numterms},
+   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
+    numterms = NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms};
+   rawLam = Lambda[FE, b, s, thisEv, gflag, PRECIS];
+   rawLam/.substitutionsFromAp[ep, ap, numterms]
+(*
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawLam /. theseAnSubs
+*)];
 
 evaluateZfromApEXTRA[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_, extra_] := Block[{numterms},
    If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
     numterms = NextPrime[Length[ap]/2] - 1];
    thisEv = {Ev[[1]], numterms + extra};
    rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs];
+   rawZ/.substitutionsFromAp[ep, ap, numterms]
+];
 
 quickZ[ell_, b_, t_] := 
   evaluateZfromAp[fefromdata[ell], b, 1/2 + t I, {2, 0}, 1, 40, 
