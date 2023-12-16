@@ -138,33 +138,6 @@ fourpoints[thisL_, fcn_] := Block[{},
    ];
 fourpoints[thisL_] := fourpoints[thisL, {0, 0, 0}];
 
-evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] := 
-  Block[{numterms},
-   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
-    numterms = NextPrime[Length[ap]/2] - 1];
-   thisEv = {Ev[[1]], numterms};
-   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs];
-
-evaluateLfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
-  Block[{numterms},
-   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
-    numterms = NextPrime[Length[ap]/2] - 1];
-   thisEv = {Ev[[1]], numterms};
-   rawZ = L[FE, b, s, thisEv, gflag, PRECIS];
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs];
-
-evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
-  Block[{numterms},
-   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
-    numterms = NextPrime[Length[ap]/2] - 1];
-   thisEv = {Ev[[1]], numterms};
-   rawZ = Lambda[FE, b, s, thisEv, gflag, PRECIS];
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs];
-
 Lold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FE,b,s,Ev,gflag,PRECIS]/HOLD[FE,s,PRECIS];
 
 Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=(Lambdaold[FE,b,s,Ev,gflag,PRECIS]/Abs[HOLD[FE,s,PRECIS]])/Sqrt[FE[[-2]]];

@@ -88,11 +88,13 @@ printflag=1;
 				factor at 3, and a linear factor at 5.  So a_3 and a_9 are
 				unknowns, as is a_5. (the number of unknows for that prime
 				is the same as the degree of the bad factor.)
-			ToDo:  introduce more specific bad factors as needed.
-		warning: The above description of bad factors has been superceded.
+		12/14/23 add another list to the bad part.  For example,
+                        { {4, {1}}, { {7,11}, {3,2}, {{0,0,2},{0,1}} } }
+                meaning that the reciprocal roots at 7 have size 1, 1, 1/7, and the
+                reciprocal roots at 11 have size 1, 1/Sqrt[11] .
 
 	theunknowns[ep,lim]:  list of the unknowns bb1[j],bb2[j] up to lim, for an
-		Euler product ep.  ToDo: check if that name is already used.
+		Euler product ep.
 
 	converteqnsALL: changed first argument from "lev" to "EP"
 		modified function to convert the relations from the Euler
@@ -543,7 +545,8 @@ converteqnsALL[EP_, eqns_, numterms_,absflag_] := Block[{(*tmpeqns, tmpeqns1, tm
   tmpeqns2 = (tmpeqns1R/.multsubs[numterms]);  (* replace a_{nm} by a_n a_m for (m,n)=1 *)
   tmpeqns3 = goodprimepowersubs[EP, tmpeqns2, numterms];
   tmpeqns4 = badprimepowersubs[EP, tmpeqns3, numterms];
-  (tmpeqns4/.{bb1[1]->1,bb2[1]->0})
+  tmpeqns4noEPSILON = localsignsubs[EP, tmpeqns4];
+  (tmpeqns4noEPSILON/.{bb1[1]->1,bb2[1]->0})
 ];
 (*  tmpeqns2 = makeaALLequations[lev, tmpeqns1]]; *)
 (* need to replace makeaALLequations by several steps *)
@@ -557,14 +560,28 @@ knownApsubstitutions[ep_, knownAp_, lim_] := Block[{theseunknowns},
 anFromAp[ep_, knownAp_, lim_] := 
  Block[{theseunknowns, allAn}, 
   allAn = Flatten[Table[{bb1[j], bb2[j]}, {j, 1, lim}]];
-(*
-  allAn = converteqnsALL[{{3, {1}}, {{2}, {1}}}, allAn, lim];
-*)
   allAn = converteqnsALL[ep, allAn, lim];
   theseunknowns = theunknowns[ep, lim];
   allAn /. knownApsubstitutions[ep, knownAp, lim]];
 
 subsAn[anlis_]:=Flatten[Table[{bb1[j]->anlis[[2j-1]],bb2[j]->anlis[[2j]]},{j,1,Length[anlis]/2}]];
+
+substitutionsFromAp[ep_, ap_, numterms_] := Block[{},
+  theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+  If[Length[ep[[2]]] > 2,
+      If[Length[ep[[2,1]]] ==1 && Length[ep[[2,3]]] == 1, (* simplest case *)
+        thebadprime = ep[[2,1,1]];
+        twicetheexponent = ep[[2,3,1]];
+        (* under what consitions is eps_p = Conj[a_p]/Abs[a_p] when the local factor has degree 1? *)
+        theEPSsubs = {EPSILONR -> thebadprime^(twicetheexponent/2) bb1[thebadprime], EPSILONI -> -1*thebadprime^(twicetheexponent/2) bb2[thebadprime]};
+        theEPSsubs = theEPSsubs/.theseAnSubs;  (* because EPr -> bb1[p] will leave bb1[p] as a parameter *)
+        theseAnSubs = Flatten[{theEPSsubs, theseAnSubs}]
+      ,
+      Print["Error: unimplemented case", ep]
+      ]
+    ];
+  theseAnSubs
+]
 
 normalizeequationsA1[eqs_,absflag_]:=Block[{aa},
 (*
@@ -576,43 +593,17 @@ normalizeequationsA1[eqs_,absflag_]:=Block[{aa},
           Sum[Abs[Coefficient[eqs,bb1[j]]]+Abs[Coefficient[eqs,bb2[j]]],{j,1,61}]]) ],
       eqs]]; 
 
-realize500R[xxlis_] :=  (* Warning:  assumes fewer than 500 coefficients *)
- Block[{j},
-  Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
-   If[tt==0 || Abs[Re[tt]] > Abs[Im[tt]],
-    Sum[Re[Coefficient[xx, bb1[j]]] bb1[j] +
-      Re[Coefficient[xx, bb2[j]]] bb2[j], {j, 1, 500}],
-    Sum[Im[Coefficient[xx, bb1[j]]] bb1[j] +
-      Im[Coefficient[xx, bb2[j]]] bb2[j], {j, 1, 500}],
-    realscalefactor = (Coefficient[xx,bb1[1]]/.Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,1,500}]]);
-    If[realscalefactor == 0, Print["zero for realscalefactor"]; realscalefactor = 1];
-    yy = Expand[xx/realscalefactor];
-    Simplify[ComplexExpand[Re[yy]],
-                Flatten[Table[{bb1[p] \[Element\] Reals, bb2[p] \[Element\] Reals}, {p, 1, 500}]]]
-     (* because the inequality is indeterminate when the sign is an unknown *)], {k1, 1,
-    Length[xxlis]}]];
-
-realize500R[xxlis_] :=  (* Warning:  assumes fewer than 500 coefficients *)
- Block[{j},
-  Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
-    realscalefactor = (Coefficient[xx,bb1[1]]/.Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,1,500}]]);
-    If[realscalefactor == 0, (* Print["zero for realscalefactor"]; *) realscalefactor = 1];
-    yy = Expand[xx/realscalefactor];
-    Simplify[ComplexExpand[Re[yy]],
-                Flatten[Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]]]
-     , {k1, 1,
-    Length[xxlis]}]];
-
 realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
-  Block[{j}, Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
-    realscalefactor = (Coefficient[xx, bb1[1]] /. 
-       Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
-    realscalefactor = realscalefactor /. phi -> 3/4;
+  Block[{j},
+  Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
+    realscalefactor = (Coefficient[xx, bb1[1]]/.Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
+    realscalefactor = realscalefactor /. {EPSILONR -> 4/5, EPSILONI -> 3/5};
     If[realscalefactor == 0,(*Print["zero for realscalefactor"];*)
-     realscalefactor = 1];
+      realscalefactor = 1];
     yy = Expand[xx/realscalefactor];
     Simplify[ComplexExpand[Re[yy]], 
-     Flatten[{{theta \[Element] Reals, phi \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]], {k1, 1, Length[xxlis]}]
+       Flatten[{{EPSILONR \[Element] Reals, EPSILONI \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]],
+  {k1, 1, Length[xxlis]}]
 ];
 
 killunknownsGE[lim_]:=Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,lim,2 lim+50}]];
@@ -667,8 +658,11 @@ badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprim
     badprimes=EP[[2,1]];
     absbadprimes=Abs[badprimes];
     baddegs=EP[[2,2]];
+    badtypes=Table["",{j,1,Length[badprimes]}];
+    (* obsolete, from previous attempts at specifying details about bad primes
     If[Length[EP[[2]] ] ==2, badtypes=Table["",{j,1,Length[badprimes]}],
 	badtypes=EP[[2,3]] ];
+    *)
     j=1;  (* j indexes the primes *)
     While[p=Prime[j]; p<=numterms, 
         If[MemberQ[badprimes,p],
@@ -679,6 +673,22 @@ badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprim
         ]; (* if a bad prime *)
 	++j
     ];  (* while *)
+    eqnsTMP
+];
+
+localsignsubs[EP_, eqns_]:= Block[{eqnsTMP},
+    eqnsTMP = eqns;
+    If[Length[EP[[2]]] > 2,
+      If[Length[EP[[2,1]]] ==1 && Length[EP[[2,3]]] == 1, (* simplest case *)
+        thebadprime = EP[[2,1,1]];
+        twicetheexponent = EP[[2,3,1]];
+        (* under what consitions is eps_p = Conj[a_p]/Abs[a_p] when the local factor has degree 1? *)
+        thesubs = {EPSILONR -> thebadprime^(twicetheexponent/2) bb1[thebadprime], EPSILONI -> -1*thebadprime^(twicetheexponent/2) bb2[thebadprime]};
+        Print["epsilonsubs",thesubs];
+        eqnsTMP = eqnsTMP/.thesubs
+      , Print["Error: unimplemented case", EP]
+      ]
+    ];
     eqnsTMP
 ];
 
@@ -884,7 +894,7 @@ scalelist[numsolve_]:=Join[{0,1/10000000,1/100000,1/10000},
 
 findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
 {ct, theunknowns, foundsols={},residuals={},tmp(*,startvals1*)},
-If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations",Return[{}]]];
+If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
 testunks={};
 theeqns=Take[eqns,Length[testunksIN[[1]]]];
 eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
@@ -931,7 +941,7 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
 
 findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
 {ct, theunknowns, foundsols={},residuals={},tmp(*,startvals1*)},
-If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations",Return[{}]]];
+If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
 testunks={};
 theeqns=Take[eqns,Length[testunksIN[[1]]]];
 eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
@@ -1052,6 +1062,9 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
 	]  (* if which prime case *)
      ]  (* if we are at a prime power *)
     ];  (*for *)
+  If[Length[ep[[2]]] > 2, (* case of known shape of bad factor *)
+    If[Length[ep[[2,1]]] > 1 || ep[[2,2]] != {1}, Print["Error: unimplemented case"]];
+  ];
 Flatten[ans]
 ];
 	
@@ -1113,21 +1126,51 @@ fefromdata[dat_] := Block[{j},
 *)
 ];
 
-evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] := Block[{numterms},
+(* need to consolidate the Z, L, Lambda below *)
+evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
+  Block[{numterms},
+   numterms = If[ep[[1, 1]] > 0, NextPrime[Length[ap]] - 1, NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms};
+   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   rawZ/.substitutionsFromAp[ep, ap, numterms]
+(*
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawZ /. theseAnSubs
+*)
+];
+
+evaluateLfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
+  Block[{numterms},
    If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
     numterms = NextPrime[Length[ap]/2] - 1];
    thisEv = {Ev[[1]], numterms};
-   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
+   rawL = L[FE, b, s, thisEv, gflag, PRECIS];
+   rawL/.substitutionsFromAp[ep, ap, numterms]
+(*
    theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs];
+   rawL /. theseAnSubs
+*)
+];
+
+evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
+  Block[{numterms},
+   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
+    numterms = NextPrime[Length[ap]/2] - 1];
+   thisEv = {Ev[[1]], numterms};
+   rawLam = Lambda[FE, b, s, thisEv, gflag, PRECIS];
+   rawLam/.substitutionsFromAp[ep, ap, numterms]
+(*
+   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
+   rawLam /. theseAnSubs
+*)];
 
 evaluateZfromApEXTRA[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_, extra_] := Block[{numterms},
    If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
     numterms = NextPrime[Length[ap]/2] - 1];
    thisEv = {Ev[[1]], numterms + extra};
    rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs];
+   rawZ/.substitutionsFromAp[ep, ap, numterms]
+];
 
 quickZ[ell_, b_, t_] := 
   evaluateZfromAp[fefromdata[ell], b, 1/2 + t I, {2, 0}, 1, 40, 
