@@ -468,7 +468,7 @@ tmpeqsolv = eqsolv[starN];
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
         ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals,50,targeteps,{4,0.1}];
-        Print["initial answers",ans[starN]];
+        Print["First up to 10 initial answers",Take[ans[starN],10]];
 
         If[ans[starN]=={},
             Print["No solution at point ",starN,". Trying again."];
