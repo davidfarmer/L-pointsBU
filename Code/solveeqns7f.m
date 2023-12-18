@@ -530,7 +530,10 @@ realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
   Block[{j},
   Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
     realscalefactor0 = (Coefficient[xx, bb1[1]]/.Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
+(*
     realscalefactor = realscalefactor0 /. {EPSILONR -> 4/5, EPSILONI -> 3/5};
+*)
+    realscalefactor = realscalefactor0 /. {EPSILONR -> 0, EPSILONI -> 0};
     If[realscalefactor == 0,(*Print["zero for realscalefactor"];*)
       realscalefactor = 1];
     yy = Expand[xx/realscalefactor];
