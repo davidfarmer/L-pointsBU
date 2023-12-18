@@ -660,6 +660,7 @@ Print[ans[starN]]
         thedetectors=Table[detecteq[starN],{starN,1,Length[detectpts]}];
            Print["about to check4pts", detectpts];
         detectANS=check4pts[detectpts,detectans,thedetectors];
+        If[detectANS == "", Print["failure to detect"]; Return[""]];
         cp=closepts[stareps, detectANS[[1]]];
         themedian=Median[detectANS[[1]]];
            Print[cp,"  cp and median  ",{cp, themedian}];

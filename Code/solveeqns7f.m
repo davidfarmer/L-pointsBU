@@ -342,9 +342,6 @@ check4pts[pts_,answ_,detectors_]:=Block[{j(*,detectnums,detect,detectlist*)},
 detectnums=Length[detectors[[1]]];
 
 ttmmpp=closestmatchmultiple[pts,answ,4];
-(*
-If[ttmmpp[[1,2,1]] == {} || ttmmpp[[1,2,2]] == {} ||ttmmpp[[1,2,3]] == {} ||ttmmpp[[1,2,4]] =={},Print["not able to check4pts ttmmpp"];Return[{}]];
-*)
   detectlist = {};
 alldetectors={};
 dim=Length[pts[[1]]];
@@ -352,23 +349,30 @@ Print["Doing a ",dim, " dimensional search."];
 For[kk=1,kk<=Length[ttmmpp],++kk,
   subdetectlist={};
   For[j=1,j<=Length[pts],++j,
-   Print["j =  ",j]; 
-	detect[j]=(detectors[[j]]/.ttmmpp[[kk,2,j]]);
-        detect[j]=Re[detect[j]];   (* because when the sign is unknown, the equaitons are not necessarily real *)
-Print["the detector: ",detect[j]];
-AppendTo[alldetectors,{pts[[j]],detect[j]}];
-    ];
-dimsubsets=Subsets[Table[j,{j,1,detectnums}],{dim}];
+     Print["j =  ",j]; 
+     detect[j]=(detectors[[j]]/.ttmmpp[[kk,2,j]]);
+     detect[j]=Re[detect[j]];   (* because when the sign is unknown, the equaitons are not necessarily real *)
+     Print["the detector: ",detect[j]];
+     AppendTo[alldetectors,{pts[[j]],detect[j]}];
+  ];
+  dimsubsets=Subsets[Table[j,{j,1,detectnums}],{dim}];
   For[j = 1, j <= Length[dimsubsets], ++j,
     testpts = dimsubsets[[j]];   (*Print[{j,k}]; *)
-	AppendTo[subdetectlist,
-(*		Apply[twodsecant,Table[{pts[[mm]],detect[mm][[testpts]]},{mm,1,Length[pts]}]]];
-*)
+    thispt = nDsecant[pts,Table[detect[mm][[testpts]],{mm,1,Length[pts]}]];
+    If[NumberQ[thispt[[1]]], 
+	AppendTo[subdetectlist, thispt]
+    ,
+        Return[""]
+    ]
+(*
 		nDsecant[pts,Table[detect[mm][[testpts]],{mm,1,Length[pts]}]]];
-      ];
+*)
+  ];
 
-AppendTo[detectlist,subdetectlist];
+  AppendTo[detectlist,subdetectlist];
+
 ]; (*for kk *)
+
 (* since other programs appear to only use the [[1]] element of the returned list,
 we are also sending back the detectors so that they can be used for something else.
 The next line use to jsut be:  detectlist *)
@@ -963,8 +967,12 @@ nDsecant[pts_,indicators_]:=Block[{j,m,k,n,x,plane,data,vars,ans}, (* find commo
 	plane[j]=Fit[data[j],Prepend[vars,1],vars]
    ];
    ans=Solve[Table[plane[j]==0,{j,1,n}],vars];
-   If[Length[ans[[1]]] < Length[vars], Print["problem with equations in nDsecant. pts:", pts, "indicators", indicators, "the eqn",Table[plane[j]==0,{j,1,n}]]];
-   (vars/.ans)[[1]]
+   If[Length[ans[[1]]] < Length[vars],
+       Print["problem with equations in nDsecant. pts:", pts, "indicators", indicators, "the eqn",Table[plane[j]==0,{j,1,n}]];
+       Table["",{j,1,n}]
+   ,
+       (vars/.ans)[[1]]
+   ]
 ];
    
 
