@@ -616,10 +616,22 @@ localsignsubs[EP_, eqns_]:= Block[{eqnsTMP},
     eqnsTMP = eqns;
     If[Length[EP[[2]]] > 2,
       If[Length[EP[[2,1]]] ==1 && Length[EP[[2,3]]] == 1, (* simplest case *)
+        If[IntegerQ[EP[[2,3,1]]], thelocaldata = {EP[[2,3,1]],1}, thelocaldata = EP[[2,3,1]]];
         thebadprime = EP[[2,1,1]];
+(*
         twicetheexponent = EP[[2,3,1]];
-        (* under what consitions is eps_p = Conj[a_p]/Abs[a_p] when the local factor has degree 1? *)
+*)
+        twicetheexponent = thelocaldata[[1]];
+        extrafactor = thelocaldata[[2]];
+        extrafactorR = Re[extrafactor];
+        extrafactorI = Im[extrafactor];
+        (* eps = extrafactor * conjugate(a_p = bb1[p] + I bb2[p]) , normalized to have abs val 1 *)
+        thenewEPSre = Expand[thebadprime^(twicetheexponent/2) (extrafactorR bb1[thebadprime] + extrafactorI bb2[thebadprime])];
+        thenewEPSim = Expand[thebadprime^(twicetheexponent/2) (-1*extrafactorR bb2[thebadprime] + extrafactorI bb1[thebadprime])];
+(*
         thesubs = {EPSILONR -> thebadprime^(twicetheexponent/2) bb1[thebadprime], EPSILONI -> -1*thebadprime^(twicetheexponent/2) bb2[thebadprime]};
+*)
+        thesubs = {EPSILONR -> thenewEPSre, EPSILONI -> thenewEPSim};
         Print["epsilonsubs",thesubs];
         eqnsTMP = eqnsTMP/.thesubs
       , Print["Error: unimplemented case", EP]
