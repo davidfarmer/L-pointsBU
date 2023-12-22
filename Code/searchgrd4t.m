@@ -15,7 +15,7 @@
     If zooming and rel err is > 1, increase number of coefficients.
     If poking and the point does not move, also increase number of coefficients.
 4e: Also save initguessIN to output file.
-    Modify findgsandnumterms to force at least 4 coefficient unknowns  11/4/19 
+    Modify findgsandnumterms to force at least 4 coefficient unknowns  11/4/19
     In testandsave, prevent poking from moving more than wanderlimit=1/2 from the starting point. 11/6/19
     Added note about error on line 364.  Fix in next version
 4f: Fixed error that put a wandering value in the wrong place
@@ -42,7 +42,7 @@
     Initialize tmpY so that the error is calculated correctly when zooming
     finishes on the first iteration.  (4/26/23)
 4r: offset star points (which appear to be a parameter but actually are
-       set within the code).    
+       set within the code).
 
 4s: altered findstartingvalues, testandsave, and searchonce to use new FE notation.
     deleted many unused functions.
@@ -52,6 +52,8 @@
 
 4t: changed file extension to ".m"
     added tossRepeats function.
+
+    supplemented degree2 equations to include |eps| = 1
 *)
 
 debugging1 = False;  (* omits extra equaitons when degree is 2 *)
@@ -200,7 +202,7 @@ testandsave[initguessIN_ (* the initial guess *),
 (*  myfilename = myfilename<>"_";  *)
   If[starepsX <= TARGETERR,myfilename = myfilename<>".good"; Print["Saving as GOOD"],
     If[mode == "zooming", myfilename = myfilename<>".ugly"; Print["Saving as UGLY"],
-      myfilename = myfilename<>".bad"; 
+      myfilename = myfilename<>".bad";
       If[saveBad, Print["Saving as BAD"],
         Print["Bad, but not saving"]; Return[tmpY]]
     ]
@@ -400,7 +402,7 @@ list of unknowns.
 We need to create the list of {g1,g2} and s's for making the equations,
 and the same for the detectors.  We use 8 detectors.
 
-*) 
+*)
 
     degree2eqns= finddegree2eqns[EP,unknowns];
 
@@ -411,10 +413,7 @@ and the same for the detectors.  We use 8 detectors.
 
     (* the following was the wrong way to do it, because it accidentally
     decreased the number of detectors *)
-    (* gsCount = gsCount - Length[degree2eqns];  *)
-    (* in the degree 2 case we need fewer equations *)
 
-    (* Print["degreased ",gsCount," by the length of: ",degree2eqns]; *)
     Ev={nu,numterms};
 
     eqngs={};
@@ -540,7 +539,7 @@ list of unknowns.
 We need to create the list of {g1,g2} and s's for making the equations,
 and the same for the detectors.  We use 8 detectors.
 
-*) 
+*)
 
     degree2eqns= finddegree2eqns[EP,unknowns];
 
@@ -551,12 +550,6 @@ and the same for the detectors.  We use 8 detectors.
     badfactorsubstitutions = findbadfactorsubstitutions[EP];
 *)
 
-    (* the following was the wrong way to do it, because it accidentally
-    decreased the number of detectors *)
-    (* gsCount = gsCount - Length[degree2eqns];  *)
-    (* in the degree 2 case we need fewer equations *)
-
-    (* Print["degreased ",gsCount," by the length of: ",degree2eqns]; *)
     Ev={nu,numterms};
 
     eqngs={};
@@ -724,8 +717,8 @@ bb2[j] -> 0]];
   For[j = 1, j <= Length[obj], ++j,
    ans1[j] = Re[(obj[[j, 2]] /. subs0)];
    errtot[j] = 0;
-   For[k = 1, k <= limsum, ++k, 
-    errtot[j] += 
+   For[k = 1, k <= limsum, ++k,
+    errtot[j] +=
      Abs[Coefficient[obj[[j, 2]], bb1[k]] ] RamaBound[k, deg];
     errtot[j] +=
      Abs[Coefficient[obj[[j, 2]], bb2[k]] ] RamaBound[k, deg]
@@ -735,7 +728,7 @@ bb2[j] -> 0]];
 RamaBound[1, deg_] := 1
 
 RamaBound[j_, deg_] := Block[{fi, m, k}, fi = FactorInteger[j];
-  Product[m = fi[[k]]; 
+  Product[m = fi[[k]];
    Binomial[m[[2]] + deg - 1, deg - 1], {k, 1, Length[fi]}]]
 
 (* build in more restrictive vakues for the sharp Ramanujan bound for elliptic curves *)
@@ -745,8 +738,8 @@ bb2[j] -> 0]];
   For[j = 1, j <= Length[obj], ++j,
    ans1[j] = Re[(obj[[j, 2]] /. subs0)];
    errtot[j] = 0;
-   For[k = 1, k <= limsum, ++k, 
-    errtot[j] += 
+   For[k = 1, k <= limsum, ++k,
+    errtot[j] +=
      Abs[Coefficient[obj[[j, 2]], bb1[k]] ] ECBound[k, deg];
     errtot[j] +=
      Abs[Coefficient[obj[[j, 2]], bb2[k]] ] ECBound[k, deg]
@@ -789,7 +782,7 @@ ECBound[8,2] = 3/(2 Sqrt[2])
 ECBound[9,2] = 2
 ECBound[10,2] = 4 Sqrt[2]/Sqrt[5]
 ECBound[j_, deg_] := Block[{fi, m, k}, fi = FactorInteger[j];
-  Product[m = fi[[k]]; 
+  Product[m = fi[[k]];
    Binomial[m[[2]] + deg - 1, deg - 1], {k, 1, Length[fi]}]]
 
 coefficientsubs[EP_,solvedcoeff_,numterms_]:=Block[{(*aa,*)j,unknowns},
@@ -863,31 +856,39 @@ Print[gsCount,"   ",numterms2];
 ];
 
 finddegree2eqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
-degree2eqns={};
-If[EP[[1,1]] == 2,  
-   (* degree 2 Euler product, so get a new equation when the character is nonzero *)
- thecharacter=EP[[1, -1]];
- theconductor=Length[thecharacter];
- For[jp=1,jp<=Length[unknowns],jp +=2,
-  theindex=unknowns[[jp]][[-1]];
-  If[thecharacter[[Mod[theindex,theconductor,1] ]] ==0,Continue[],
-    thecharval= thecharacter[[Mod[theindex,theconductor,1] ]];
-    If[thecharval == 1,AppendTo[degree2eqns,bb2[theindex]],
-      If[thecharval == -1, AppendTo[degree2eqns,bb1[theindex]],
-        AppendTo[degree2eqns, 
-          bb1[theindex] - (Re[thecharval] bb1[theindex] + Im[thecharval] bb2[theindex])]
+  (* need to rename.  there are equations from degree 2 (char determines coeff sign)
+     and also |eps| = 1 of the sign is unknown *)
+  degree2eqns={};
+  If[EP[[1,1]] == 2,
+     (* degree 2 Euler product, so get a new equation when the character is nonzero *)
+   thecharacter=EP[[1, 2]];
+   theconductor=Length[thecharacter];
+   For[jp=1,jp<=Length[unknowns],jp +=2,
+    theindex=unknowns[[jp]][[-1]];
+    If[thecharacter[[Mod[theindex,theconductor,1] ]] ==0,Continue[],
+      thecharval= thecharacter[[Mod[theindex,theconductor,1] ]];
+      If[thecharval == 1,AppendTo[degree2eqns,bb2[theindex]],
+        If[thecharval == -1, AppendTo[degree2eqns,bb1[theindex]],
+          AppendTo[degree2eqns,
+            bb1[theindex] - (Re[thecharval] bb1[theindex] + Im[thecharval] bb2[theindex])]
+          ]
         ]
       ]
-    ]
- ]
-];
+   ]
+  ];
 
-degree2eqns
+  If[Length[EP[[2]]] > 2,
+      If[Length[EP[[2,1]]] ==1 && Length[EP[[2,3]]] == 1,
+        PrependTo[degree2eqns, EPSILONR^2 + EPSILONI^2 - 1]
+      ]
+  ];
+
+  degree2eqns
 ];
 
 findbadfactoreqns[EP_]:= Block[{neweqns,thisp},
-neweqns = {};
-If[Length[EP] > 2,
+  neweqns = {};
+  If[Length[EP] > 2,
     If[EP[[3,1]] == 3 && EP[[3,3]] == "IVa",
        thisp = EP[[3,2]];
        AppendTo[neweqns, bb1[thisp]^2 + bb2[thisp]^2 - bb1[1]],
@@ -899,18 +900,9 @@ If[Length[EP] > 2,
          AppendTo[neweqns, bb2[thisp] - bb1[1] EP[[3,2]]]],
        Print["Error:  unimplemented bad factor"]
     ]
-];
-(*
-  If[Length[EP[[2,1]]] == 1,
-    thebadprime = EP[[2,1,1]];
-    If[EP[[2,2,1]] != EP[[1,1]]-1,
-       Print["Error: only prime level case implemented"],
-       neweqns = {bb1[thebadprime] - (Cos[theta]+Cos[phi]/Sqrt[thebadprime]), bb2[thebadprime] - (Sin[theta]+Sin[phi]/Sqrt[thebadprime])}
-    ]
   ];
-Print["made findbadfactoreqns",neweqns, "from", {EP[[2,1,1]],EP[[2,2,1]],EP[[1,1]]-1}];
-*)
-neweqns
+
+  neweqns
 ];
 
 (* probably wrong, and needed to be rethought anyway   *)
@@ -1006,7 +998,7 @@ tossRepeatsSimple[lis_, eps_] := Block[{slis},
     j -= 1]];
   slis]
 
-trimList[lis_, lowerbound_, upperbound_] := 
+trimList[lis_, lowerbound_, upperbound_] :=
  Cases[lis, s_ /; lowerbound < s < upperbound]
 
 findallzeros[vallist_] := Block[{x(*,a,b,c,d*)},
@@ -1021,23 +1013,21 @@ findallzeros[vallist_] := Block[{x(*,a,b,c,d*)},
     ]
    ];
   For[j = 1, j <= Length[vallist] - 3, ++j,
-   a = vallist[[j, 2]]; b = vallist[[j + 1, 2]]; 
+   a = vallist[[j, 2]]; b = vallist[[j + 1, 2]];
    c = vallist[[j + 2, 2]]; d = vallist[[j + 3, 2]];
    If[((a - b) *(c - d) < 0 )(* local amx or min *)
      && ( Sign[a] == Sign[b] == Sign[c] == Sign[d])
      && ( a (b - a) < 0),
-    thisroot = 
-     x /. FindRoot[thisfunction[x], {x, vallist[[j + 1, 1]]}];
+    thisroot = x /. FindRoot[thisfunction[x], {x, vallist[[j + 1, 1]]}];
     AppendTo[allroots, thisroot];
-    thisroot = 
-     x /. FindRoot[thisfunction[x], {x, vallist[[j + 2, 1]]}];
+    thisroot = x /. FindRoot[thisfunction[x], {x, vallist[[j + 2, 1]]}];
     AppendTo[allroots, thisroot];
     ]
    ];
   allroots = trimList[allroots, vallist[[1, 1]], vallist[[-1, 1]]];
   checkedroots = {};
   For[j = 1, j <= Length[allroots], ++j,
-   If[Abs[thisfunction[allroots[[j]]]] < 0.0001, 
+   If[Abs[thisfunction[allroots[[j]]]] < 0.0001,
     AppendTo[checkedroots, allroots[[j]]]]
    ];
   checkedroots = tossRepeatsSimple[checkedroots, 0.00001];
@@ -1059,45 +1049,29 @@ addzerodatatoZ[elem_] := Block[{i, j},
    thistrivzeroheights = Sort[{-thiseigs[[1]], thiseigs[[1]]}]
    ];
   If[Length[thiseigs] == 2 && Length[thisparamC] == 0,
-   thistrivzeroheights = 
-    Sort[{-thiseigs[[1]], -thiseigs[[2]], 
-      thiseigs[[1]] + thiseigs[[2]]}]
+   thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[2]], thiseigs[[1]] + thiseigs[[2]]}]
    ];
   If[Length[thiseigs] == 2 && Length[thisparamC] == 1,
-   thistrivzeroheights = 
-    Sort[{-thiseigs[[1]], -thiseigs[[
-        2]], (thiseigs[[1]] + thiseigs[[2]])/2}]
+   thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[ 2]], (thiseigs[[1]] + thiseigs[[2]])/2}]
    ];
   If[Length[thiseigs] == 3,
-   thistrivzeroheights = 
-    Sort[{-thiseigs[[1]], -thiseigs[[2]], -thiseigs[[3]], 
-      thiseigs[[1]] + thiseigs[[2]] + thiseigs[[3]]}]
+   thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[2]], -thiseigs[[3]], thiseigs[[1]] + thiseigs[[2]] + thiseigs[[3]]}]
    ];
   thisvaluedata = thisitem[[2, 1]];
-  thisvaluedata = 
-   Table[{thisvaluedata[[i, 1]], N[thisvaluedata[[i, 2]]]}, {i, 1, 
-     Length[thisvaluedata]}];
+  thisvaluedata = Table[{thisvaluedata[[i, 1]], N[thisvaluedata[[i, 2]]]}, {i, 1, Length[thisvaluedata]}];
   thisprecisiondata = thisitem[[2, 2]];
-  thisprecisiondata = 
-   Table[{thisprecisiondata[[i, 1]], {thisprecisiondata[[i, 2, 1]], 
-      N[thisprecisiondata[[i, 2, 2]]]}}, {i, 1, 
-     Length[thisprecisiondata]}];
+  thisprecisiondata = Table[{thisprecisiondata[[i, 1]], {thisprecisiondata[[i, 2, 1]], N[thisprecisiondata[[i, 2, 2]]]}}, {i, 1, Length[thisprecisiondata]}];
   jt = 1; While[thisprecisiondata[[jt, 2, 2]] > 0.1, ++jt];
   thislowerlim = thisprecisiondata[[jt, 1]];
   jt = -1; While[thisprecisiondata[[jt, 2, 2]] > 0.1, --jt];
   thisupperlim = thisprecisiondata[[jt, 1]];
-  thisvaluedata = 
-   Select[thisvaluedata, thislowerlim <= #[[1]] <= thisupperlim &];
+  thisvaluedata = Select[thisvaluedata, thislowerlim <= #[[1]] <= thisupperlim &];
   thesezeros = findallzeros[thisvaluedata];
-  thiszerosig = 
-   Table[Length[
-     Select[thesezeros, 
-      thistrivzeroheights[[j]] < # < 
-        thistrivzeroheights[[j + 1]] &]],
+  thiszerosig = Table[Length[
+     Select[thesezeros, thistrivzeroheights[[j]] < # < thistrivzeroheights[[j + 1]] &]],
     {j, 1, Length[thistrivzeroheights] - 1}];
   thisspecialvalues = thisitem[[3]];
-  theanswer = {thisfedata, {thisvaluedata, 
-     thisprecisiondata}, {thesezeros, thiszerosig}, thisspecialvalues};
+  theanswer = {thisfedata, {thisvaluedata, thisprecisiondata}, {thesezeros, thiszerosig}, thisspecialvalues};
   theanswer
   ]
 
