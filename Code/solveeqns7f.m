@@ -616,7 +616,7 @@ localsignsubs[EP_, eqns_]:= Block[{eqnsTMP},
     eqnsTMP = eqns;
     If[Length[EP[[2]]] > 2,
       If[Length[EP[[2,1]]] ==1 && Length[EP[[2,3]]] == 1, (* simplest case *)
-        If[IntegerQ[EP[[2,3,1]]], thelocaldata = {EP[[2,3,1]],1}, thelocaldata = EP[[2,3,1]]];
+        If[Length[EP[[2,3,1]]]==1, thelocaldata = {EP[[2,3,1,1]],1}, thelocaldata = EP[[2,3,1]]];
         thebadprime = EP[[2,1,1]];
 (*
         twicetheexponent = EP[[2,3,1]];
