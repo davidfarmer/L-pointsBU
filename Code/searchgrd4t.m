@@ -54,6 +54,8 @@
     added tossRepeats function.
 
     supplemented degree2 equations to include |eps| = 1
+
+    Terminate search if wandering
 *)
 
 debugging1 = False;  (* omits extra equaitons when degree is 2 *)
@@ -104,6 +106,7 @@ testandsave[initguessIN_ (* the initial guess *),
   (* main loop:  how many times to zoom *)
   While[myct<=NUMSTEPS + 1 && restartct <= RESTARTMAX && starepsX>TARGETERR,
     prevtmpY = tmpY;
+    isWandering = False;
 
     Print["boxsize,truncation: ", N[{starepsX,numtermsX}]];
 
@@ -127,6 +130,7 @@ testandsave[initguessIN_ (* the initial guess *),
     For[jo=1, jo <= Length[initguessIN], ++jo,  (* check wandering in each coordinate separately *)
         If[Abs[tmpY[[1,jo]] - initguessIN[[jo]] ] > wanderlimit,
             Print["Wandering, so adjusting coordinate", jo];
+            isWandering = True;
             If[mode == "zooming",
                 Print["Wandering after zooming"];
                 tmpY[[1,jo]] = initguessIN[[jo]] +  starepsX RandomReal[{-1,1}],
@@ -140,6 +144,7 @@ testandsave[initguessIN_ (* the initial guess *),
         ]
     ];
 
+    If[isWandering, Print["wandering, to exiting this attempt"]; Break[]];
 (*
     relativeerror0=10^(-1*Max[0,Floor[Log[10,1/relativeerror]]]);
 *)
