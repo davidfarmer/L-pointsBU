@@ -8,7 +8,7 @@
 
 if($#ARGV != 6){  # 4
      die "\nThis program searches level 4 at {twokappa, lamstart}, {twokappa, lamstart + 1/step}, ..., {twokappa, lamstart + (numsteps-1)/step}  \n",
-            "The syntax is:  \n\t  degree3conductor4RC_1a.prl.prl badpm rdelta twokappa lamstart step numsteps outputdir\n\n",$#ARGV
+            "The syntax is:  \n\t  degree3conductor4RC_1d.prl.prl badpm rdelta twokappa lamstart step numsteps outputdir\n\n",$#ARGV
 } # ARGV if
 
 my ($badpm, $rdelta, $twokappa, $lamstart) = ($ARGV[0],$ARGV[1],$ARGV[2], $ARGV[3]);
@@ -21,9 +21,9 @@ my $outputdir = $ARGV[6];
 my $username = `whoami`;
 chomp $username;
 
-my $mmafile = "/home/$username/L-pointsBU/Degree3/Tmp/searchRC_c4m".$badpm."_1a_".$rdelta."_".$twokappa."_".$lamstart."_".$recipstep."_".$numsteps.".m";
-my $batchfile = "/home/$username/L-pointsBU/Degree3/Tmp/batchRC_c4m".$badpm."_1a_".$rdelta."_".$twokappa."_".$lamstart."_".$recipstep."_".$numsteps.".txt";
-my $outbatchfile = "~/L-pointsBU/Degree3/Tmp/out.batchRC_c4m".$badpm."_1a_".$rdelta."_".$twokappa."_".$lamstart."_".$recipstep."_".$numsteps.".out";
+my $mmafile = "/home/$username/L-pointsBU/Degree3/Tmp/searchRC_c4m".$badpm."_1d_".$rdelta."_".$twokappa."_".$lamstart."_".$recipstep."_".$numsteps.".m";
+my $batchfile = "/home/$username/L-pointsBU/Degree3/Tmp/batchRC_c4m".$badpm."_1d_".$rdelta."_".$twokappa."_".$lamstart."_".$recipstep."_".$numsteps.".txt";
+my $outbatchfile = "~/L-pointsBU/Degree3/Tmp/out.batchRC_c4m".$badpm."_1d_".$rdelta."_".$twokappa."_".$lamstart."_".$recipstep."_".$numsteps.".out";
 
 open(OUTmmaFILE, ">$mmafile") or die "the file $mmafile can't be opened: $! \n";
 open(OUTbatchFILE, ">$batchfile") or die "the file $batchfile can't be opened: $! \n";
@@ -225,69 +225,71 @@ mygandslistC4b := {
 
 globalc = 1/500;
 
-mygandslistD1b500b := {{{0, 0, 0}, {0, 1/2, globalc},
-    1/2 + I/11}, {{0, 0, 0}, {0, 1/3, globalc},
-    1/2 + 2 I/11}, {{0, 0, 0}, {0, 2/3, globalc},
-    1/2 + 3 I/11}, {{0, 0, 0}, {0, 1/4, globalc},
-    1/2 + 4 I/11}, {{0, 0, 0}, {0, 3/4, globalc},
-    1/2 + 5 I/11}, {{0, 0, 0}, {0, 1/5, globalc},
-    1/2 + 3 I}, {{0, 0, 0}, {0, 2/5, globalc},
-    1/2 + 6 I/11}, {{0, 0, 0}, {0, 3/5, globalc},
-    1/2 + 7 I/11}, {{0, 0, 0}, {0, 4/5, globalc},
-    1/2 + 8 I/11}, {{0, 0, 0}, {0, 1/6, globalc},
-    1/2 + 9 I/11}, {{0, 0, 0}, {0, 5/6, globalc},
-    1/2 + 10 I/11}, {{0, 0, 0}, {0, 1/7, globalc},
-    1/2 + 12 I/11 I}, {{0, 0, 0}, {0, 2/7, globalc},
-    1/2 + 13 I/11}, {{0, 0, 0}, {0, 3/7, globalc},
-    1/2 + 14 I/11}, {{0, 0, 0}, {0, 4/7, globalc},
-    1/2 + 15 I/11}, {{0, 0, 0}, {0, 5/7, globalc},
-    1/2 + 16 I/11}, {{0, 0, 0}, {0, 6/7, globalc},
-    1/2 + 17 I/11}, {{0, 0, 0}, {0, 1/8, globalc},
-    1/2 + 18 I/11}, {{0, 0, 0}, {0, 3/8, globalc},
-    1/2 + 19 I/11}, {{0, 0, 0}, {0, 5/8, globalc},
-    1/2 + 20 I/11}, {{0, 0, 0}, {0, 7/8, globalc},
-    1/2 + 21 I/11}, {{0, 0, 0}, {0, 1/9, globalc},
-    1/2 + 22 I/11}, {{0, 0, 0}, {0, 2/9, globalc},
-    1/2 + 23 I/11}, {{0, 0, 0}, {0, 4/9, globalc},
-    1/2 + 24 I/11}, {{0, 0, 0}, {0, 5/9, globalc},
-    1/2 + 25 I/11}, {{0, 0, 0}, {0, 7/9, globalc},
-    1/2 + 26 I/11}, {{0, 0, 0}, {0, 8/9, globalc},
-    1/2 + 27 I/11}, {{0, 0, 0}, {0, 1/10, globalc},
-    1/2 + 28 I/11}, {{0, 0, 0}, {0, 3/10, globalc},
-    1/2 + 29 I/11}, {{0, 0, 0}, {0, 7/10, globalc},
-    1/2 + 30 I/11}, {{0, 0, 0}, {0, 9/10, globalc},
-    1/2 + 31 I/11}, {{0, 0, 0}, {0, 1/11, globalc},
-    1/2 + 32 I/11}, {{0, 0, 0}, {0, 2/11, globalc},
-    1/2 + 33 I/11}, {{0, 0, 0}, {0, 3/11, globalc},
-    1/2 + 34 I/11}, {{0, 0, 0}, {0, 4/11, globalc},
-    1/2 + 35 I/11}, {{0, 0, 0}, {0, 5/11, globalc},
-    1/2 + 36 I/11}, {{0, 0, 0}, {0, 6/11, globalc},
-    1/2 + 37 I/11}, {{0, 0, 0}, {0, 7/11, globalc},
-    1/2 + 38 I/11}, {{0, 0, 0}, {0, 8/11, globalc},
-    1/2 + 39 I/11}, {{0, 0, 0}, {0, 9/11, globalc},
-    1/2 + 40 I/11}, {{0, 0, 0}, {0, 10/11, globalc},
-    1/2 + 41 I/11}, {{0, 0, 0}, {0, 1/12, globalc},
-    1/2 + 42 I/11}, {{0, 0, 0}, {0, 5/12, globalc},
-    1/2 + 43 I/11}, {{0, 0, 0}, {0, 7/12, globalc},
-    1/2 + 44 I/11}, {{0, 0, 0}, {0, 11/12, globalc},
-    1/2 + 45 I/11}, {{0, 0, 0}, {0, 1/13, globalc},
-    1/2 + 46 I/11}, {{0, 0, 0}, {0, 2/13, globalc},
-    1/2 + 47 I/11}, {{0, 0, 0}, {0, 3/13, globalc},
-    1/2 + 48 I/11}, {{0, 0, 0}, {0, 4/13, globalc},
-    1/2 + 49 I/11}, {{0, 0, 0}, {0, 5/13, globalc},
-    1/2 + 50 I/11}, {{0, 0, 0}, {0, 6/13, globalc},
-    1/2 + 51 I/11}, {{0, 0, 0}, {0, 7/13, globalc},
-    1/2 + 52 I/11}, {{0, 0, 0}, {0, 8/13, globalc},
-    1/2 + 53 I/11}, {{0, 0, 0}, {0, 9/13, globalc},
-    1/2 + 54 I/11}, {{0, 0, 0}, {0, 10/13, globalc},
-    1/2 + 55 I/11}, {{0, 0, 0}, {0, 11/13, globalc},
-    1/2 + 56 I/11}, {{0, 0, 0}, {0, 12/13, globalc}, 1/2 + 57 I/11}};
+(* see previous version for mygandslistD1b500b *)
+
+mygandslistD1b500d := {{{0, 0, 0}, {0, 1/2, globalc}, 1/2 + 41 I/11}, 
+{{0, 0, 0}, {0, 1/3, globalc}, 1/2 + 42 I/11}, 
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2 + 53 I/11}, 
+{{0, 0, 0}, {0, 1/4, globalc}, 1/2 + 34 I/11}, 
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2 + 50 I/11}, 
+{{0, 0, 0}, {0, 1/5, globalc}, 1/2 + 3 I}, 
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2 + 46 I/11}, 
+{{0, 0, 0}, {0, 3/5, globalc}, 1/2 + 57 I/11}, 
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 68 I/11}, 
+{{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 29 I/11}, 
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2 + 60 I/11}, 
+{{0, 0, 0}, {0, 130/107, globalc}, 1/2 + 92 I/11}, 
+{{0, 0, 0}, {0, 132/107, globalc}, 1/2 + 98 I/11}, 
+{{0, 0, 0}, {0, 134/107, globalc}, 1/2 + 104 I/11}, 
+{{0, 0, 0}, {0, 136/107, globalc}, 1/2 + 100 I/11}, 
+{{0, 0, 0}, {0, 138/107, globalc}, 1/2 + 106 I/11}, 
+{{0, 0, 0}, {0, 140/107, globalc}, 1/2 + 107 I/11}, 
+{{0, 0, 0}, {0, 1/8, globalc}, 1/2 + 38 I/11}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2 + 59 I/11}, 
+{{0, 0, 0}, {0, 5/8, globalc}, 1/2 + 50 I/11}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2 + 61 I/11}, 
+{{0, 0, 0}, {0, 1/9, globalc}, 1/2 + 22 I/11}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 23 I/11}, 
+{{0, 0, 0}, {0, 4/9, globalc}, 1/2 + 24 I/11}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2 + 25 I/11}, 
+{{0, 0, 0}, {0, 7/9, globalc}, 1/2 + 26 I/11}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2 + 27 I/11}, 
+{{0, 0, 0}, {0, 1/10, globalc}, 1/2 + 28 I/11}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2 + 29 I/11}, 
+{{0, 0, 0}, {0, 7/10, globalc}, 1/2 + 30 I/11}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2 + 31 I/11}, 
+{{0, 0, 0}, {0, 1/11, globalc}, 1/2 + 32 I/11}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2 + 33 I/11}, 
+{{0, 0, 0}, {0, 3/11, globalc}, 1/2 + 34 I/11}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2 + 35 I/11}, 
+{{0, 0, 0}, {0, 5/11, globalc}, 1/2 + 36 I/11}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2 + 37 I/11}, 
+{{0, 0, 0}, {0, 7/11, globalc}, 1/2 + 38 I/11}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2 + 39 I/11}, 
+{{0, 0, 0}, {0, 9/11, globalc}, 1/2 + 40 I/11}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2 + 41 I/11}, 
+{{0, 0, 0}, {0, 1/12, globalc}, 1/2 + 42 I/11}, 
+{{0, 0, 0}, {0, 5/12, globalc}, 1/2 + 43 I/11}, 
+{{0, 0, 0}, {0, 7/12, globalc}, 1/2 + 44 I/11}, 
+{{0, 0, 0}, {0, 11/12, globalc}, 1/2 + 45 I/11}, 
+{{0, 0, 0}, {0, 1/13, globalc}, 1/2 + 46 I/11}, 
+{{0, 0, 0}, {0, 2/13, globalc}, 1/2 + 47 I/11}, 
+{{0, 0, 0}, {0, 3/13, globalc}, 1/2 + 48 I/11}, 
+{{0, 0, 0}, {0, 4/13, globalc}, 1/2 + 49 I/11}, 
+{{0, 0, 0}, {0, 5/13, globalc}, 1/2 + 50 I/11}, 
+{{0, 0, 0}, {0, 6/13, globalc}, 1/2 + 51 I/11}, 
+{{0, 0, 0}, {0, 7/13, globalc}, 1/2 + 52 I/11}, 
+{{0, 0, 0}, {0, 8/13, globalc}, 1/2 + 53 I/11}, 
+{{0, 0, 0}, {0, 9/13, globalc}, 1/2 + 54 I/11}, 
+{{0, 0, 0}, {0, 10/13, globalc}, 1/2 + 55 I/11}, 
+{{0, 0, 0}, {0, 11/13, globalc}, 1/2 + 56 I/11}, 
+{{0, 0, 0}, {0, 12/13, globalc}, 1/2 + 57 I/11}};
 
 startlis = { {1/2, 1/2, 1, 1, 1, 1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1/2, -1/2, -1, -1, -1, -1, -1,1,1,1,1,1,1,1,1,1,1,1,1}, {1/2, -1/2, 1, -1, 1, -1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1/2, 1/2, -1, 1, -1, 1, -1,1,1,1,1,1,1,1,1,1,1,1,1} };
 
 Print["searching near", {$twokappa, $lamstart}];
 
-thislabel = "RC" <> "_c4m" <> ToString[$badpm] <> "_"  <> ToString[$rdelta] <> "_" <> ToString[$twokappa] <> "_" <> ToString[$lamstart] <> "_" <>"1a";
+thislabel = "RC" <> "_c4m" <> ToString[$badpm] <> "_"  <> ToString[$rdelta] <> "_" <> ToString[$twokappa] <> "_" <> ToString[$lamstart] <> "_" <>"1d";
 
 Print["this label: ", thislabel];
 
@@ -303,7 +305,7 @@ For[ij=0, ij < $numsteps, ++ij,
   startindex = Mod[Floor[ij + 10 $lamstart] + 1, 4];
   startcoefval = startlis[[startindex + 1]];
 
-  thestartingvalues = findstartingvalues[{$lamstart + ij/$recipstep}, 1/1000, truncationerrorIN, mygandslistD1b500b,
+  thestartingvalues = findstartingvalues[{$lamstart + ij/$recipstep}, 1/1000, truncationerrorIN, mygandslistD1b500d,
     FEdegree3["rc", $rdelta, $twokappa, 4], myEV, startcoefval, mygflag, 50,
     myabsflag, EPdegree3[4, $badpm]];
 
@@ -317,7 +319,7 @@ For[ij=0, ij < $numsteps, ++ij,
   For[ee=1,ee<=Length[thestartingvalues],++ee,
           startcoefvalX = thestartingvalues[[ee]];
 Print["Starting values ",ee, " of ",Length[thestartingvalues], " : ", startcoefvalX];
-  testandsave[{$lamstart + ij/$recipstep}, unusedstarpts, boxsizeIN, truncationerrorIN, mygandslistD1b500b,
+  testandsave[{$lamstart + ij/$recipstep}, unusedstarpts, boxsizeIN, truncationerrorIN, mygandslistD1b500d,
     FEdegree3["rc", $rdelta, $twokappa, 4], myEV, startcoefvalX, mygflag, 50,
     myabsflag, EPdegree3[4, $badpm], thislabel, 9, 2, 10^-12];
 
