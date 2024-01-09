@@ -884,7 +884,7 @@ finddegree2eqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
 
   If[Length[EP[[2]]] > 2,
       If[Length[EP[[2,1]]] ==1 && Length[EP[[2,3]]] == 1,
-        PrependTo[degree2eqns, EPSILONR^2 + EPSILONI^2 - 1]
+        PrependTo[degree2eqns, EPSILONpR^2 + EPSILONpI^2 - 1]
       ]
   ];
 
