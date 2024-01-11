@@ -835,7 +835,7 @@ scalelist[numsolve_]:=Join[{0,1/10000000,1/100000,1/10000},
 	Flatten[Table[{1/1000,1/100,1/10,1},{j,1,numsolve/5}]],Flatten[Table[{1/2,1/2,1,1,1,2,2,2,5,5,5,10,20,20},{j,1,numsolve}]]];
 
 findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
-{ct, theunknowns, foundsols={},residuals={},tmp(*,startvals1*)},
+{ct, foundsols={},residuals={},tmp(*,startvals1*)},
 If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
 testunks={};
 theeqns=Take[eqns,Length[testunksIN[[1]]]];
@@ -882,7 +882,7 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
 ];
 
 findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
-{ct, theunknowns, foundsols={},residuals={},tmp(*,startvals1*)},
+{ct, foundsols={},residuals={},tmp(*,startvals1*)},
 If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
 testunks={};
 theeqns=Take[eqns,Length[testunksIN[[1]]]];

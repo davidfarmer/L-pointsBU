@@ -56,6 +56,7 @@
     supplemented degree2 equations to include |eps| = 1
 
     Terminate search if wandering
+    renamed "finddegree2equations" to "funddegree2andSIGNequations"
 *)
 
 debugging1 = False;  (* omits extra equaitons when degree is 2 *)
@@ -409,7 +410,10 @@ and the same for the detectors.  We use 8 detectors.
 
 *)
 
-    degree2eqns= finddegree2eqns[EP,unknowns];
+    degree2andSIGNeqns= finddegree2andSIGNeqns[FE,EP,unknowns];
+    signunknowns= findSIGNunknowns[FE];
+
+    unknowns = Flatten[{signunknowns, unknowns}];
 
 (*
     badfactoreqns = findbadfactoreqns[EP];
@@ -452,9 +456,9 @@ Print["testing ",starN,", :",thept];
 
         eq[starN] = makeequationsNEW[FEin, thept, gtab, stab, Ev,gflag,PRECIS];
 
-        If[Length[degree2eqns]>0 && Not[debugging1],
+        If[Length[degree2andSIGNeqns]>0 && Not[debugging1],
             Print["adding degree 2 equaitons"];
-            eq[starN] = Flatten[{degree2eqns,eq[starN]}];
+            eq[starN] = Flatten[{degree2andSIGNeqns,eq[starN]}];
         ];
 
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
@@ -546,7 +550,10 @@ and the same for the detectors.  We use 8 detectors.
 
 *)
 
-    degree2eqns= finddegree2eqns[EP,unknowns];
+    degree2andSIGNeqns= finddegree2andSIGNeqns[FE,EP,unknowns];
+    signunknowns= findSIGNunknowns[FE];
+
+    unknowns = Flatten[{signunknowns, unknowns}];
 
 (*
     badfactoreqns = findbadfactoreqns[EP];
@@ -594,9 +601,9 @@ Print["eqution at",InputForm[{FEin, thept, gtab, stab, Ev,gflag,PRECIS}]];
 (*
 Print["is", InputForm[eq[starN]]];
 *)
-        If[Length[degree2eqns]>0 && Not[debugging1],
-            Print["adding degree 2 equaitons"];
-            eq[starN] = Flatten[{degree2eqns,eq[starN]}];
+        If[Length[degree2andSIGNeqns]>0 && Not[debugging1],
+            Print["adding degree 2 andSIGNequaitons"];
+            eq[starN] = Flatten[{degree2andSIGNeqns,eq[starN]}];
         ];
 
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
@@ -860,26 +867,28 @@ Print[gsCount,"   ",numterms2];
   {unknowns,gsCount,numterms,numdetectors}
 ];
 
-finddegree2eqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
-  (* need to rename.  there are equations from degree 2 (char determines coeff sign)
-     and also |eps| = 1 of the sign is unknown *)
+findSIGNunknowns[fe_]:= If[NumberQ[fe[[4]]], {}, {EPSILONpR, EPSILONpI}];
+
+finddegree2andSIGNeqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
+  (* there are equations from degree 2 (char determines coeff sign),
+     and also |eps| = 1 if the sign is unknown *)
   degree2eqns={};
   If[EP[[1,1]] == 2,
      (* degree 2 Euler product, so get a new equation when the character is nonzero *)
-   thecharacter=EP[[1, 2]];
-   theconductor=Length[thecharacter];
-   For[jp=1,jp<=Length[unknowns],jp +=2,
-    theindex=unknowns[[jp]][[-1]];
-    If[thecharacter[[Mod[theindex,theconductor,1] ]] ==0,Continue[],
-      thecharval= thecharacter[[Mod[theindex,theconductor,1] ]];
-      If[thecharval == 1,AppendTo[degree2eqns,bb2[theindex]],
-        If[thecharval == -1, AppendTo[degree2eqns,bb1[theindex]],
-          AppendTo[degree2eqns,
-            bb1[theindex] - (Re[thecharval] bb1[theindex] + Im[thecharval] bb2[theindex])]
-          ]
-        ]
-      ]
-   ]
+    thecharacter=EP[[1, 2]];
+    theconductor=Length[thecharacter];
+    For[jp=1,jp<=Length[unknowns],jp +=2,
+     theindex=unknowns[[jp]][[-1]];
+     If[thecharacter[[Mod[theindex,theconductor,1] ]] ==0,Continue[],
+       thecharval= thecharacter[[Mod[theindex,theconductor,1] ]];
+       If[thecharval == 1,AppendTo[degree2eqns,bb2[theindex]],
+         If[thecharval == -1, AppendTo[degree2eqns,bb1[theindex]],
+           AppendTo[degree2eqns,
+             bb1[theindex] - (Re[thecharval] bb1[theindex] + Im[thecharval] bb2[theindex])]
+           ]
+         ]
+       ]
+    ]
   ];
 
   If[Length[EP[[2]]] > 2,
@@ -890,6 +899,36 @@ finddegree2eqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
 
   degree2eqns
 ];
+
+finddegree2andSIGNeqns[FE_, EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
+  (* there are equations from degree 2 (char determines coeff sign),
+     and also |eps| = 1 if the sign is unknown *)
+  degree2eqns={};
+  If[EP[[1,1]] == 2,
+     (* degree 2 Euler product, so get a new equation when the character is nonzero *)
+    thecharacter=EP[[1, 2]];
+    theconductor=Length[thecharacter];
+    For[jp=1,jp<=Length[unknowns],jp +=2,
+     theindex=unknowns[[jp]][[-1]];
+     If[thecharacter[[Mod[theindex,theconductor,1] ]] ==0,Continue[],
+       thecharval= thecharacter[[Mod[theindex,theconductor,1] ]];
+       If[thecharval == 1,AppendTo[degree2eqns,bb2[theindex]],
+         If[thecharval == -1, AppendTo[degree2eqns,bb1[theindex]],
+           AppendTo[degree2eqns,
+             bb1[theindex] - (Re[thecharval] bb1[theindex] + Im[thecharval] bb2[theindex])]
+           ]
+         ]
+       ]
+    ]
+  ];
+
+  If[!NumberQ[FE[[4]]],
+    PrependTo[degree2eqns, EPSILONpR^2 + EPSILONpI^2 - 1]
+  ];
+
+  degree2eqns
+];
+
 
 findbadfactoreqns[EP_]:= Block[{neweqns,thisp},
   neweqns = {};
