@@ -417,9 +417,9 @@ and the same for the detectors.  We use 8 detectors.
 
 (*
     badfactoreqns = findbadfactoreqns[EP];
-*)
     badfactorsubstitutions = findbadfactorsubstitutions[EP];
 
+*)
     (* the following was the wrong way to do it, because it accidentally
     decreased the number of detectors *)
 
