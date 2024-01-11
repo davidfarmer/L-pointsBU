@@ -854,7 +854,7 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
 *)
 
    thescalelist = Flatten[Union[{0},
-               Table[1/10^j, {j, 0, 6}, {k, 1, 5}], {{1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
+               Table[1/10^j, {j, 0, 6}, {k, 1, 5}], {{1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
    For[nn=1,nn<=Length[testunks],++nn,
      ct=0;
      While[ct<Length[thescalelist],++ct;
