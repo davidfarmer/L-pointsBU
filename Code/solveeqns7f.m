@@ -817,7 +817,7 @@ eulersubsbad[1,p_,""]:={bb1[p^2] -> bb1[p]^2 - bb2[p]^2,
     60*bb1[p]^3*bb2[p]^7 + 5*bb1[p]*bb2[p]^9)}
 
 (* missing Euler factor *)
-eulersubsbad[0,p_,""]:=Flaten[Table[{bb1[p^j] -> 0, bb2[p^j] -> 0},{j,1,10}]];
+eulersubsbad[0,p_,""]:=Flatten[Table[{bb1[p^j] -> 0, bb2[p^j] -> 0},{j,1,10}]];
 
 (* next step:  use  multsubs[sumlim] followed by substitutions for the good factors,
 and then the bad factors *)
