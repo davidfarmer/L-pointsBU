@@ -867,7 +867,7 @@ Print[gsCount,"   ",numterms2];
   {unknowns,gsCount,numterms,numdetectors}
 ];
 
-findSIGNunknowns[fe_]:= If[NumberQ[fe[[4]]], {}, {EPSILONpR, EPSILONpI}];
+findSIGNunknowns[feold_]:= If[NumberQ[feold[[5]]], {}, {EPSILONpR, EPSILONpI}];
 
 finddegree2andSIGNeqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
   (* there are equations from degree 2 (char determines coeff sign),
@@ -900,7 +900,7 @@ finddegree2andSIGNeqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharac
   degree2eqns
 ];
 
-finddegree2andSIGNeqns[FE_, EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
+finddegree2andSIGNeqns[FEold_, EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
   (* there are equations from degree 2 (char determines coeff sign),
      and also |eps| = 1 if the sign is unknown *)
   degree2eqns={};
@@ -922,7 +922,7 @@ finddegree2andSIGNeqns[FE_, EP_,unknowns_]:=Block[{theconductor,degree2eqns,thec
     ]
   ];
 
-  If[!NumberQ[FE[[4]]],
+  If[!NumberQ[FEold[[5]]],
     PrependTo[degree2eqns, EPSILONpR^2 + EPSILONpI^2 - 1]
   ];
 
