@@ -81,6 +81,8 @@ FEoldtonew[fe_] := Block[{j,thegammaRs,thegammaCs,theConductor,theSign,thereshif
   {thegammaRs, thegammaCs, theConductor, theSign}
   ];
 
+infinitysign[fenew_]:= Product[I^(fenew[[1,jo,1]]), {jo,1,Length[fenew[[1]]]}] Product[I^(2 fenew[[2,jo,1]] + 1), {jo,1,Length[fenew[[2]]]}];
+
 (* Rubinstein's g(s): test function in the approximate functional equation *)
 (* gg[b_,w_]:= (1+w)^(b[[1]]) E^(-1*b[[2]] I w + b[[3]] w^2) *)
 gg[b_,w_]:= (w - 1/2)^(b[[1]]) E^(-1*b[[2]] I w + b[[3]] w^2) 
@@ -145,6 +147,8 @@ Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=(Lambdaold[FE,b,s,Ev,gflag,PRECIS]/Abs[HOLD[
 
 SetAttributes[bb1, NHoldAll];
 SetAttributes[bb2, NHoldAll];
+SetAttributes[EPSILONpR, NHoldAll];
+SetAttributes[EPSILONpI, NHoldAll];
 
 f1[FE_,b_,s_,n_,ev_,gflag_,PRECIS_]:=Block[{lambdaR,lambdaI,kappa,QQ,omega,nu,istep,LIMI1m,LIMI1p},
         {lambdaR,lambdaI,kappa,QQ,omega}=FE;

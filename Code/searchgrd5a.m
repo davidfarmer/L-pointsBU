@@ -414,8 +414,8 @@ and the same for the detectors.  We use 8 detectors.
 
 *)
 
-    degree2eqns= finddegree2eqns[FE,EP,unknowns];
-    signeqns= findsigneqns[FE,EP,unknowns];
+    degree2eqns= finddegree2eqns[EP,unknowns];
+    signeqns= findsigneqns[FE,EP];
     signunknowns= findSIGNunknowns[FE, EP];
 
     unknowns = Flatten[{signunknowns, unknowns}];
@@ -481,7 +481,7 @@ tmpeqsolv = eqsolv[starN];
 
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
-        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals,500,targeteps,{4,0.1}];
+        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals,5 (*500*),targeteps,{4,0.1}];
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
 
         If[ans[starN]=={},
@@ -511,8 +511,7 @@ searchonce[initguessIN_ (* the initial guess *),
 	gflag_ (* usually use gflag=1 for the Stefan version of g *),
 	PRECIS_ (* precision to use *),
 	absflag_ (* 1 to use absolute errors in the truncation error, 0 for relative *),
-	EP_ (* describes the shape of the Euler product *)]:=Block[
-              {jz,kz,numterms,FE,numtermsTAB,Ev},
+	EP_ (* describes the shape of the Euler product *)]:=Block[{jz,kz,numterms,FE,numtermsTAB,Ev},
     starpts=thestarpts[Length[initguessIN]];
     DETECTPRECIS=PRECIS;
     detectedpoints={};
@@ -556,8 +555,8 @@ and the same for the detectors.  We use 8 detectors.
 
 *)
 
-    degree2eqns= finddegree2eqns[FE,EP,unknowns];
-    signeqns= findsigneqns[FE,EP,unknowns];
+    degree2eqns= finddegree2eqns[EP,unknowns];
+    signeqns= findsigneqns[FE,EP];
     signunknowns= findSIGNunknowns[FE, EP];
 
     unknowns = Flatten[{signunknowns, unknowns}];
@@ -669,8 +668,8 @@ Print[ans[starN]]
     ]; (* For starN *)
 
     If[numdetectors==0,
-        ans[1], (* just stop if only one point is being searched *)
-
+        ans[1] (* just stop if only one point is being searched *)
+      ,
         detectans=Table[ans[starN],{starN,1,Length[detectpts]}];
         thedetectors=Table[detecteq[starN],{starN,1,Length[detectpts]}];
            Print["about to check4pts", detectpts];
@@ -685,7 +684,8 @@ Print[ans[starN]]
 
         {themedian, cp, Precision[{themedian, cp, detectANS}],
             {starepsIN,numtermsIN,PRECIS},
-            Transpose[newcoeffs[[1]]][[2]], detectANS[[2]], detectANS[[1]]}
+            Transpose[newcoeffs[[1]]][[2]], detectANS[[2]], detectANS[[1]],
+            unknowns}
     ]
 ];
 
@@ -911,7 +911,7 @@ finddegree2eqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
 ];
 
 findsigneqns[feold_,ep_] := Block[{},
-    thesign = feold[[4]];
+    thesign = feold[[5]];
     If[Coefficient[thesign, EpsilonR] == 0,
         (* sign is known *)
         signeqns = {EpsilonR - Re[thesign], EpsilonI -  Im[thesign]}
@@ -923,18 +923,18 @@ findsigneqns[feold_,ep_] := Block[{},
     newEpApeqns = {};
     If[Length[ep[[2,1]]] > 0,
       fenew = FEoldtonew[feold];
-      infinitysign = I
+      theinfinitysign = infinitysign[fenew];
       If[Length[ep[[2,1]]] == 1,
         thisprime = ep[[2,1,1]];
-        newsigneqns = {Re[infinitysign] EPSILONpR[thisprime] - Im[infinitysign] EPSILONpI[thisprime],
-	               Re[infinitysign] EPSILONpI[thisprime] + Im[infinitysign] EPSILONpR[thisprime]};
+        newsigneqns = {Re[theinfinitysign] EPSILONpR[thisprime] - Im[theinfinitysign] EPSILONpI[thisprime] - EpsilonR,
+	               Re[theinfinitysign] EPSILONpI[thisprime] + Im[theinfinitysign] EPSILONpR[thisprime] - EpsilonI};
         If[Length[ep[[2]]] > 2,
-           newEpApeqns = ep[[2,3,1]];
+           newEpApeqns = ep[[2,3]];
         ]
         ,
         Print["error: multiple bad primes not implemented", ep, fenew]
        ]
-     ]
+   ];
    signeqns = Flatten[{newsigneqns, newEpApeqns, signeqns}];   
    signeqns
 ];

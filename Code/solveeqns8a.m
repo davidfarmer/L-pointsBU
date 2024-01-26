@@ -481,8 +481,11 @@ converteqnsALL[EP_, eqns_, numterms_,absflag_] := Block[{(*tmpeqns, tmpeqns1, tm
   tmpeqns2 = (tmpeqns1R/.multsubs[numterms]);  (* replace a_{nm} by a_n a_m for (m,n)=1 *)
   tmpeqns3 = goodprimepowersubs[EP, tmpeqns2, numterms];
   tmpeqns4 = badprimepowersubs[EP, tmpeqns3, numterms];
+(*
   tmpeqns4noEPSILON = localsignsubs[EP, tmpeqns4];
   (tmpeqns4noEPSILON/.{bb1[1]->1,bb2[1]->0})
+*)
+  (tmpeqns4/.{bb1[1]->1,bb2[1]->0})
 ];
 (*  tmpeqns2 = makeaALLequations[lev, tmpeqns1]]; *)
 (* need to replace makeaALLequations by several steps *)
@@ -504,7 +507,7 @@ subsAn[anlis_]:=Flatten[Table[{bb1[j]->anlis[[2j-1]],bb2[j]->anlis[[2j]]},{j,1,L
 
 substitutionsFromAp[ep_, ap_, numterms_] := Block[{},
   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-(* below is bad redundancy from localsignsubs *)
+(* below is wrong because of now we now handle local signs *)
   If[Length[ep[[2]]] > 2,
       If[Length[ep[[2,1]]] ==1 && Length[ep[[2,3]]] == 1, (* simplest case *)
         thebadprime = ep[[2,1,1]];
@@ -534,12 +537,12 @@ realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
   Block[{j},
   Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
     realscalefactor0 = (Coefficient[xx, bb1[1]]/.Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
-    realscalefactor = realscalefactor0 /. {EPSILONR -> 0, EPSILONI -> 0};
+    realscalefactor = realscalefactor0 /. {EpsilonR -> 0, EpsilonI -> 0};
     If[realscalefactor == 0,(*Print["zero for realscalefactor"];*)
       realscalefactor = 1];
     yy = Expand[xx/realscalefactor];
     Simplify[ComplexExpand[Re[yy]], 
-       Flatten[{{EPSILONR \[Element] Reals, EPSILONI \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]],
+       Flatten[{{EpsilonR \[Element] Reals, EpsilonI \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]],
   {k1, 1, Length[xxlis]}]
 ];
 
@@ -613,6 +616,7 @@ badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprim
     eqnsTMP
 ];
 
+(* this no longer used *)
 localsignsubs[EP_, eqns_]:= Block[{eqnsTMP},
     eqnsTMP = eqns;
     If[Length[EP[[2]]] > 2,
@@ -839,14 +843,15 @@ scalelist[numsolve_]:=Join[{0,1/10000000,1/100000,1/10000},
 	Flatten[Table[{1/1000,1/100,1/10,1},{j,1,numsolve/5}]],Flatten[Table[{1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1,1,1,2,2,2,5,5,5,10,20,20},{j,1,numsolve}]]];
 
 findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
-{ct, foundsols={},residuals={},tmp(*,startvals1*)},
-If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
-testunks={};
-theeqns=Take[eqns,Length[testunksIN[[1]]]];
-eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
-For[jf=1,jf<=Length[testunksIN],++jf,
-AppendTo[testunks,
-Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[testunksIN[[jf]]]}]]];
+          {ct, foundsols={},residuals={},tmp(*,startvals1*)},
+   If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
+   testunks={};
+   theeqns=Take[eqns,Length[testunksIN[[1]]]];
+   eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
+   For[jf=1,jf<=Length[testunksIN],++jf,
+      AppendTo[testunks,
+      Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[testunksIN[[jf]]]}]]
+   ];
 
 (* eqns : the equations
    theunkns     : the unknowns in the equations
@@ -857,8 +862,8 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
    eps2 : how close the numcheck unknowns have to be to be the same
 *)
 
-   thescalelist = Flatten[Union[{0},
-               Table[1/10^j, {j, 0, 6}, {k, 1, 5}], {{1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
+   thescalelist = Sort[Flatten[{{0},
+               Table[1/10^j, {j, 0, 6}, {k, 1, 5}], {1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
    For[nn=1,nn<=Length[testunks],++nn,
      ct=0;
      While[ct<Length[thescalelist],++ct;
@@ -868,9 +873,10 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
              {testunks[[nn]][[j,1]],tmp=testunks[[nn]][[j,2]]+thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]];
         For[j=Length[testunks[[nn]]]+1,j<=Length[theunkns],++j,
            AppendTo[startvals1,
-         (*    {theunkns[[j]],tmp=thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, 101/100 tmp}]]; *)
-             (* previous version was unused (because we pre-pad with 0s) but woudl have been wrong if tmp == 0 *)
              {theunkns[[j]],tmp=thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, 1/100 + tmp}]];
+(*
+Print[Length[theeqns], " equations and ", Length[startvals1], " unknowns",N[startvals1]];
+*)
         test = FindRoot[theeqns, startvals1, Method -> "Secant",
                 WorkingPrecision->(*-5+*)eqnPRECISION, MaxIterations->200];
         vec = theeqns /. test;
@@ -886,14 +892,15 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
 ];
 
 findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
-{ct, foundsols={},residuals={},tmp(*,startvals1*)},
-If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
-testunks={};
-theeqns=Take[eqns,Length[testunksIN[[1]]]];
-eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
-For[jf=1,jf<=Length[testunksIN],++jf,
-AppendTo[testunks,
-Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[testunksIN[[jf]]]}]]];
+          {ct, foundsols={},residuals={},tmp(*,startvals1*)},
+    If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
+    testunks={};
+    theeqns=Take[eqns,Length[testunksIN[[1]]]];
+    eqnPRECISION=Floor[Precision[theeqns/.Table[theunkns[[j]] -> 0, {j, 1, Length[theunkns]}]]];
+    For[jf=1,jf<=Length[testunksIN],++jf,
+        AppendTo[testunks,
+        Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[testunksIN[[jf]]]}]]
+    ];
 
 (* eqns : the equations
    theunkns     : the unknowns in the equations
@@ -904,6 +911,7 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
    eps2 : how close the numcheck unknowns have to be to be the same
 *)
    thescalelist=scalelist[numsolve];
+   foundone = False;
    For[nn=1,nn<=Length[testunks],++nn,
      ct=0;
      While[ct<Length[thescalelist],++ct;
@@ -917,12 +925,12 @@ Table[{testunksIN[[jf,j,1]],SetPrecision[testunksIN[[jf,j,2]],100]},{j,1,Length[
            AppendTo[startvals1,
              {theunkns[[j]],tmp=thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, 101/100 tmp}]];
 (*
-Print["findroot with startvals1",N[startvals1]];
+Print[ct, " findroot with startvals1",N[startvals1]];
 *)
         test = FindRoot[theeqns, startvals1, Method -> "Secant",
 		WorkingPrecision->(*-5+*)eqnPRECISION];
         vec = theeqns /. test;
-        If[Norm[vec]<eps,AppendTo[foundsols,test];AppendTo[residuals,Norm[vec]]];
+        If[Norm[vec]<eps, If[!foundone, foundone=True; Print["found solution on attempt ", ct]]; AppendTo[foundsols,test];AppendTo[residuals,Norm[vec]]];
      ];
    ];
    foundsols=tossrepeats[foundsols,residuals,theunkns,numcheck,eps2]
