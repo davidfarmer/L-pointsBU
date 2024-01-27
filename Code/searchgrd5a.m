@@ -61,6 +61,8 @@
 5a: major change in how FE signs are handled
       - the sign is always an unknown (even when actually known)
       - for every bad prime, eps_p is an unknown
+
+    changed itemtosave format (added the unknowns as an entry)
 *)
 
 debugging1 = False;  (* omits extra equaitons when degree is 2 *)
@@ -142,8 +144,8 @@ testandsave[initguessIN_ (* the initial guess *),
                 tmpY[[1,jo]] = initguessIN[[jo]] + (wanderlimit/2) RandomReal[{-1,1}]
             ];
             If[mode == "zooming",
-                tmpY[[-3]] = coeffstartX,  (* use previous (while zooming) coefficients *)
-                tmpY[[-3]] = coeffstartIN   (* don't use the wandering coefficients *)
+                tmpY[[5]] = coeffstartX,  (* use previous (while zooming) coefficients *)
+                tmpY[[5]] = coeffstartIN   (* don't use the wandering coefficients *)
             ];
             relativeerror = 10 (* to prevent zooming, because we moved to a new random place *)
         ]
@@ -163,7 +165,7 @@ testandsave[initguessIN_ (* the initial guess *),
     Print["starepsX is", starepsX];
     numtermsX = roundfraction[numtermsX];
 
-    coeffstartX=tmpY[[-3]];  (* probably shodl be set before the wandering check, *)
+    coeffstartX=tmpY[[5]];  (* probably shodl be set before the wandering check, *)
     myguessX=tmpY[[1]];      (* and then these can be set directly if wandering *)
 
     If[mode == "zooming" && relativeerror > 0.7,  (* probably spinning, so use more coefficients *)
@@ -231,17 +233,22 @@ testandsave[initguessIN_ (* the initial guess *),
   Print["numknowncoeffs", numknowncoeffs, "which starts", prevtmpY[[5,1]],"compared to", Length[tmpY[[5]]], "which startts", tmpY[[5,1]]];
 
   itemtosave = {
-    type (* string designated in perl script to identify the symmetry type being investigated *),
+    masterversion (* string designated in perl script to identify the symmetry type being investigated *),
     versionnumber (* version of the Mathematica code combination, set in perl script *),
-    versioneqns (* version of equations, set in perl script *),
+    {type, versioneqns} (* string designated in perl script, version of equations, set in perl script *),
     {
       tmpY[[1]] (* final value of search parameter(s) *),
       FEin (* functional equation data, incluing XX[[n]] to be replaced by search parameters *),
       EP (* Euler product data *),
+      tmpY[[5]] (* final values of coefficients *),
+      tmpY[[8]] (* the unknowns *),
+      masterversion
+(*
       If[Length[tmpY[[5]]] >= numknowncoeffs,
-         Take[tmpY[[5]], numknowncoeffs], (* final values of coefficients *)
-         tmpY[[5]]
+         Take[tmpY[[5]], numknowncoeffs],
+         tmpY[[5]] 
       ]
+*)
     },
     {
       N[Abs[(tmpY[[1]]-prevtmpY[[1]])]] (* upper bound on uncertainty in final search parameters;
@@ -390,7 +397,7 @@ findstartingvalues[initguessIN_ (* the initial guess *),
 *)
     FE = (FE/.Table[XX[j]->initguess[[j]],{j,1,Length[initguess]}]);
 
-    lev=FE[[3]];
+    lev=FEin[[3]];
     nu=EvIN[[1]];
     istep=stepsizeRM[nu, PRECIS];
     ev={nu,istep};
@@ -531,7 +538,7 @@ searchonce[initguessIN_ (* the initial guess *),
 *)
     FE = (FE/.Table[XX[j]->initguess[[j]],{j,1,Length[initguess]}]);
 
-    lev=FE[[3]];
+    lev=FEin[[3]];
     nu=EvIN[[1]];
     istep=stepsizeRM[nu, PRECIS];
     ev={nu,istep};
@@ -929,7 +936,7 @@ findsigneqns[feold_,ep_] := Block[{},
         newsigneqns = {Re[theinfinitysign] EPSILONpR[thisprime] - Im[theinfinitysign] EPSILONpI[thisprime] - EpsilonR,
 	               Re[theinfinitysign] EPSILONpI[thisprime] + Im[theinfinitysign] EPSILONpR[thisprime] - EpsilonI};
         If[Length[ep[[2]]] > 2,
-           newEpApeqns = ep[[2,3]];
+           newEpApeqns = ep[[2,3,1]];
         ]
         ,
         Print["error: multiple bad primes not implemented", ep, fenew]
@@ -939,7 +946,7 @@ findsigneqns[feold_,ep_] := Block[{},
    signeqns
 ];
 
-findbadfactoreqns[EP_]:= Block[{neweqns,thisp},
+DONOTUSEfindbadfactoreqns[EP_]:= Block[{neweqns,thisp},
   neweqns = {};
   If[Length[EP] > 2,
     If[EP[[3,1]] == 3 && EP[[3,3]] == "IVa",
@@ -1029,11 +1036,17 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
    If[theyareclose,Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];
     counter += 1;
     If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
-       slis = Delete[slis, j],
+       Print["deleting item ", j, " of ", Length[slis]];
+       slis = Delete[slis, j];
+       j -= 1
+      ,
+       Print["deleting item ", j + 1, " of ", Length[slis]];
        slis = Delete[slis, j + 1];
        j -= 1
       ,
-       slis = Delete[slis, j]
+       Print["deleting item ", j, " of ", Length[slis]];
+       slis = Delete[slis, j];
+       j -= 1
     ]
    ]
   ];
