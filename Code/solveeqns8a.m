@@ -840,7 +840,7 @@ scalelist[numsolve_]:={0,1/10000000,1,1,1};
 	(* to speed up the zooming case *)
 
 scalelist[numsolve_]:=Join[{0,1/10000000,1/100000,1/10000},
-	Flatten[Table[{1/1000,1/100,1/10,1},{j,1,numsolve/5}]],Flatten[Table[{1/4,1/4,1/4,1/4,1/4,1/4,1/4,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1,1,1,2,2,2,5,5,5,10,20,20},{j,1,numsolve}]]];
+	Flatten[Table[{1/1000,1/100,1/10,1,10},{j,1,numsolve/5}]],Flatten[Table[{1/4,1/2,1/2,1,1,1,2,2,2,2,2,2,5,5,5,5,5,5,10,10,20,20},{j,1,numsolve}]]];
 
 findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
           {ct, foundsols={},residuals={},tmp(*,startvals1*)},
@@ -863,7 +863,7 @@ findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Bl
 *)
 
    thescalelist = Sort[Flatten[{{0},
-               Table[1/10^j, {j, 0, 6}, {k, 1, 5}], {1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
+               Table[1/10^j, {j, 0, 6}, {k, 1, 5}], {1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
    For[nn=1,nn<=Length[testunks],++nn,
      ct=0;
      While[ct<Length[thescalelist],++ct;
