@@ -918,7 +918,7 @@ findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := B
         startvals1={};
         For[j=1,j<=Length[testunks[[nn]]],++j,
            originfactor = 1;  (* determines whether we use the input value, its negative, or 0 as the offset of the random part of the initial value *)
-           If[ct>50, originfactor = 0];
+           If[ct>20, originfactor = 0];
            AppendTo[startvals1,
              {testunks[[nn]][[j,1]],tmp=originfactor testunks[[nn]][[j,2]]+thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]];
         For[j=Length[testunks[[nn]]]+1,j<=Length[theunkns],++j,

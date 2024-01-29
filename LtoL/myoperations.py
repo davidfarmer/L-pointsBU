@@ -196,19 +196,24 @@ def mytransform_ldata(text):
 
     thetext = re.sub(r" +", "", thetext)
 
+#    print("in mytransform_ldata thetext starts", thetext[:70])
+
     # hack becaise of different runs
     thetext = re.sub(r'"cR', '"R', thetext)
     thetext = re.sub(r'retry', '', thetext)
     thetext = re.sub(r'HRmoreB', '', thetext)
     thetext = re.sub(r'HRmore', '', thetext)
     thetext = re.sub(r'HR', '', thetext)
+    thetext = re.sub(r'Attributes.*', '', thetext)
 
     if not thetext.startswith('itemtosave'):
-        print("starts with", thetext[:50])
+        print("starts with", thetext[:80])
         print("data file starts wrong, quitting")
         die()
 
     if thetext.startswith('itemtosave={"R0_R1_R1",'):
+
+      thisshouldbeunreachable()
 
       thetext = re.sub(r"\\\s+", "", thetext)
       thetext = re.sub("\s", "", thetext)
@@ -285,6 +290,9 @@ def mytransform_ldata(text):
           # save equationlist
           equationlist = re.search('^([^,]+),', thetext).group(1)
           thetext = re.sub('^([^,]+),', "", thetext)
+
+          runandgslist, thetext = utilities.first_bracketed_string(thetext)
+          thetext = re.sub("^\s*,*", "", thetext)
 
           thedata, thetext = utilities.first_bracketed_string(thetext)
           thetext = re.sub("^\s*,*", "", thetext)
