@@ -288,6 +288,8 @@ roundfraction[frac_, prec_] := Block[{size, num},
         
 roundfraction[frac_]:=roundfraction[frac,1];  (* 1 means 2 digits in numerator *)
 
+linkedRandom[x_]:= {};
+
 (*
 convert[11.761250, 18.9024]
 {-1.19019, -7.07082}

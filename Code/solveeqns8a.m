@@ -920,16 +920,43 @@ findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := B
            originfactor = 1;  (* determines whether we use the input value, its negative, or 0 as the offset of the random part of the initial value *)
            If[ct>20, originfactor = 0];
            AppendTo[startvals1,
-             {testunks[[nn]][[j,1]],tmp=originfactor testunks[[nn]][[j,2]]+thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]];
+             {testunks[[nn]][[j,1]],tmp=originfactor testunks[[nn]][[j,2]]+thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]
+        ];
         For[j=Length[testunks[[nn]]]+1,j<=Length[theunkns],++j,
            AppendTo[startvals1,
-             {theunkns[[j]],tmp=thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, 101/100 tmp}]];
+             {theunkns[[j]],tmp=thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, 1001/1000 tmp}]
+        ];
+        If[ct > 100,
+            specialstartvals = linkedRandom[RandomReal[]];
+            For[aj=1, aj<=Length[specialstartvals], ++aj,
+               startvals1[[aj,2]] = specialstartvals[[aj]];
+               startvals1[[aj,3]] = 1001/1000 specialstartvals[[aj]];
+            ]
+        ];
 (*
-Print[ct, " findroot with startvals1",N[startvals1]];
+Print[ct, " ", specialstartvals];
 *)
+(*
         test = FindRoot[theeqns, startvals1, Method -> "Secant",
-		WorkingPrecision->(*-5+*)eqnPRECISION];
+		WorkingPrecision->eqnPRECISION];
+
+        test = FindRoot[SetPrecision[theeqns, 25+eqnPRECISION], startvals1, Method -> "Secant",
+		WorkingPrecision->25+eqnPRECISION];
+*)
+        test = FindRoot[SetPrecision[theeqns, 25+eqnPRECISION], startvals1, Method -> "Secant",
+		WorkingPrecision->25+eqnPRECISION, MaxIterations->100];
         vec = theeqns /. test;
+        vec = SetPrecision[vec, 100];  (* because sometimes a residual is too close to 0 *)
+
+(*
+        Print["this residual:",Norm[vec], " from ",  N[Take[test,8]]];
+*)
+(*
+        If[Norm[vec]<eps, Print[ct, "found something ", N[Take[test,12]]]];
+
+        If[Precision[Norm[vec]] < 1,Print[ct, "Low precision", vec]];
+*)
+
         If[Norm[vec]<eps, If[!foundone, foundone=True; Print["found solution on attempt ", ct]]; AppendTo[foundsols,test];AppendTo[residuals,Norm[vec]]];
      ];
    ];
