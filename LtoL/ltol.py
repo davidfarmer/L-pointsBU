@@ -452,7 +452,7 @@ if component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly', 'zdata']:
         mmafile1.write("math < ~/L-pointsBU/LtoL/tmpfile2.m" + "\n")
 
     with open("tmpfile2.m", 'w') as mmafile2:
-        mmafile2.write('Import["~/L-pointsBU/Code/searchgrd4t.m", "NB"];' + "\n")
+        mmafile2.write('Import["~/L-pointsBU/Code/searchgrd5a.m", "NB"];' + "\n")
         mmafile2.write('Import["' + outputfile + '", "NB"];' + "\n")
         mmafile2.write('trimmedsummary = tossRepeats[summary];' + "\n")
         trimmedoutputfile = re.sub("summary","trimmedsummary", outputfile)
