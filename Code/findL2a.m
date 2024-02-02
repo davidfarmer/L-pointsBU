@@ -25,6 +25,10 @@ not change the number of unknowns needed, and will make it twice as fast.
 4e: changed gg to begin at 1/2
 
 L1b: changing the FE format.  Added functions to convert between formats.
+
+L2a: changes due to new EP format
+     added masterversion
+
 ****************************** *)
 
 (* the new format for functional equations is
@@ -40,6 +44,7 @@ L1b: changing the FE format.  Added functions to convert between formats.
    assuming it was always 1.
 *)
 
+masterversion = 2.0;
 
 FEnewtoold[fe_]:= Block[{j, reshifts, imshifts, sfactors, Qfactor, sign, phasefactor},
 (*	Print["fe in new notation", fe];  *)
@@ -282,6 +287,8 @@ roundfraction[frac_, prec_] := Block[{size, num},
    ];
         
 roundfraction[frac_]:=roundfraction[frac,1];  (* 1 means 2 digits in numerator *)
+
+linkedRandom[x_]:= {};
 
 (*
 convert[11.761250, 18.9024]
