@@ -391,6 +391,7 @@ findstartingvalues[initguessIN_ (* the initial guess *),
     Print["Initial guess: ",initguess, " which is approximately ",N[initguess,16]];
     Print["Initial coefficients: ", N[startcoeffs]];
     (* FE[[2]]=pairtotriple[initguess]; *)
+    Print["Functional equation ", FEin];
     FE = FEnewtoold[FEin];
 (*
     FE = (FEin/.Table[XX[j]->initguess[[j]],{j,1,Length[initguess]}]);
@@ -488,13 +489,13 @@ tmpeqsolv = eqsolv[starN];
 
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
-(* EXPERIMENT *)        targeteps = 10^(-4);
+(* EXPERIMENT *)        targeteps = 10^(-6);
         ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 100,targeteps,{4,0.1}];
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
 
         If[ans[starN]=={},
             Print["No solution at point ",starN,". Trying again."];
-            ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals,50,targeteps,{4,0.1}];
+            ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals,50,targeteps/10,{4,0.1}];
 Print["all these starting values ",ans[starN]]
         ];
 
@@ -845,14 +846,14 @@ findgsandnumterms[numtermsIN_,FE_,gANDsList_,ev_,gflag_,PRECIS_,
         FE, gANDsList[[1,2]], gANDsList[[1,3]], ev, Abs[numtermsIN],gflag,PRECIS,Sign[absflag]][[1]]};
   ];  (* If  *)
 
-  Print[numterms1];
+  Print["numterms1: ",numterms1];
   numterms=Max[numterms1];
 
   If[numterms < 3, numterms = 3];  (* later code assumes at least 4 unknowns.
                                       with numterms=3, the unknowns are bb1[2], bb2[2], bb1[3], bb2[3] *)
 
   unknowns=theunknowns[EP,numterms];
-  Print["number of unknowns for first equation: ", Length[unknowns]];
+  Print["number of unknowns for first equation: ", Length[unknowns], " which are ", unknowns];
 
   (* now build up the list of {g1,g2,s} for solving and detecting *)
   (* keep adding pairs until there are enough, adjusting the target along the way*)
