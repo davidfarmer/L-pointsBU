@@ -1048,7 +1048,7 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
      ]  (* if we are at a prime power *)
     ];  (*for *)
   If[Length[ep[[2]]] > 2, (* case of known shape of bad factor *)
-    If[Length[ep[[2,1]]] > 1 || ep[[2,2]] != {1}, Print["Error: unimplemented case"]];
+    If[Length[ep[[2,1]]] > 1 || ep[[2,2]] != {1}, Print["Error: possibly unimplemented case::", ep]];
   ];
 Flatten[ans]
 ];
