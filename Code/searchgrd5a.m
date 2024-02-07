@@ -489,7 +489,7 @@ tmpeqsolv = eqsolv[starN];
 
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
-(* EXPERIMENT *)        targeteps = 10^(-6);
+(* EXPERIMENT *)        targeteps = 10.0^(-DETECTPRECIS/4);
         ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 100,targeteps,{4,0.1}];
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
 
@@ -639,19 +639,19 @@ Print["is", InputForm[eq[starN]]];
 *)
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
-        ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,targeteps,{4,0.1}];
+        ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,12,targeteps,{4,0.1}];
       (*  ans[starN]=Sort[ans[starN]];
        As per 4c *)
         Print[ans[starN]];
 
+(*
         If[ans[starN]=={},
             Print["No solution at point ",starN,". Trying again."];
             targeteps = 10.0^(-DETECTPRECIS/2);
             ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,targeteps,{4,0.1}];
-       (*     ans[starN]=Sort[ans[starN]];
-       As per 4c *)
 Print[ans[starN]]
         ];
+*)
 
         If[ans[starN]=={},
            Print["No solution at point ",starN,". Stopping."];
