@@ -489,15 +489,17 @@ tmpeqsolv = eqsolv[starN];
 
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
-(* EXPERIMENT *)        targeteps = 10.0^(-DETECTPRECIS/4);
+(* EXPERIMENT *)        targeteps = 10.0^(-DETECTPRECIS/3);
         ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 100,targeteps,{4,0.1}];
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
 
+(*
         If[ans[starN]=={},
             Print["No solution at point ",starN,". Trying again."];
             ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals,50,targeteps/10,{4,0.1}];
 Print["all these starting values ",ans[starN]]
         ];
+*)
 
         If[ans[starN]=={},
            Print["No solution at point ",starN,". Stopping."];

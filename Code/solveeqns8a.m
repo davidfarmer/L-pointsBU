@@ -943,8 +943,8 @@ Print[ct, " ", specialstartvals];
         test = FindRoot[SetPrecision[theeqns, 25+eqnPRECISION], startvals1, Method -> "Secant",
 		WorkingPrecision->25+eqnPRECISION];
 *)
-        test = FindRoot[SetPrecision[theeqns, 25+eqnPRECISION], startvals1, Method -> "Secant",
-		WorkingPrecision->25+eqnPRECISION, MaxIterations->100];
+        test = FindRoot[SetPrecision[theeqns, eqnPRECISION], startvals1, Method -> "Secant",
+		WorkingPrecision->eqnPRECISION, MaxIterations->100];
         vec = theeqns /. test;
         vec = SetPrecision[vec, 100];  (* because sometimes a residual is too close to 0 *)
 
