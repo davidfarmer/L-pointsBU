@@ -63,6 +63,8 @@
       - for every bad prime, eps_p is an unknown
 
     changed itemtosave format (added the unknowns as an entry)
+
+    tossRepeats uses appropriate (custom) sorting
 *)
 
 debugging1 = False;  (* omits extra equaitons when degree is 2 *)
@@ -1011,7 +1013,12 @@ neweqns
 tossRepeats[lis_] := tossRepeats[lis, 0.01];
 
 tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
-  slis = Sort[lis];
+  If[Length[lis[[1,1,1]]] > 1,
+      slis = Sort[lis, #1[[1,1,1]] < #2[[1,1,1]]&]
+    ,
+      slis = Sort[lis, #1[[1,1]] < #2[[1,1]]&]
+  ];
+
   Print["Initial number of items: ", Length[slis]];
   counter = 0;
   fullcounter = 0;
