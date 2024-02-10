@@ -1013,10 +1013,14 @@ neweqns
 tossRepeats[lis_] := tossRepeats[lis, 0.01];
 
 tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
-  If[Length[lis[[1,1,1]]] > 1,
-      slis = Sort[lis, #1[[1,1,1]] < #2[[1,1,1]]&]
-    ,
+  If[NumberQ[lis[[1,1]]],
       slis = Sort[lis, #1[[1,1]] < #2[[1,1]]&]
+    ,
+      If[NumberQ[lis[[1,1,1]]],
+        slis = Sort[lis, #1[[1,1,1]] < #2[[1,1,1]]&]
+      ,
+        slis = Sort[lis, #1[[1,1,1,1]] < #2[[1,1,1,1]]&]
+      ]
   ];
 
   Print["Initial number of items: ", Length[slis]];
