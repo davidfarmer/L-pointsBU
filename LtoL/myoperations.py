@@ -228,7 +228,9 @@ def mytransform_ldata(text):
 #          print("found thesortofweight", thesortofweight)
    #     thetext = re.sub('^itemtosave *= *{"R[0,1]_C([0-9]+)", *', "", thetext)
 ###          thetext = re.sub('^itemtosave *= *{"R[0,1]_C([0-9]+)[^"]+", *', "", thetext)
-          thetext = re.sub('^itemtosave *= *{"[^,]+", *', "", thetext)
+   ##       thetext = re.sub('^itemtosave *= *{[^,]+, *"*[^,]+"*, *', "", thetext)
+   ##       thetext = re.sub('^itemtosave *= *{[^,]+, *', "", thetext)
+          thetext = re.sub('^itemtosave *= *{ *', "", thetext)
 
           # save version
           version = re.search('^([^,]+),', thetext).group(1)
