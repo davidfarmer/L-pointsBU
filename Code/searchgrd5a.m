@@ -56,7 +56,7 @@
     supplemented degree2 equations to include |eps| = 1
 
     Terminate search if wandering
-    renamed "finddegree2equations" to "funddegree2andSIGNequations"
+    renamed "finddegree2equations" to "finddegree2andSIGNequations"
 
 5a: major change in how FE signs are handled
       - the sign is always an unknown (even when actually known)

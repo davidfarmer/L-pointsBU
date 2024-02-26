@@ -507,7 +507,7 @@ subsAn[anlis_]:=Flatten[Table[{bb1[j]->anlis[[2j-1]],bb2[j]->anlis[[2j]]},{j,1,L
 
 substitutionsFromAp[ep_, ap_, numterms_] := Block[{},
   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-(* below is wrong because of now we now handle local signs *)
+(* below is wrong because of how we now handle local signs *)
   If[Length[ep[[2]]] > 2,
       If[Length[ep[[2,1]]] ==1 && Length[ep[[2,3]]] == 1, (* simplest case *)
         thebadprime = ep[[2,1,1]];
@@ -533,7 +533,7 @@ normalizeequationsA1[eqs_,absflag_]:=Block[{aa},
           Sum[Abs[Coefficient[eqs,bb1[j]]]+Abs[Coefficient[eqs,bb2[j]]],{j,1,61}]]) ],
       eqs]]; 
 
-realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
+realize500R[xxlis_List] :=(*Warning:assumes fewer than 500 coefficients*)
   Block[{j},
   Table[xx = xxlis[[k1]]; tt = Coefficient[xx, bb1[1]];
     realscalefactor0 = (Coefficient[xx, bb1[1]]/.Flatten[Table[{bb1[j] -> 0, bb2[j] -> 0}, {j, 1, 500}]]);
@@ -545,6 +545,7 @@ realize500R[xxlis_] :=(*Warning:assumes fewer than 500 coefficients*)
        Flatten[{{EpsilonR \[Element] Reals, EpsilonI \[Element] Reals}, Table[{bb1[p] \[Element] Reals, bb2[p] \[Element] Reals}, {p, 1, 500}]}]],
   {k1, 1, Length[xxlis]}]
 ];
+realize500R[xx_]:= xx;
 
 killunknownsGE[lim_]:=Flatten[Table[{bb1[j]->0,bb2[j]->0},{j,lim,2 lim+50}]];
 
@@ -1118,10 +1119,6 @@ evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
    thisEv = {Ev[[1]], numterms};
    rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
    rawZ/.substitutionsFromAp[ep, ap, numterms]
-(*
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawZ /. theseAnSubs
-*)
 ];
 
 evaluateLfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
@@ -1131,10 +1128,6 @@ evaluateLfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
    thisEv = {Ev[[1]], numterms};
    rawL = L[FE, b, s, thisEv, gflag, PRECIS];
    rawL/.substitutionsFromAp[ep, ap, numterms]
-(*
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawL /. theseAnSubs
-*)
 ];
 
 evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
@@ -1144,10 +1137,7 @@ evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
    thisEv = {Ev[[1]], numterms};
    rawLam = Lambda[FE, b, s, thisEv, gflag, PRECIS];
    rawLam/.substitutionsFromAp[ep, ap, numterms]
-(*
-   theseAnSubs = subsAn[anFromAp[ep, ap, numterms]];
-   rawLam /. theseAnSubs
-*)];
+];
 
 evaluateZfromApEXTRA[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_, extra_] := Block[{numterms},
    If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,

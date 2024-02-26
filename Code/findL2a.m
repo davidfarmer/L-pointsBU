@@ -27,7 +27,7 @@ not change the number of unknowns needed, and will make it twice as fast.
 L1b: changing the FE format.  Added functions to convert between formats.
 
 L2a: changes due to new EP format
-     added masterversion
+     added masterversion (as a string)
 
 ****************************** *)
 
@@ -44,7 +44,7 @@ L2a: changes due to new EP format
    assuming it was always 1.
 *)
 
-masterversion = 2.0;
+masterversion = "2.0";
 
 FEnewtoold[fe_]:= Block[{j, reshifts, imshifts, sfactors, Qfactor, sign, phasefactor},
 (*	Print["fe in new notation", fe];  *)
@@ -99,27 +99,27 @@ gg[u_,b_,v_]:= (1+v-u)^(b[[1]]) E^(-1*b[[2]] I (v-u) + b[[3]] (v-u)^2)
 gg[gflag_,u_,b_,v_]:=If[gflag==0,gg[b,v],gg[u,b,v]];  (* gflag ==1 is Stefan's g*)
 
 (* Gamma factors in the functional equation: H(s)L(s)=H(1-s)L(1-s) *)
-HOLD[FE_,s_,PRECIS_]:=Block[{lambdaR,lambdaI,kappa,Qa,FACTORQ},
-        lambdaR=FE[[1]]; lambdaI=FE[[2]]; kappa=FE[[3]]; QQ=FE[[4]];
-        FACTOR=If[Length[FE] < 6, 1, FE[[6]]];
+HOLD[FEold_,s_,PRECIS_]:=Block[{lambdaR,lambdaI,kappa,Qa,FACTORQ},
+        lambdaR=FEold[[1]]; lambdaI=FEold[[2]]; kappa=FEold[[3]]; QQ=FEold[[4]];
+        FACTOR=If[Length[FEold] < 6, 1, FEold[[6]]];
         FACTOR (QQ^s  Product[
         Gam[kappa[[j1]] (s) + lambdaR[[j1]] + I lambdaI[[j1]],PRECIS],{j1,1,Length[kappa]}])];
 
-Lambdaold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Block[{QQ,omega,nu,istep,ev,del,LIMS,gs,extrafactor},
-        QQ=FE[[4]]; omega=FE[[5]];
-        extrafactor = If[Length[FE] < 6, 1, FE[[6]]];
+Lambdaold[FEold_,b_,s_,Ev_,gflag_,PRECIS_]:=Block[{QQ,omega,nu,istep,ev,del,LIMS,gs,extrafactor},
+        QQ=FEold[[4]]; omega=FEold[[5]];
+        extrafactor = If[Length[FEold] < 6, 1, FEold[[6]]];
         nu=Ev[[1]];
         del=Ev[[2]];
 	istep=stepsizeRM[nu, PRECIS]; 
 (*Print["istep = ",istep]; *)
 	ev={nu,istep};
 	If[del>=1,LIMS=del,
-	  If[del>0,LIMS=findSumlim[FE, b, s, ev, del,gflag,PRECIS,1][[1]],
-	    LIMS=findSumlim[FE, b, s, ev, -del,gflag,PRECIS,0][[1]]]];
+	  If[del>0,LIMS=findSumlim[FEold, b, s, ev, del,gflag,PRECIS,1][[1]],
+	    LIMS=findSumlim[FEold, b, s, ev, -del,gflag,PRECIS,0][[1]]]];
         gg[gflag,s,b,s]^(-1) ( QQ^s *
-            extrafactor Sum[(bb1[n] + I bb2[n])/n^s f1[FE,b,s,n,ev,gflag,PRECIS],{n,1,LIMS}] +
+            extrafactor Sum[(bb1[n] + I bb2[n])/n^s f1[FEold,b,s,n,ev,gflag,PRECIS],{n,1,LIMS}] +
             Conjugate[extrafactor] omega QQ^(1-s) *
-            Sum[(bb1[n] - I bb2[n])/n^(1-s) f2[FE,b,1-s,n,ev,gflag,PRECIS],{n,1,LIMS}])];
+            Sum[(bb1[n] - I bb2[n])/n^(1-s) f2[FEold,b,1-s,n,ev,gflag,PRECIS],{n,1,LIMS}])];
 
 H[FE_,s_,PRECIS_] := HOLD[FEnewtoold[FE],s,PRECIS];
 Lambda[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Lambdaold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
@@ -145,9 +145,9 @@ fourpoints[thisL_, fcn_] := Block[{},
    ];
 fourpoints[thisL_] := fourpoints[thisL, {0, 0, 0}];
 
-Lold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FE,b,s,Ev,gflag,PRECIS]/HOLD[FE,s,PRECIS];
+Lold[FEold_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FEold,b,s,Ev,gflag,PRECIS]/HOLD[FEold,s,PRECIS];
 
-Zold[FE_,b_,s_,Ev_,gflag_,PRECIS_]:=(Lambdaold[FE,b,s,Ev,gflag,PRECIS]/Abs[HOLD[FE,s,PRECIS]])/Sqrt[FE[[-2]]];
+Zold[FEold_,b_,s_,Ev_,gflag_,PRECIS_]:=(Lambdaold[FEold,b,s,Ev,gflag,PRECIS]/Abs[HOLD[FEold,s,PRECIS]])/Sqrt[FEold[[5]]];
      (* -2 because the old FE has a extra phase factor at the end *)
 
 SetAttributes[bb1, NHoldAll];
