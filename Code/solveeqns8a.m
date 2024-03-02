@@ -921,14 +921,14 @@ findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := B
            originfactor = 1;  (* determines whether we use the input value, its negative, or 0 as the offset of the random part of the initial value *)
            If[ct>20, originfactor = 0];
            AppendTo[startvals1,
-             {testunks[[nn]][[j,1]],tmp=originfactor testunks[[nn]][[j,2]]+thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]
+             {testunks[[nn]][[j,1]],tmp=originfactor testunks[[nn]][[j,2]]+thescalelist[[ct]] RandomReal[{-2, 2}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]
         ];
         For[j=Length[testunks[[nn]]]+1,j<=Length[theunkns],++j,
            AppendTo[startvals1,
              {theunkns[[j]],tmp=thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, 1001/1000 tmp}]
         ];
         If[ct > 100,
-            specialstartvals = linkedRandom[RandomReal[]];
+            specialstartvals = linkedRandom[RandomReal[{-1, 1}, WorkingPrecision -> 100]];
             For[aj=1, aj<=Length[specialstartvals], ++aj,
                startvals1[[aj,2]] = specialstartvals[[aj]];
                startvals1[[aj,3]] = 1001/1000 specialstartvals[[aj]];

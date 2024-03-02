@@ -86,7 +86,7 @@ testandsave[initguessIN_ (* the initial guess *),
         PRECISIN_ (* precision to use *),
         absflag_ (* 1 to use absolute errors in the truncation error, 0 for relative *),
         EP_ (* describes the shape of the Euler product *),
-        type_,
+        thislabel_,
         NUMSTEPS_,
         RESTARTMAX_,  (* new in 4g; formerly hard coded as 6 *)
         TARGETERR_
@@ -109,6 +109,7 @@ testandsave[initguessIN_ (* the initial guess *),
      which are the spectral parameters and the coefficients, respectively. *)
   tmpY = {initguessIN, 1, 1, {starepsIN, numtermsIN, PRECISIN}, coeffstartIN};
   prevtmpY = tmpY;
+  felloff = False;
 
   wanderlimit = 1/2;  (* prevent poking from going too far *)
 
@@ -132,7 +133,19 @@ testandsave[initguessIN_ (* the initial guess *),
             absflag (* 1 to use absolute errors in the truncation error, 0 for relative *),
             EP (* describes the shape of the Euler product *)];
 
-    If[Length[tmpY]<4, restartct = restartct+1; Print["found nothing, try again"]; Continue[]];
+    If[Length[tmpY]<4 && mode != "zooming", 
+        restartct = restartct+1;
+        Print["after ", myct, " tries, and ", restartct-1, "restarts, out of at most ", RESTARTMAX, " found nothing, try again?"];
+        Continue[]
+    ];
+
+    If[Length[tmpY]<4 && mode == "zooming",
+
+        Print["saving the previous iteration as ugly"];
+        tmpY = prevtmpY;
+        felloff = True;
+        Break[]
+    ];
 
     relativeerror=tmpY[[2]];
 
@@ -207,16 +220,19 @@ testandsave[initguessIN_ (* the initial guess *),
   If[Length[tmpY]<4, Print["FAILED, ",restartct]; Return[]];
 
   Print["Time to save it."];
-  myfilename=mydatadir<>"/"<>type<>"x";
-  myfilename = myfilename<>numbertostring[myguessX[[1]],5];
+  mypathtofile=mydatadir <> "/" <> thislabel <> "x";
+  mypathtofile = mypathtofile <> numbertostring[myguessX[[1]],5];
   For[jh=2,jh<=Length[myguessX],++jh,
-     myfilename = myfilename<>"_";
-     myfilename = myfilename<>numbertostring[myguessX[[jh]],5]
+     mypathtofile = mypathtofile <> "_";
+     mypathtofile = mypathtofile <> numbertostring[myguessX[[jh]],5]
   ];
-(*  myfilename = myfilename<>"_";  *)
-  If[starepsX <= TARGETERR,myfilename = myfilename<>".good"; Print["Saving as GOOD"],
-    If[mode == "zooming", myfilename = myfilename<>".ugly"; Print["Saving as UGLY"],
-      myfilename = myfilename<>".bad";
+
+  If[starepsX <= TARGETERR, mypathtofile = mypathtofile <> ".good"; Print["Saving as GOOD"],
+    If[mode == "zooming",
+      If[felloff, mypathtofile = mypathtofile <> "felloff"];
+      mypathtofile = mypathtofile <> ".ugly"; Print["Saving as UGLY"];
+    ,
+      mypathtofile = mypathtofile <> ".bad";
       If[saveBad, Print["Saving as BAD"],
         Print["Bad, but not saving"]; Return[tmpY]]
     ]
@@ -224,10 +240,10 @@ testandsave[initguessIN_ (* the initial guess *),
 
   If[useWarnings,
     If[Max[N[Abs[tmpY[[1]] - initguessIN]]] > 0.01,
-      myfilename = myfilename <> "_eigen_warning"; Print["Eigenvalue may have wandered."]
+      mypathtofile = mypathtofile <> "_eigen_warning"; Print["Eigenvalue may have wandered."]
     ];
     If[Max[Abs[N[Take[tmpY[[5]], 4] -  Take[coeffstartIN, 4]]]] > 0.2,
-      myfilename = myfilename <> "_coeff_warning"; Print["Coefficients have changed."]
+      mypathtofile = mypathtofile <> "_coeff_warning"; Print["Coefficients have changed."]
     ];
   ];
 
@@ -235,9 +251,9 @@ testandsave[initguessIN_ (* the initial guess *),
   Print["numknowncoeffs", numknowncoeffs, "which starts", prevtmpY[[5,1]],"compared to", Length[tmpY[[5]]], "which startts", tmpY[[5,1]]];
 
   itemtosave = {
-    masterversion (* string designated in perl script to identify the symmetry type being investigated *),
+    masterversion (* string designated in perl script to identify the gamma factors being investigated *),
     versionnumber (* version of the Mathematica code combination, set in perl script *),
-    {type, versioneqns} (* string designated in perl script, version of equations, set in perl script *),
+    {thislabel, versioneqns} (* string designated in perl script, version of equations, set in perl script *),
     {
       tmpY[[1]] (* final value of search parameter(s) *),
       FEin (* functional equation data, incluing XX[[n]] to be replaced by search parameters *),
@@ -296,9 +312,9 @@ testandsave[initguessIN_ (* the initial guess *),
   };  (* itemtosave *)
 
 
-  Save[myfilename,itemtosave];
+  Save[mypathtofile,itemtosave];
 
-  Print["saved to ", myfilename];
+  Print["saved to ", mypathtofile];
 
   tmpY
 ];
@@ -497,16 +513,8 @@ tmpeqsolv = eqsolv[starN];
         ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 100,targeteps,{4,0.1}];
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
 
-(*
         If[ans[starN]=={},
-            Print["No solution at point ",starN,". Trying again."];
-            ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals,50,targeteps/10,{4,0.1}];
-Print["all these starting values ",ans[starN]]
-        ];
-*)
-
-        If[ans[starN]=={},
-           Print["No solution at point ",starN,". Stopping."];
+           Print["No solution at point ",starN, " from startvals A ", Take[N[startvals[[1]]],10], ". Stopping."];
            Return[{}]
         ];
      ];
@@ -609,58 +617,30 @@ and the same for the detectors.  We use 8 detectors.
         thept=initguess+stareps starpts[[starN]];
         AppendTo[detectpts,thept];
 
-Print["testing ",starN,", :",thept];
-
-(*
-Print["eqution at",InputForm[{FEin, thept, gtab, stab, Ev,gflag,PRECIS}]];
-*)
+        Print["testing ",starN,", :",thept];
 
         eq[starN] = makeequationsNEW[FEin, thept, gtab, stab, Ev,gflag,PRECIS];
-
         eq[starN] = Flatten[{degree2eqns, signeqns, eq[starN]}];
-
-(*
-Print["is", InputForm[eq[starN]]];
-*)
-(*
-        If[Length[degree2andSIGNeqns]>0 && Not[debugging1],
-            Print["adding degree 2 andSIGNequaitons"];
-            eq[starN] = Flatten[{degree2andSIGNeqns,eq[starN]}];
-        ];
-*)
 
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
 
-(*
-        If[Length[badfactorsubstitutions]>0,
-            Print["adding badfactorsubstitutions", badfactorsubstitutions];
-            eqsolv[starN] = Expand[eqsolv[starN]/.badfactorsubstitutions];
-        ];
-*)
-
- (*       Print["checking on badfactorsubstitutions", N[eq[starN]]]; *)
-
-(*
-        Print["rechecking on badfactorsubstitutions", N[eqsolv[starN]]];
-*)
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
         ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,12,targeteps,{4,0.1}];
-      (*  ans[starN]=Sort[ans[starN]];
-       As per 4c *)
+
         Print[ans[starN]];
 
-(*
         If[ans[starN]=={},
-            Print["No solution at point ",starN,". Trying again."];
-            targeteps = 10.0^(-DETECTPRECIS/2);
-            ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,5,targeteps,{4,0.1}];
-Print[ans[starN]]
-        ];
-*)
-
-        If[ans[starN]=={},
-           Print["No solution at point ",starN,". Stopping."];
+          (* there are two ways to make this better:
+	       1) If starN > 1, then it found a solution at a nearby point, but not at
+                  this point.  So: make it try harder at this point.
+               2) If zooming, we need to preserve the fact that we were possibly on
+                  the track of something good.
+          *)
+           Print["No solution at point ",starN, "from startvals B", Take[N[startvals[[1]]],10], ". Stopping."];
+           If[starN > 1, 
+               Print["Mixed message {initguess, stareps, thept} N[startvals] ", {initguess, stareps, thept}, " ", N[startvals]];
+           ];
            Return[]
         ];
 
@@ -688,7 +668,7 @@ Print[ans[starN]]
         thedetectors=Table[detecteq[starN],{starN,1,Length[detectpts]}];
            Print["about to check4pts", detectpts];
         detectANS=check4pts[detectpts,detectans,thedetectors];
-        If[detectANS == "", Print["failure to detect"]; Return[""]];
+        If[detectANS == "", Print["failure to detect"]; Return[""]];  (* how can that happen? *)
         cp=closepts[stareps, detectANS[[1]]];
         themedian=Median[detectANS[[1]]];
            Print[cp,"  cp and median  ",{cp, themedian}];
