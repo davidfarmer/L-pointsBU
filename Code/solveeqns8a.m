@@ -961,7 +961,9 @@ Print[ct, " ", specialstartvals];
         If[Norm[vec]<eps, If[!foundone, foundone=True; Print["found solution on attempt ", ct]]; AppendTo[foundsols,test];AppendTo[residuals,Norm[vec]]];
      ];
    ];
-   foundsols=tossrepeats[foundsols,residuals,theunkns,numcheck,eps2]
+   foundsols=tossrepeats[foundsols,residuals,theunkns,numcheck,eps2];
+   foundsols = Union[foundsols];  (* not needed, but something is wrong somewhere *)
+   foundsols
 ];
 
 findclosest[target_,thelist_]:=thelist[[1]];
