@@ -455,6 +455,8 @@ if component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly', 'zdata']:
         mmafile2.write('Import["~/L-pointsBU/Code/searchgrd5a.m", "NB"];' + "\n")
         mmafile2.write('Import["' + outputfile + '", "NB"];' + "\n")
         mmafile2.write('trimmedsummary = tossRepeats[summary];' + "\n")
+        mmafile2.write('trimmedsummary = Select[trimmedsummary, Norm[#[[1, 4]]] < 4 10^3 &];' + "\n")
+        mmafile2.write('Print["After removing unlikely candidates, have: ", Length[trimmedsummary]];' + "\n")
         trimmedoutputfile = re.sub("summary","trimmedsummary", outputfile)
         mmafile2.write('DeleteFile["' + trimmedoutputfile + '"];' + "\n")
         mmafile2.write('Save["' + trimmedoutputfile + '", trimmedsummary];' + "\n")
