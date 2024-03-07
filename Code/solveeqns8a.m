@@ -155,8 +155,8 @@ ToDo:	bad degree 3 case
         Have findsolone, but hard code the number of times it tries.
 
         Add functions for evaluating the Z-function:
-        fefromdata, evaluateZfromAp, evaluateZfromApEXTRA, quickZ, quickZEXTRA, boundtailsimple
-        (TODO:  fix quickZ and quickZEXTRA so that precision is from input (currently 40))
+        fefromdata, evaluateZfromAp, quickZ, boundtailsimple
+        (TODO:  fix quickZ so that precision is from input (currently 40))
 
         deleted zoom1, searchgrid2
 
@@ -1141,21 +1141,9 @@ evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
    rawLam/.substitutionsFromAp[ep, ap, numterms]
 ];
 
-evaluateZfromApEXTRA[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_, extra_] := Block[{numterms},
-   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
-    numterms = NextPrime[Length[ap]/2] - 1];
-   thisEv = {Ev[[1]], numterms + extra};
-   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
-   rawZ/.substitutionsFromAp[ep, ap, numterms]
-];
-
 quickZ[ell_, b_, t_] := 
   evaluateZfromAp[fefromdata[ell], b, 1/2 + t I, {2, 0}, 1, 40, 
    ell[[1, 3]], ell[[1, 4]]];
-
-quickZEXTRA[ell_, b_, t_, extra_] := Block[{},
-  Expand[evaluateZfromApEXTRA[fefromdata[ell], b, 1/2 + t I, {2, 0}, 
-    0, 40, ell[[1, 3]], ell[[1, 4]], extra]]];
 
 boundtailsimple[obj_, lim_, deg_] := Block[{theerr},
   theerr = 0;
