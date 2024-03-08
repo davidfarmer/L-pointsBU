@@ -351,6 +351,8 @@ def mytransform_zdata(text):
 
     thetext = text.strip()
 
+    thetext = re.sub(r" *Attributes.*", "", thetext)
+
 #    thetext = re.sub(r" +", "", thetext)
 
     if not thetext.startswith('itemtosave'):
