@@ -143,7 +143,18 @@ fourpoints[thisL_, fcn_] := Block[{},
    lamsize = Floor[Log[10, Abs[10^(-20) + lambdahalf]]] - 9;
    N[Chop[{{"L(1/2)", lhalf}, {"L(1)", lone}, {"Lambda(1/2)", lambdahalf}, {"Lambda(1)", lambdaone}}, 10^lamsize], 16]
    ];
-fourpoints[thisL_] := fourpoints[thisL, {0, 0, 0}];
+(* delete the above when done upgrading version *)
+Latfourpoints[Lpoint_] := Latfourpoints[Lpoint, {0, 0, 0}];
+Latfourpoints[Lpoint_, fcn_] := Block[{},
+   testcase = LPoint;
+   lhalf = evaluateFromLpoint["L", Lpoint, fcn, 1/2, 50];
+   lone = evaluateFromLpoint["L", Lpoint, fcn, 1, 50];
+   lambdahalf = evaluateFromLpoint["Lambda", Lpoint, fcn, 1/2, 50];
+   lambdaone = evaluateFromLpoint["Lambda", Lpoint, fcn, 1, 50];
+   lamsize = Floor[Log[10, Abs[10^(-20) + lambdahalf]]] - 9;
+   N[Chop[{{"L(1/2)", lhalf}, {"L(1)", lone}, {"Lambda(1/2)", lambdahalf}, {"Lambda(1)", lambdaone}}, 10^lamsize], 16]
+   ];
+
 
 Lold[FEold_,b_,s_,Ev_,gflag_,PRECIS_]:=Lambdaold[FEold,b,s,Ev,gflag,PRECIS]/HOLD[FEold,s,PRECIS];
 

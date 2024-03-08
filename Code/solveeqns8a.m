@@ -1123,6 +1123,32 @@ evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
    rawZ/.substitutionsFromAp[ep, ap, numterms]
 ];
 
+(* mode = "Z", "L", or "Lambda" *)
+evaluateFromLpoint[mode_,Lpoint_, b_, s_, PRECIS_] := evaluateFromLpoint[mode,Lpoint, b, s, PRECIS,0];
+
+evaluateFromLpoint[mode_,Lpoint_, b_, s_, PRECIS_,extracoeffs_] :=
+  Block[{gflag, numterms, thesubstitutions, thecoefficients, theunknowns},
+   thespectralparameters = Lpoint[[1,1]];
+   therawFE = Lpoint[[1,2]]; (* may have unknown spectra and/or unknown sign *)
+   theeulerproduct = Lpoint[[1,3]];
+   thecoefficients = Lpoint[[1,4]];
+   theunknowns = Lpoint[[1,5]];
+   thespectralsubstitutions = Table[XX[j]->thespectralparameters[[j]], {j,1,Length[thespectralparameters]}];
+   theunknownssubstitutions = Table[theunknowns[[j]] -> thecoefficients[[j]], {j,1,Length[thecoefficients]}];
+   theFE = therawFE/.Union[thespectralsubstitutions, theunknownssubstitutions];
+ (* extracoeffs when we want to estimate the error from truncation *)
+   numterms = NextPrime[theunknowns[[-1,1]]] - 1 + extracoeffs;
+   thisEv = {3, numterms};
+   gflag = 1;
+   rawfunction = Switch[mode,
+      "Z", Z[theFE, b, s, thisEv, gflag, PRECIS],
+      "L", L[theFE, b, s, thisEv, gflag, PRECIS],
+      "Lambda", Lambda[theFE, b, s, thisEv, gflag, PRECIS]
+   ];
+   convertedfunction = converteqnsALL[theeulerproduct, rawfunction, numterms];
+   convertedfunction/.theunknownssubstitutions
+];
+
 evaluateLfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
   Block[{numterms},
    If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
