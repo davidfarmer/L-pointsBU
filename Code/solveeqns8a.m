@@ -1114,15 +1114,6 @@ fefromdata[dat_] := Block[{j},
 *)
 ];
 
-(* need to consolidate the Z, L, Lambda below *)
-evaluateZfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
-  Block[{numterms},
-   numterms = If[ep[[1, 1]] > 0, NextPrime[Length[ap]] - 1, NextPrime[Length[ap]/2] - 1];
-   thisEv = {Ev[[1]], numterms};
-   rawZ = Z[FE, b, s, thisEv, gflag, PRECIS];
-   rawZ/.substitutionsFromAp[ep, ap, numterms]
-];
-
 (* mode = "Z", "L", or "Lambda" *)
 evaluateFromLpoint[mode_,Lpoint_, b_, s_, PRECIS_] := evaluateFromLpoint[mode,Lpoint, b, s, PRECIS,0];
 
@@ -1148,28 +1139,6 @@ evaluateFromLpoint[mode_,Lpoint_, b_, s_, PRECIS_,extracoeffs_] :=
    convertedfunction = converteqnsALL[theeulerproduct, rawfunction, numterms];
    convertedfunction/.theunknownssubstitutions
 ];
-
-evaluateLfromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
-  Block[{numterms},
-   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
-    numterms = NextPrime[Length[ap]/2] - 1];
-   thisEv = {Ev[[1]], numterms};
-   rawL = L[FE, b, s, thisEv, gflag, PRECIS];
-   rawL/.substitutionsFromAp[ep, ap, numterms]
-];
-
-evaluateLambdafromAp[FE_, b_, s_, Ev_, gflag_, PRECIS_, ep_, ap_] :=
-  Block[{numterms},
-   If[ep[[1, 1]] > 0, numterms = NextPrime[Length[ap]] - 1,
-    numterms = NextPrime[Length[ap]/2] - 1];
-   thisEv = {Ev[[1]], numterms};
-   rawLam = Lambda[FE, b, s, thisEv, gflag, PRECIS];
-   rawLam/.substitutionsFromAp[ep, ap, numterms]
-];
-
-quickZ[ell_, b_, t_] := 
-  evaluateZfromAp[fefromdata[ell], b, 1/2 + t I, {2, 0}, 1, 40, 
-   ell[[1, 3]], ell[[1, 4]]];
 
 boundtailsimple[obj_, lim_, deg_] := Block[{theerr},
   theerr = 0;

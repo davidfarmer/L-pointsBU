@@ -126,24 +126,6 @@ Lambda[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Lambdaold[FEnewtoold[FE],b,s,Ev,gf
 L[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Lold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
 Z[FE_,b_,s_,Ev_,gflag_,PRECIS_]:= Expand[Zold[FEnewtoold[FE],b,s,Ev,gflag,PRECIS]];
 
-fourpoints[thisL_, fcn_] := Block[{},
-   testcase = thisL;
-   If[Length[testcase[[1,1]]]==1,
-    testfe = testcase[[1, 2]] /. {XX[1] -> testcase[[1, 1, 1]]},
-     If[Length[testcase[[1,1]]]==2,
-        testfe = testcase[[1, 2]] /. {XX[1] -> testcase[[1, 1, 1]], XX[2] -> testcase[[1, 1, 2]]},
-        If[Length[testcase[[1,1]]]==3,
-           testfe = testcase[[1, 2]] /. {XX[1] -> testcase[[1, 1, 1]], XX[2] -> testcase[[1, 1, 2]], XX[3] -> testcase[[1, 1, 3]]}]
-     ]
-   ];
-   lhalf = evaluateLfromAp[testfe, fcn, 1/2, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
-   lone = evaluateLfromAp[testfe, fcn, 1, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
-   lambdahalf = evaluateLambdafromAp[testfe, fcn, 1/2, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
-   lambdaone = evaluateLambdafromAp[testfe, fcn, 1, {3, 10^-10}, 1, 50, testcase[[1, 3]], testcase[[1, 4]]];
-   lamsize = Floor[Log[10, Abs[10^(-20) + lambdahalf]]] - 9;
-   N[Chop[{{"L(1/2)", lhalf}, {"L(1)", lone}, {"Lambda(1/2)", lambdahalf}, {"Lambda(1)", lambdaone}}, 10^lamsize], 16]
-   ];
-(* delete the above when done upgrading version *)
 Latfourpoints[Lpoint_] := Latfourpoints[Lpoint, {0, 0, 0}];
 Latfourpoints[Lpoint_, fcn_] := Block[{},
    testcase = LPoint;
