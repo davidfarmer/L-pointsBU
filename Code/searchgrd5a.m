@@ -668,7 +668,11 @@ and the same for the detectors.  We use 8 detectors.
 
         (* AAAA at this point we know coeffstart and the solution at a start pt. *)
         (* therefore we can do better *)
+        oldstartcoeffs = startcoeffs;
         startcoeffs = Table[tmpcoeffsubs[[j, 2]], {j, 1, Length[tmpcoeffsubs]}]
+        tmpminlength = Min[Length[oldstartcoeffs],Length[startcoeffs]];
+
+        Print["change in startcoeffs: ", N[Take[oldstartcoeffs, tmpminlength] - Take[startcoeffs, tmpminlength]]];
 
     ]; (* For starN *)
 
