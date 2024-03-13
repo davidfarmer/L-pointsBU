@@ -169,8 +169,10 @@ testandsave[initguessIN_ (* the initial guess *),
     If[isWandering, Print["wandering, to exiting this attempt"]; Break[]];
 (*
     relativeerror0=10^(-1*Max[0,Floor[Log[10,1/relativeerror]]]);
-*)
     relativeerror0 = Min[1, Ceiling[500 relativeerror]/500];
+*)
+
+    relativeerror0 = Min[1, Ceiling[100 relativeerror]/100];
 
     Print["starepsX was", starepsX, "relativeerror is", relativeerror];
     starepsX = starepsX*relativeerror0;
@@ -406,7 +408,7 @@ findstartingvalues[initguessIN_ (* the initial guess *),
     stareps=Ceiling[starepsIN/10^(starepssize-1)] 10^(starepssize-1);
     Print["Size of zooming neighborhood: ",stareps];
     initguess = Floor[10 initguessIN/stareps] stareps/10;
-    Print["Initial guess: ",initguess, " which is approximately ",N[initguess,16]];
+    Print["Initial guess: ",initguess, " which is approximately ",N[initguess,16], " rounded from ", initguessIN];
     Print["Initial coefficients: ", N[startcoeffs]];
     (* FE[[2]]=pairtotriple[initguess]; *)
     Print["Functional equation ", FEin];
@@ -476,8 +478,9 @@ and the same for the detectors.  We use 8 detectors.
 
     detectpts={};
 
+(* need to remove the meaningless For loop *)
     For[starN=1,starN<=1,++starN,  (* startN indexes the starpts *)
-        thept=initguess+stareps starpts[[starN]];
+        thept=initguess;  (* +stareps starpts[[starN]]; *)
         AppendTo[detectpts,thept];
 
 Print["testing ",starN,", :",thept];
@@ -511,8 +514,10 @@ tmpeqsolv = eqsolv[starN];
         targeteps = 10.0^(-DETECTPRECIS/3);
 *)
         ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 100,targeteps,{4,0.1}];
+(*
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
-
+*)
+        Print["found ", Length[ans[starN]], " initial answers"];
         If[ans[starN]=={},
            Print["No solution at point ",starN, " from startvals A ", Take[N[startvals[[1]]],10], ". Stopping."];
            Return[{}]
@@ -544,7 +549,7 @@ searchonce[initguessIN_ (* the initial guess *),
     stareps=Ceiling[starepsIN/10^(starepssize-1)] 10^(starepssize-1);
     Print["Size of zooming neighborhood: ",stareps];
     initguess = Floor[10 initguessIN/stareps] stareps/10;
-    Print["Initial guess: ",initguess, " which is approximately ",N[initguess,16]];
+    Print["Initial guess: ",initguess, " which is approximately ",N[initguess,16], " rounded from ", initguessIN];
     Print["Initial coefficients: ", N[startcoeffs]];
     (* FE[[2]]=pairtotriple[initguess]; *)
     FE = FEnewtoold[FEin];
@@ -624,7 +629,10 @@ and the same for the detectors.  We use 8 detectors.
 
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
 
+  (* note that startcoeffs is updated at the bottom of this loop.  *)
+  (* think about how to better use the available information.  See AAAA below *)
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
+
         targeteps = 10.0^(-DETECTPRECIS/2);
         ans[starN]= findsolone[eqsolv[starN], unknowns, startvals,12,targeteps,{4,0.1}];
 
@@ -657,6 +665,9 @@ and the same for the detectors.  We use 8 detectors.
         (* we want to use the value we just found as the starting value
            for the next point *)
         tmpcoeffsubs = ans[starN][[1]];
+
+        (* AAAA at this point we know coeffstart and the solution at a start pt. *)
+        (* therefore we can do better *)
         startcoeffs = Table[tmpcoeffsubs[[j, 2]], {j, 1, Length[tmpcoeffsubs]}]
 
     ]; (* For starN *)
