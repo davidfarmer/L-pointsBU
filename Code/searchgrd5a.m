@@ -672,7 +672,9 @@ and the same for the detectors.  We use 8 detectors.
         startcoeffs = Table[tmpcoeffsubs[[j, 2]], {j, 1, Length[tmpcoeffsubs]}]
         tmpminlength = Min[Length[oldstartcoeffs],Length[startcoeffs]];
 
-        Print["change in startcoeffs: ", N[Take[oldstartcoeffs, tmpminlength] - Take[startcoeffs, tmpminlength]]];
+        If[tmpminlength > 0,
+          Print["change in startcoeffs: ", N[Take[oldstartcoeffs, tmpminlength] - Take[startcoeffs, tmpminlength]]];
+        ];
 
     ]; (* For starN *)
 
