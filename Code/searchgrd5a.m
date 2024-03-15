@@ -510,10 +510,10 @@ tmpeqsolv = eqsolv[starN];
 
         startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
         targeteps = 10.0^(-DETECTPRECIS/2);
-(*
-        targeteps = 10.0^(-DETECTPRECIS/3);
-*)
-        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 100,targeteps,{4,0.1}];
+
+  (* the 200 below was changed from 100 on 3/14/24, to help with degree 3 conductor 8 *)
+
+        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 200,targeteps,{4,0.1}];
 (*
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
 *)

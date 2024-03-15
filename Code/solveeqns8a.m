@@ -911,6 +911,9 @@ findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := B
    numcheck     : number of unknows we check to see if two solutions are the same
    eps2 : how close the numcheck unknowns have to be to be the same
 *)
+
+(* should do a study that checks whether the 1001/1000 magic numbers are reasonable *)
+
    thescalelist=scalelist[numsolve];
    foundone = False;
    For[nn=1,nn<=Length[testunks],++nn,
@@ -932,18 +935,10 @@ findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := B
             For[aj=1, aj<=Length[specialstartvals], ++aj,
                startvals1[[aj,2]] = specialstartvals[[aj]];
                startvals1[[aj,3]] = 1001/1000 specialstartvals[[aj]];
-            ]
+            ];
+            If[IntegerQ[ct/1000], Print["attempt ", ct, " startvals1 ", N[Take[startvals1, 10]]]];
         ];
-(*
-Print[ct, " ", specialstartvals];
-*)
-(*
-        test = FindRoot[theeqns, startvals1, Method -> "Secant",
-		WorkingPrecision->eqnPRECISION];
 
-        test = FindRoot[SetPrecision[theeqns, 25+eqnPRECISION], startvals1, Method -> "Secant",
-		WorkingPrecision->25+eqnPRECISION];
-*)
         test = FindRoot[SetPrecision[theeqns, eqnPRECISION], startvals1, Method -> "Secant",
 		WorkingPrecision->eqnPRECISION, MaxIterations->100];
         vec = theeqns /. test;
@@ -961,8 +956,10 @@ Print[ct, " ", specialstartvals];
         If[Norm[vec]<eps, If[!foundone, foundone=True; Print["found solution on attempt ", ct]]; AppendTo[foundsols,test];AppendTo[residuals,Norm[vec]]];
      ];
    ];
+   Print["scan found ", Length[foundsols]," solutions"];
    foundsols=tossrepeats[foundsols,residuals,theunkns,numcheck,eps2];
    foundsols = Union[foundsols];  (* not needed, but something is wrong somewhere *)
+   Print["after eliminating repeats ", Length[foundsols]," remain"];
    foundsols
 ];
 
