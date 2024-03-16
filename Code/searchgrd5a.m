@@ -677,7 +677,7 @@ and the same for the detectors.  We use 8 detectors.
           Print["change in startcoeffs: ", N[coeffchange]];
           If[starN == 1 && Length[starpts] == 2,
             Print["interpolating a better startcoeffs"];  (* what about higher dimensional searches? *)
-            For[jj=1, jj<=Length[coeffchange], ++j,
+            For[jj=1, jj<=Length[coeffchange], ++jj,
               startcoeffs[[jj]] -= 2 * coeffchange[[jj]]
             ]
 	  ]
