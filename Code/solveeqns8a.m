@@ -864,17 +864,29 @@ findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Bl
 *)
 
    thescalelist = Sort[Flatten[{{0},
-               Table[1/10^j, {j, 0, 6}, {k, 1, 5}], {1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
+               Table[1/10^j, {j, 0, 6}, {k, 1, 15}], {1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1/2,1, 1, 1, 1, 3, 3, 3, 3, 3, 6,6,6,6,6,10,10,10,10,10,10}}]];
+
    For[nn=1,nn<=Length[testunks],++nn,
      ct=0;
      While[ct<Length[thescalelist],++ct;
         startvals1={};
+        thisjigglescale = thescalelist[[ct]];
+        thissecantgap = If[thisjigglescale == 0, 10^-7, Min[thisjigglescale/10, 1/1000]];
+        startvals1 = Table[
+                {testunks[[nn]][[j,1]],
+                 tmp=testunks[[nn]][[j,2]] + thisjigglescale RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + thissecantgap},
+                {j, 1, Length[testunks[[nn]]]}
+                          ];
+(*
         For[j=1,j<=Length[testunks[[nn]]],++j,
            AppendTo[startvals1,
-             {testunks[[nn]][[j,1]],tmp=testunks[[nn]][[j,2]]+thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]];
+             {testunks[[nn]][[j,1]],tmp=testunks[[nn]][[j,2]] + thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/1000}]
+        ];
+*)
         For[j=Length[testunks[[nn]]]+1,j<=Length[theunkns],++j,
            AppendTo[startvals1,
-             {theunkns[[j]],tmp=thescalelist[[ct]] RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, 1/100 + tmp}]];
+             {theunkns[[j]],tmp = (1 + thescalelist[[ct]]) RandomReal[{-1, 1}, WorkingPrecision -> 100]; tmp, tmp + 1/100}]
+        ];
 (*
 Print[Length[theeqns], " equations and ", Length[startvals1], " unknowns",N[startvals1]];
 *)
