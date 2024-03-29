@@ -481,14 +481,8 @@ converteqnsALL[EP_, eqns_, numterms_,absflag_] := Block[{(*tmpeqns, tmpeqns1, tm
   tmpeqns2 = (tmpeqns1R/.multsubs[numterms]);  (* replace a_{nm} by a_n a_m for (m,n)=1 *)
   tmpeqns3 = goodprimepowersubs[EP, tmpeqns2, numterms];
   tmpeqns4 = badprimepowersubs[EP, tmpeqns3, numterms];
-(*
-  tmpeqns4noEPSILON = localsignsubs[EP, tmpeqns4];
-  (tmpeqns4noEPSILON/.{bb1[1]->1,bb2[1]->0})
-*)
   (tmpeqns4/.{bb1[1]->1,bb2[1]->0})
 ];
-(*  tmpeqns2 = makeaALLequations[lev, tmpeqns1]]; *)
-(* need to replace makeaALLequations by several steps *)
 
 knownApsubstitutions[ep_, knownAp_, lim_] := Block[{theseunknowns},
   theseunknowns = theunknowns[ep, lim];
@@ -614,32 +608,6 @@ badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprim
         ]; (* if a bad prime *)
 	++j
     ];  (* while *)
-    eqnsTMP
-];
-
-(* this no longer used *)
-localsignsubs[EP_, eqns_]:= Block[{eqnsTMP},
-    eqnsTMP = eqns;
-    If[Length[EP[[2]]] > 2,
-      If[Length[EP[[2,1]]] ==1 && Length[EP[[2,3]]] == 1, (* simplest case *)
-        If[Length[EP[[2,3,1]]]==1, thelocaldata = {EP[[2,3,1,1]],1}, thelocaldata = EP[[2,3,1]]];
-        thebadprime = EP[[2,1,1]];
-(*
-        twicetheexponent = EP[[2,3,1]];
-*)
-        twicetheexponent = thelocaldata[[1]];
-        extrafactor = thelocaldata[[2]];
-        extrafactorR = Re[extrafactor];
-        extrafactorI = Im[extrafactor];
-        (* eps = extrafactor * conjugate(a_p = bb1[p] + I bb2[p]) , normalized to have abs val 1 *)
-        thenewEPSre = Expand[thebadprime^(twicetheexponent/2) (extrafactorR bb1[thebadprime] + extrafactorI bb2[thebadprime])];
-        thenewEPSim = Expand[thebadprime^(twicetheexponent/2) (-1*extrafactorR bb2[thebadprime] + extrafactorI bb1[thebadprime])];
-        thesubs = {EPSILONpR -> thenewEPSre, EPSILONpI -> thenewEPSim};
-        Print["epsilonsubs",thesubs];
-        eqnsTMP = eqnsTMP/.thesubs
-      , Print["Error: unimplemented case", EP]
-      ]
-    ];
     eqnsTMP
 ];
 
