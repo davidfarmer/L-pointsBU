@@ -56,7 +56,6 @@ knownLtbetavalues = {};
 Print["part way"];
 
 findreasonablebeta[ldata_, t_, codenumber_] := Block[{thisbeta},
-   If[Abs[t] < 11, {0, 10^-10},
     If[t >= 0, betatotest = {0, 1/2, 1, 3/2, 2}, 
      betatotest = {0, -1/2, -1, -3/2, -2}];
     samplevals = {};
@@ -87,7 +86,6 @@ findreasonablebeta[ldata_, t_, codenumber_] := Block[{thisbeta},
      minlocation = Position[samplevals, themin][[1, 1]];
      {betatotest[[minlocation]], samplevals[[minlocation]]}
      ]
-    ]
    ];
 
 zvalsanderror[ind_, srclis_, llim_, ulim_] := Block[{},
