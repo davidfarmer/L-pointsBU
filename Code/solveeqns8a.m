@@ -1091,6 +1091,12 @@ fefromdata[dat_] := Block[{j},
 *)
 ];
 
+nextPrimePower[n_] := Block[{j},
+    j = n + 1;
+    While[Length[FactorInteger[j]] > 1, ++j];
+    j
+];
+
 (* mode = "Z", "L", or "Lambda" *)
 evaluateFromLpoint[mode_,Lpoint_, b_, s_, PRECIS_] := evaluateFromLpoint[mode,Lpoint, b, s, PRECIS,0];
 
@@ -1105,7 +1111,7 @@ evaluateFromLpoint[mode_,Lpoint_, b_, s_, PRECIS_,extracoeffs_] :=
    theunknownssubstitutions = Table[theunknowns[[j]] -> thecoefficients[[j]], {j,1,Length[thecoefficients]}];
    theFE = therawFE/.Union[thespectralsubstitutions, theunknownssubstitutions];
  (* extracoeffs when we want to estimate the error from truncation *)
-   numterms = NextPrime[theunknowns[[-1,1]]] - 1 + extracoeffs;
+   numterms = nextPrimePower[theunknowns[[-1,1]]] - 1 + extracoeffs;
    thisEv = {3, numterms};
    gflag = 1;
    rawfunction = Switch[mode,
