@@ -898,7 +898,7 @@ findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := B
    foundone = False;
    For[nn=1,nn<=Length[testunks],++nn,
      ct=0;
-     While[ct<Length[thescalelist],++ct;
+     While[ct<Length[thescalelist] && (Length[foundsols] < 200 || ct < 1100), ++ct;
         startvals1={};
         For[j=1,j<=Length[testunks[[nn]]],++j,
            originfactor = 1;  (* determines whether we use the input value, its negative, or 0 as the offset of the random part of the initial value *)

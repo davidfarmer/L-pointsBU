@@ -250,7 +250,7 @@ testandsave[initguessIN_ (* the initial guess *),
   ];
 
   numknowncoeffs = Length[prevtmpY[[5]]];
-  Print["numknowncoeffs", numknowncoeffs, "which starts", prevtmpY[[5,1]],"compared to", Length[tmpY[[5]]], "which startts", tmpY[[5,1]]];
+  Print["numknowncoeffs", numknowncoeffs, "which starts", {prevtmpY[[5,3]],prevtmpY[[5,4]]},"compared to", Length[tmpY[[5]]], "which starts", {tmpY[[5,3]],tmpY[[5,4]]}];
 
   itemtosave = {
     masterversion (* string designated in perl script to identify the gamma factors being investigated *),
