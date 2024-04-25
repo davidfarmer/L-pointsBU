@@ -8,7 +8,7 @@
 
 if($#ARGV != 4){  # 4
      die "\n  \n",
-            "The syntax is:  \n\t  computeZCk1Ck2x2a.prl path_to_list listname startindex endindex path_to_outputdir\n\n",$#ARGV
+            "The syntax is:  \n\t  computeZCk1Ck2x2aa.prl path_to_list listname startindex endindex path_to_outputdir\n\n",$#ARGV
 } # ARGV if
 
 # my ($startindex, $endindex, $lamstart) = ($ARGV[0],$ARGV[1],$ARGV[2]);
@@ -22,9 +22,9 @@ chomp $username;
 
 my $home = "home";
 
-my $mmafile = "/$home/$username/L-pointsBU/Degree4/Tmp/computeZCk1Ck2x2a".$startindex."_".$endindex.".m";
-my $batchfile = "/$home/$username/L-pointsBU/Degree4/Tmp/batchZCk1Ck2x2a".$startindex."_".$endindex.".txt";
-my $outbatchfile = "~/L-pointsBU/Degree4/Tmp/out.batchZCk1Ck2x2a".$startindex."_".$endindex.".out";
+my $mmafile = "/$home/$username/L-pointsBU/Degree4/Tmp/computeZCk1Ck2x2aa".$startindex."_".$endindex.".m";
+my $batchfile = "/$home/$username/L-pointsBU/Degree4/Tmp/batchZCk1Ck2x2aa".$startindex."_".$endindex.".txt";
+my $outbatchfile = "~/L-pointsBU/Degree4/Tmp/out.batchZCk1Ck2x2aa".$startindex."_".$endindex.".out";
 
 open(OUTmmaFILE, ">$mmafile") or die "the file $mmafile can't be opened: $! \n";
 open(OUTbatchFILE, ">$batchfile") or die "the file $batchfile can't be opened: $! \n";
@@ -129,7 +129,7 @@ For[ij=$startindex, ij <= $endindex, ++ij,
   If[ij < 100, thislabel = thislabel <> "0"];
   If[ij < 10, thislabel = thislabel <> "0"];
 
-  thislabel = thislabel <> ToString[ij] <>"_y2a";
+  thislabel = thislabel <> ToString[ij] <>"_y2aa";
 
   Print["thislabel", thislabel];
 
@@ -157,7 +157,7 @@ For[ij=$startindex, ij <= $endindex, ++ij,
 
   plotlim = Min[10 Ceiling[( Abs[theotherspectralparameter] + 10.5 )/10], plotlim];
 
-  plotlim = Max[plotlim, 20];
+  plotlim = Max[plotlim, 30];
 
   Print["spectral parameters", N[tmp[[1,1]]], " and ", N[theotherspectralparameter]];
 

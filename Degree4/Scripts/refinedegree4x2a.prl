@@ -416,7 +416,7 @@ For[ij=$startindex, ij <= $endindex, ++ij,
   testandsave[lamstart, mystarpts2 (* not used *), startingboxsize, 
     startingtruncationerror, mygandslistD1g, startingFE, myEV, 
     startingcoeffs, mygflag, startingprec, myabsflag, startingEp, 
-    thislabel, 9, 2, 10^-11];
+    thislabel, 9, 2, 10^-12];
 
 ]; (* for ij *)
 
