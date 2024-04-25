@@ -1121,7 +1121,7 @@ findallzeros[vallist_] := Block[{x(*,a,b,c,d*)},
   checkedroots
   ]
 
-addzerodatatoZ[elem_] := Block[{i, j},
+OLDaddzerodatatoZ[elem_] := Block[{i, j},
   thisitem = elem;
   thisfedata = thisitem[[1]];
   (*
@@ -1154,6 +1154,73 @@ addzerodatatoZ[elem_] := Block[{i, j},
   thisupperlim = thisprecisiondata[[jt, 1]];
   thisvaluedata = Select[thisvaluedata, thislowerlim <= #[[1]] <= thisupperlim &];
   thesezeros = findallzeros[thisvaluedata];
+  thiszerosig = Table[Length[
+     Select[thesezeros, thistrivzeroheights[[j]] < # < thistrivzeroheights[[j + 1]] &]],
+    {j, 1, Length[thistrivzeroheights] - 1}];
+  thisspecialvalues = thisitem[[3]];
+  theanswer = {thisfedata, {thisvaluedata, thisprecisiondata}, {thesezeros, thiszerosig}, thisspecialvalues};
+  theanswer
+  ]
+
+round01m1[x_, targets_, eps_] := Block[{j, outx},
+   outx = x;
+   For[j = 1, j <= Length[targets], ++j,
+    If[-1*eps < Abs[outx - targets[[j]]] < eps, outx = targets[[j]]]
+    ];
+   outx
+   ];
+
+(* this version should handle the GammaC case in full form: usually there is a "0" in the zero tuple *)
+
+addzerodatatoZ[elem_] := Block[{i, j, thisitem, thisfedata},
+  thisitem = elem;
+  thisfedata = thisitem[[1]];
+  (*
+  If[Abs[thisfedata[[1,1,2]]]<10^-8,Print["setting ", thisfedata[[1,1,
+  2]], " to 0"];
+  thisfedata[[1,1,2]]=0];
+  *);
+
+  zeroprecision = 10^-8;
+
+  thiseigs = thisfedata[[1, 1]];
+  thisparamR = thisfedata[[1, 2, 1]];
+  thisparamC = thisfedata[[1, 2, 2]];
+  If[Length[thiseigs] == 1,
+    If[Length[thisparamC] == 2,
+      thistrivzeroheights = Sort[{-thiseigs[[1]]-zeroprecision, -thiseigs[[1]]+zeroprecision, thiseigs[[1]]-zeroprecision, thiseigs[[1]]+zeroprecision}]
+    ,
+      thistrivzeroheights = Sort[{-thiseigs[[1]], thiseigs[[1]]}]
+    ];
+  ];
+  If[Length[thiseigs] == 2 && Length[thisparamC] == 0,
+   thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[2]], thiseigs[[1]] + thiseigs[[2]]}]
+  ];
+  If[Length[thiseigs] == 2 && Length[thisparamC] == 1,
+(*
+   thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[ 2]], (thiseigs[[1]] + thiseigs[[2]])/2}]
+*)
+   thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[ 2]], (thiseigs[[1]] + thiseigs[[2]])/2-zeroprecision, (thiseigs[[1]] + thiseigs[[2]])/2+zeroprecision}]
+ ];
+  If[Length[thiseigs] == 3 && Length[thisparamC] == 0,
+   thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[2]], -thiseigs[[3]], thiseigs[[1]] + thiseigs[[2]] + thiseigs[[3]]}]
+  ];
+
+  thisvaluedata = thisitem[[2, 1]];
+  thisvaluedata = Table[{thisvaluedata[[i, 1]], N[thisvaluedata[[i, 2]]]}, {i, 1, Length[thisvaluedata]}];
+  thisprecisiondata = thisitem[[2, 2]];
+  thisprecisiondata = Table[{thisprecisiondata[[i, 1]], {thisprecisiondata[[i, 2, 1]], N[thisprecisiondata[[i, 2, 2]]]}}, {i, 1, Length[thisprecisiondata]}];
+  jt = 1; While[thisprecisiondata[[jt, 2, 2]] > 0.1, ++jt];
+  thislowerlim = thisprecisiondata[[jt, 1]];
+  jt = -1; While[thisprecisiondata[[jt, 2, 2]] > 0.1, --jt];
+  thisupperlim = thisprecisiondata[[jt, 1]];
+  thisvaluedata = Select[thisvaluedata, thislowerlim <= #[[1]] <= thisupperlim &];
+  thesezeros = findallzeros[thisvaluedata];
+
+(* make a 0 nontrivial zero height exactly 0 (presumably because self-dual and odd) *)
+
+  thesezeros = Table[round01m1[j, {0}, 10^-8], {j, thesezeros}];
+
   thiszerosig = Table[Length[
      Select[thesezeros, thistrivzeroheights[[j]] < # < thistrivzeroheights[[j + 1]] &]],
     {j, 1, Length[thistrivzeroheights] - 1}];
