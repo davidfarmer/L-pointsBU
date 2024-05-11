@@ -1182,16 +1182,17 @@ addzerodatatoZ[elem_] := Block[{i, j, thisitem, thisfedata},
   *);
 
   zeroprecision = 10^-8;
+  thistrivzeroheights = {};
 
   thiseigs = thisfedata[[1, 1]];
   thisparamR = thisfedata[[1, 2, 1]];
   thisparamC = thisfedata[[1, 2, 2]];
   If[Length[thiseigs] == 1,
-    If[Length[thisparamC] == 2,
-      thistrivzeroheights = Sort[{-thiseigs[[1]]-zeroprecision, -thiseigs[[1]]+zeroprecision, thiseigs[[1]]-zeroprecision, thiseigs[[1]]+zeroprecision}]
-    ,
-      thistrivzeroheights = Sort[{-thiseigs[[1]], thiseigs[[1]]}]
-    ];
+    If[Length[thisparamR] == 2 && Length[thisparamC] == 0, thistrivzeroheights = Sort[{-thiseigs[[1]], thiseigs[[1]]}]];
+    If[Length[thisparamR] == 0 && Length[thisparamC] == 2,
+      thistrivzeroheights = Sort[{-thiseigs[[1]]-zeroprecision, -thiseigs[[1]]+zeroprecision, thiseigs[[1]]-zeroprecision, thiseigs[[1]]+zeroprecision}]];
+    If[Length[thisparamR] == 2 && Length[thisparamC] == 1,
+      thistrivzeroheights = Sort[{-thiseigs[[1]], thiseigs[[1]], -zeroprecision, zeroprecision}]];
   ];
   If[Length[thiseigs] == 2 && Length[thisparamC] == 0,
    thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[2]], thiseigs[[1]] + thiseigs[[2]]}]
@@ -1206,6 +1207,8 @@ addzerodatatoZ[elem_] := Block[{i, j, thisitem, thisfedata},
    thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[2]], -thiseigs[[3]], thiseigs[[1]] + thiseigs[[2]] + thiseigs[[3]]}]
   ];
 
+  If[thistrivzeroheights == {}, Print["Error: unimplemented case: empty thistrivzeroheights"]];
+
   thisvaluedata = thisitem[[2, 1]];
   thisvaluedata = Table[{thisvaluedata[[i, 1]], N[thisvaluedata[[i, 2]]]}, {i, 1, Length[thisvaluedata]}];
   thisprecisiondata = thisitem[[2, 2]];
@@ -1219,7 +1222,7 @@ addzerodatatoZ[elem_] := Block[{i, j, thisitem, thisfedata},
 
 (* make a 0 nontrivial zero height exactly 0 (presumably because self-dual and odd) *)
 
-  thesezeros = Table[round01m1[j, {0}, 10^-8], {j, thesezeros}];
+  thesezeros = Table[round01m1[j, {0}, zeroprecision], {j, thesezeros}];
 
   thiszerosig = Table[Length[
      Select[thesezeros, thistrivzeroheights[[j]] < # < thistrivzeroheights[[j + 1]] &]],
