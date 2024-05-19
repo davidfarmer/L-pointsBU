@@ -467,8 +467,8 @@ if component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly', 'zdata']:
 
         mmafile2.write(newlistname + ' = tossRepeats[summary];' + "\n")
    #     mmafile2.write('If[Length[trimmedsummary[[1,1]]]>3,trimmedsummary = Select[trimmedsummary, Norm[#[[1, 4]]] < 2 10^5 &]];' + "\n")
-        mmafile2.write('If[Length[trimmedsummary[[1,1]]]>3,trimmedsummary = Select[trimmedsummary, 0.99 < Abs[#[[1, 4,1]] + I #[[1,4,2]]] < 1.01 &]];' + "\n")
-        mmafile2.write('Print["After removing unlikely candidates, have: ", Length[trimmedsummary]];' + "\n")
+        mmafile2.write('If[Length[' + newlistname + '[[1,1]]]>3,' + newlistname + ' = Select[' + newlistname + ', 0.99 < Abs[#[[1, 4,1]] + I #[[1,4,2]]] < 1.01 &]];' + "\n")
+        mmafile2.write('Print["After removing unlikely candidates, have: ", Length[' + newlistname + ']];' + "\n")
         trimmedoutputfile = re.sub("summary","trimmedsummary", outputfile)
         mmafile2.write('DeleteFile["' + trimmedoutputfile + '"];' + "\n")
         mmafile2.write('Save["' + trimmedoutputfile + '", ' + newlistname + '];' + "\n")
