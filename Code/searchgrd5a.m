@@ -1087,7 +1087,7 @@ deleteuglyfromgood[ulis_, glis_, eps_] := Block[{j, k, nn, anslis, thisuelem, th
      If[Norm[thisgelem[[1, 1]] - thisuelem[[1, 1]]] < eps && thisgelem[[1, 2]] == thisuelem[[1, 2]],
        alreadyfound = True;
        For[nn = 1, nn <= 4, ++nn,
-         If[Abs[thisitem[[1, 4, nn]] - nextitem[[1, 4, nn]]] > eps, alreadyfound = False]
+         If[Abs[thisuelem[[1, 4, nn]] - thisgelem[[1, 4, nn]]] > eps, alreadyfound = False]
        ]
      ]
    ];
