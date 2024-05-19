@@ -1075,21 +1075,26 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
   Print["Trimmed list length: ", Length[slis]];
   slis];
 
-deleteuglyfromgood[ulis_, glis_] := deleteuglyfromgood[ulis, glis, 10^-6]
+deleteuglyfromgood[ulis_, glis_] := deleteuglyfromgood[ulis, glis, 0.01];
 
-deleteuglyfromgood[ulis_, glis_, eps_] := Block[{j, k, anslis, thisuelem, thisgelem},
+deleteuglyfromgood[ulis_, glis_, eps_] := Block[{j, k, nn, anslis, thisuelem, thisgelem},
   anslis = {};
   For[j = 1, j <= Length[ulis], ++j,
    thisuelem = ulis[[j]];
    alreadyfound = False;
    For[k = 1, k <= Length[glis], ++k,
-    thisgelem = glis[[k]];
-    If[Norm[thisgelem[[1, 1]] - thisuelem[[1, 1]]] < eps && thisgelem[[1, 2]] == thisuelem[[1, 2]],
-     alreadyfound = True]];
-   If[! alreadyfound, AppendTo[anslis, thisuelem]]
+     thisgelem = glis[[k]];
+     If[Norm[thisgelem[[1, 1]] - thisuelem[[1, 1]]] < eps && thisgelem[[1, 2]] == thisuelem[[1, 2]],
+       alreadyfound = True;
+       For[nn = 1, nn <= 4, ++nn,
+         If[Abs[thisitem[[1, 4, nn]] - nextitem[[1, 4, nn]]] > eps, alreadyfound = False]
+       ]
+     ]
    ];
+   If[! alreadyfound, AppendTo[anslis, thisuelem]]
+  ];
   anslis
-  ]
+];
 
 (*   for finding zeros and zero index after values have been computed  *)
 
