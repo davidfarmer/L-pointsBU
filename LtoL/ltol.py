@@ -30,7 +30,7 @@ conversion_options = ["xml", "ptx_pp", "xml_pp", "ptx_fix", "ptx_transform",
                       "iso",
                       "ptx",
                       "fixptx",
-                      "ldata", 'ldata_good', 'ldata_ugly', 'zdata',
+                      "ldata", 'ldata_good', 'ldata_ugly', 'ldata_uglygood', 'zdata',
                       "reprints",
                       "html_ptx",
                       "aimplstructure",
@@ -78,7 +78,7 @@ component.outputname = sys.argv[3]
 dorecursive = False
 
 if len(sys.argv) == 5 and sys.argv[4] == 'R':
-    dorecursive = True    
+    dorecursive = True
 
 print(component.inputname)
 print(component.outputname)
@@ -148,6 +148,9 @@ elif component.filetype_plus in ['ldata_good']:
 elif component.filetype_plus in ['ldata_ugly']:
     fileextension_in = "ugly"
     fileextension_out = ""
+elif component.filetype_plus in ['ldata_uglygood']:
+    fileextension_in = "txt"
+    fileextension_out = "txt"
 elif component.filetype_plus in ["ptx_transform"]:
     fileextension_in = "ptx"
     fileextension_out = "ptx"
@@ -194,6 +197,8 @@ elif os.path.isdir(component.inputname) and os.path.isdir(component.outputname) 
             outputfilename = outputdir + "summary" + fileextension_in + ".txt"
         elif component.filetype_plus in ['zdata']:
             outputfilename = outputdir + "summary" + "zdata" + ".txt"
+        elif component.filetype_plus in ["ldata_uglygood"]:
+            outputfilename = outputdir + "trimmed" + fileextension_in + ".txt"
         else:
             outputfilename = re.sub(".*/([^/]+)", outputdir + r"\1", component.inputfilename)
         if fileextension_in and fileextension_in != fileextension_out:
@@ -202,22 +207,22 @@ elif os.path.isdir(component.inputname) and os.path.isdir(component.outputname) 
             print("big problem: output file will over-write input file, quitting")
         component.iofilepairs.append([component.inputfilename, outputfilename])
   #  print thefiles
-  #  print inputdir 
+  #  print inputdir
   #  print component.iofilepairs
 #    sys.exit()
 elif dorecursive and os.path.isdir(component.inputname) and not os.path.isdir(component.outputname):
 
     print("looking for", fileextension_in, "files in",  component.inputname)
-    
+
     #First copy the entire src directory to the new destination.
     shutil.copytree(component.inputname, component.outputname)
     thefiles = []
-    #Two loops below walk entire sub-structure and adds full path to 
+    #Two loops below walk entire sub-structure and adds full path to
     #each file to be converted. Conversion is done in-place (in = out).
     for root, dirnames, filenames in os.walk(component.outputname):
         for filename in fnmatch.filter(filenames,'*.'+fileextension_in):
             thefiles.append(os.path.join(root,filename))
-        
+
 #    print "thefiles", thefiles
 
     component.iofilepairs = []
@@ -250,12 +255,12 @@ if component.filetype_plus in ['ptx_permid', 'xml_permid']:
     component.current_permid = component.permid_base_number
     print("starting permid:", component.current_permid)
 
-if component.filetype_plus not in ['ldata', 'ldata_good', 'ldata_ugly', 'zdata']:
+if component.filetype_plus not in ['ldata', 'ldata_good', 'ldata_ugly', 'ldata_uglygood', 'zdata']:
     print("about to loop over files:", component.iofilepairs)
 
 for inputfile, outputfile in component.iofilepairs:
 
-    #By using os.path.join, the paths SHOULD match the operating systems' 
+    #By using os.path.join, the paths SHOULD match the operating systems'
     #correct syntax. Regardless of windows or linux. Thank you compiler!
     if not dorecursive:
         # hack for windows
@@ -270,7 +275,7 @@ for inputfile, outputfile in component.iofilepairs:
     component.inputstub = re.sub(".*/","",component.inputstub)
     component.inputfilename = component.inputstub
     component.inputstub = re.sub("\..*","",component.inputstub)
-    if component.filetype_plus not in ['ldata', 'ldata_good', 'ldata_ugly', 'zdata']:
+    if component.filetype_plus not in ['ldata', 'ldata_good', 'ldata_ugly', 'ldata_uglygood', 'zdata']:
         print("file is ",inputfile)
     component.filestubs.append(component.inputstub)
 
@@ -321,6 +326,8 @@ for inputfile, outputfile in component.iofilepairs:
         component.onefile = myoperations.mytransform_svg(component.onefile)
     elif component.filetype_plus in ['ldata', 'ldata_good', 'ldata_ugly']:
         component.onefile = myoperations.mytransform_ldata(component.onefile)
+    elif component.filetype_plus in ['ldata_uglygood']:
+        pass
     elif component.filetype_plus in ['zdata']:
         component.onefile = myoperations.mytransform_zdata(component.onefile)
     elif component.filetype_plus in ['reprints']:
@@ -423,8 +430,8 @@ for inputfile, outputfile in component.iofilepairs:
         this_matrix_formatted += '\n]\n'
         with open(outputfile, 'w') as outfile:
             outfile.write(this_matrix_formatted)
-                
-    elif component.onefile and component.filetype_plus not in ["ldata", 'ldata_good', 'ldata_ugly', 'zdata']:
+
+    elif component.onefile and component.filetype_plus not in ["ldata", 'ldata_good', 'ldata_ugly', 'ldata_uglygood', 'zdata']:
         if component.filetype_plus == "probhtml":
             outputfile = re.sub("/([^/]+)$", "/" + component.aimplid + r"-\1", outputfile)
 
@@ -434,7 +441,7 @@ for inputfile, outputfile in component.iofilepairs:
         with open(outputfile, 'w') as outfile:
             outfile.write(component.onefile)
 
-    elif component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly', 'zdata']:
+    elif component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly', 'ldata_uglygood', 'zdata']:
         pass
   #      print("the file starts", component.onefile[:150])
 
@@ -464,6 +471,31 @@ if component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly', 'zdata']:
         mmafile2.write('Quit[]'+ "\n")
 
     print("preparing to eliminate repeats")
+    time.sleep(1)
+    os.system("source ~/L-pointsBU/LtoL/tmpfile1.m")
+elif component.filetype_plus in ["ldata_uglygood"]:
+    os.system("source ~/L-pointsBU/LtoL/ltol.py ldata_ugly " + component.inputname + " " + component.outputname)
+    time.sleep(1)
+    os.system("source ~/L-pointsBU/LtoL/ltol.py ldata_good " + component.inputname + " " + component.outputname)
+    time.sleep(1)
+
+    with open("tmpfile1.m", 'w') as mmafile1:
+        mmafile1.write("module load mathematica" + "\n")
+        mmafile1.write("math < ~/L-pointsBU/LtoL/tmpfile2.m" + "\n")
+
+    with open("tmpfile2.m", 'w') as mmafile2:
+        mmafile2.write('Import["~/L-pointsBU/Code/searchgrd5a.m", "NB"];' + "\n")
+        mmafile2.write('Import["' + component.outputname + "/trimmedsummarygood.txt" + '", "NB"];' + "\n")
+        mmafile2.write('Import["' + component.outputname + "/trimmedsummaryugly.txt" + '", "NB"];' + "\n")
+        mmafile2.write('Print["Before removing known good, have: ", Length[trimmedsummaryugly]];' + "\n")
+        mmafile2.write('slimmedsummaryugly = deleteuglyfromgood[trimmedsummaryugly,trimmedsummarygood];' + "\n")
+
+        mmafile2.write('Print["After removing known good, have: ", Length[slimmedsummaryugly]];' + "\n")
+        slimmedoutputfile = component.outputname + "/slimmedsummaryugly.m";
+        mmafile2.write('DeleteFile["' + slimmedoutputfile + '"];' + "\n")
+        mmafile2.write('Save["' + slimmedoutputfile + '", slimmedsummaryugly];' + "\n")
+        mmafile2.write('Quit[]'+ "\n")
+    print("preparing to remove known good")
     time.sleep(1)
     os.system("source ~/L-pointsBU/LtoL/tmpfile1.m")
 
