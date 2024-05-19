@@ -1057,15 +1057,15 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
    If[theyareclose, (*Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];*)
     counter += 1;
     If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
-       Print["deleting item ", j, " of ", Length[slis]];
+  (*     Print["deleting item ", j, " of ", Length[slis]];  *)
        slis = Delete[slis, j];
        j -= 1
       ,
-       Print["deleting item ", j + 1, " of ", Length[slis]];
+  (*    Print["deleting item ", j + 1, " of ", Length[slis]];  *)
        slis = Delete[slis, j + 1];
        j -= 1
       ,
-       Print["deleting item ", j, " of ", Length[slis]];
+ (*      Print["deleting item ", j, " of ", Length[slis]];  *)
        slis = Delete[slis, j];
        j -= 1
     ]
