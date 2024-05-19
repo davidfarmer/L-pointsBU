@@ -133,7 +133,7 @@ testandsave[initguessIN_ (* the initial guess *),
             absflag (* 1 to use absolute errors in the truncation error, 0 for relative *),
             EP (* describes the shape of the Euler product *)];
 
-    If[Length[tmpY]<4 && mode != "zooming", 
+    If[Length[tmpY]<4 && mode != "zooming",
         restartct = restartct+1;
         Print["after ", myct, " tries, and ", restartct-1, "restarts, out of at most ", RESTARTMAX, " found nothing, try again?"];
         Continue[]
@@ -1054,7 +1054,7 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
      theyareclose = False
      ]
     ];
-   If[theyareclose,Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];
+   If[theyareclose, (*Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];*)
     counter += 1;
     If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
        Print["deleting item ", j, " of ", Length[slis]];
@@ -1074,6 +1074,22 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
   Print["Omitted ", counter, " duplicates"];
   Print["Trimmed list length: ", Length[slis]];
   slis];
+
+deleteuglyfromgood[ulis_, glis_] := deleteuglyfromgood[ulis, glis, 10^-6]
+
+deleteuglyfromgood[ulis_, glis_, eps_] := Block[{j, k, anslis, thisuelem, thisgelem},
+  anslis = {};
+  For[j = 1, j <= Length[ulis], ++j,
+   thisuelem = ulis[[j]];
+   alreadyfound = False;
+   For[k = 1, k <= Length[glis], ++k,
+    thisgelem = glis[[k]];
+    If[Norm[thisgelem[[1, 1]] - thisuelem[[1, 1]]] < eps && thisgelem[[1, 2]] == thisuelem[[1, 2]],
+     alreadyfound = True]];
+   If[! alreadyfound, AppendTo[anslis, thisuelem]]
+   ];
+  anslis
+  ]
 
 (*   for finding zeros and zero index after values have been computed  *)
 
