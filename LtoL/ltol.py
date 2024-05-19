@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-#    #!/usr/bin/env python2.7
-
 import sys
 import re
 import os
@@ -474,9 +472,9 @@ if component.filetype_plus in ["ldata", 'ldata_good', 'ldata_ugly', 'zdata']:
     time.sleep(1)
     os.system("source ~/L-pointsBU/LtoL/tmpfile1.m")
 elif component.filetype_plus in ["ldata_uglygood"]:
-    os.system("source ~/L-pointsBU/LtoL/ltol.py ldata_ugly " + component.inputname + " " + component.outputname)
+    os.system("~/L-pointsBU/LtoL/ltol.py ldata_ugly " + component.inputname + " " + component.outputname)
     time.sleep(1)
-    os.system("source ~/L-pointsBU/LtoL/ltol.py ldata_good " + component.inputname + " " + component.outputname)
+    os.system("~/L-pointsBU/LtoL/ltol.py ldata_good " + component.inputname + " " + component.outputname)
     time.sleep(1)
 
     with open("tmpfile1.m", 'w') as mmafile1:
