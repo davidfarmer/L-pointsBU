@@ -1077,18 +1077,23 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
 
 deleteuglyfromgood[ulis_, glis_] := deleteuglyfromgood[ulis, glis, 0.01];
 
-deleteuglyfromgood[ulis_, glis_, eps_] := Block[{j, k, nn, anslis, thisuelem, thisgelem},
+deleteuglyfromgood[ulisin_, glisin_, eps_] := Block[{j, k, nn, anslis, thisuelem, thisgelem},
+  ulis = ulisin; glis = glisin;
   anslis = {};
   For[j = 1, j <= Length[ulis], ++j,
    thisuelem = ulis[[j]];
    alreadyfound = False;
    For[k = 1, k <= Length[glis], ++k,
      thisgelem = glis[[k]];
-     If[Norm[thisgelem[[1, 1]] - thisuelem[[1, 1]]] < eps && thisgelem[[1, 2]] == thisuelem[[1, 2]],
+     If[
+       Norm[N[thisgelem[[1, 1]]] - N[thisuelem[[1, 1]]]] < eps && thisgelem[[1, 2]] == thisuelem[[1, 2]]
+       && Abs[thisuelem[[1, 4, 3]] - thisgelem[[1, 4, 3]]] < eps
+       && Abs[thisuelem[[1, 4, 4]] - thisgelem[[1, 4, 4]]] < eps
+       && Abs[thisuelem[[1, 4, 5]] - thisgelem[[1, 4, 5]]] < eps
+       && Abs[thisuelem[[1, 4, 6]] - thisgelem[[1, 4, 6]]] < eps
+     ,
        alreadyfound = True;
-       For[nn = 1, nn <= 4, ++nn,
-         If[Abs[thisuelem[[1, 4, nn]] - thisgelem[[1, 4, nn]]] > eps, alreadyfound = False]
-       ]
+       Break[]
      ]
    ];
    If[! alreadyfound, AppendTo[anslis, thisuelem]]
