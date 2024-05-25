@@ -1018,63 +1018,6 @@ neweqns
 
 tossRepeats[lis_] := tossRepeats[lis, 0.01];
 
-tossRepeats[lis_, tolerance_] := Block[{slis, j, nn},
-  slis = Sort[lis];
-  If[NumberQ[slis[[1,1]]],
-      slis = Sort[slis, #1[[1]] < #2[[1]]&]
-    ,
-      If[NumberQ[slis[[1,1,1]]],
-        slis = Sort[slis, #1[[1,1]] < #2[[1,1]]&]
-      ,
-        slis = Sort[slis, #1[[1,1,1]] < #2[[1,1,1]]&]
-      ]
-  ];
-
-  Print["Initial number of items: ", Length[slis]];
-  counter = 0;
-  fullcounter = 0;
-  For[j = 1, j <= Length[slis] - 1, ++j,
-   fullcounter += 1;
-   If[NumberQ[slis[[1,1,1,1]]],  (* could be ldata or zdata *)
-       thisitem = slis[[j]];
-       nextitem = slis[[j + 1]]
-     ,
-       thisitem = slis[[j,1]];
-       nextitem = slis[[j + 1,1]]
-   ];
-   (* check if the spectral parameters are close *)
-   theyareclose = True;
-   (* first check same funcitonal equation *)
-   If[thisitem[[1, 2]] != nextitem[[1, 2]],
-    theyareclose = False];
-   If[Norm[thisitem[[1, 1]] - nextitem[[1, 1]]] > tolerance,
-    theyareclose = False];
-   For[nn = 1, nn <= 4, ++nn,
-    If[Abs[thisitem[[1, 4, nn]] - nextitem[[1, 4, nn]]] > tolerance,
-     theyareclose = False
-     ]
-    ];
-   If[theyareclose, (*Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];*)
-    counter += 1;
-    If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
-  (*     Print["deleting item ", j, " of ", Length[slis]];  *)
-       slis = Delete[slis, j];
-       j -= 1
-      ,
-  (*    Print["deleting item ", j + 1, " of ", Length[slis]];  *)
-       slis = Delete[slis, j + 1];
-       j -= 1
-      ,
- (*      Print["deleting item ", j, " of ", Length[slis]];  *)
-       slis = Delete[slis, j];
-       j -= 1
-    ]
-   ]
-  ];
-  Print["Omitted ", counter, " duplicates"];
-  Print["Trimmed list length: ", Length[slis]];
-  slis];
-
 tossRepeats[lis_, tolerance_] := Block[{slis, j, k, nn},
   slis = Sort[lis];
   If[NumberQ[slis[[1,1]]],
@@ -1092,43 +1035,43 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, k, nn},
   fullcounter = 0;
   For[j = 1, j <= Length[slis] - 1, ++j,
    fullcounter += 1;
-For[k = 1, k <= Length[slis] - j, ++k,
-   If[NumberQ[slis[[1,1,1,1]]],  (* could be ldata or zdata *)
-       thisitem = slis[[j]];
-       nextitem = slis[[j + k]]
-     ,
-       thisitem = slis[[j,1]];
-       nextitem = slis[[j + k,1]]
-   ];
-   (* check if the spectral parameters are close *)
-   theyareclose = True;
-   (* first check same funcitonal equation *)
-   If[thisitem[[1, 2]] != nextitem[[1, 2]],
-    theyareclose = False];
-   If[Norm[thisitem[[1, 1]] - nextitem[[1, 1]]] > tolerance,
-    theyareclose = False];
-   For[nn = 1, nn <= 6, ++nn,
-    If[Abs[thisitem[[1, 4, nn]] - nextitem[[1, 4, nn]]] > tolerance,
-     theyareclose = False
+    For[k = 1, k <= Length[slis] - j, ++k,
+     If[NumberQ[slis[[1,1,1,1]]],  (* could be ldata or zdata *)
+         thisitem = slis[[j]];
+         nextitem = slis[[j + k]]
+       ,
+         thisitem = slis[[j,1]];
+         nextitem = slis[[j + k,1]]
+     ];
+     (* check if the spectral parameters are close *)
+     theyareclose = True;
+     (* first check same funcitonal equation *)
+     If[thisitem[[1, 2]] != nextitem[[1, 2]],
+      theyareclose = False];
+     If[Norm[thisitem[[1, 1]] - nextitem[[1, 1]]] > tolerance,
+      theyareclose = False];
+     For[nn = 1, nn <= 6, ++nn,
+      If[Abs[thisitem[[1, 4, nn]] - nextitem[[1, 4, nn]]] > tolerance,
+       theyareclose = False
+       ]
+      ];
+     If[theyareclose, (*Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];*)
+      counter += 1;
+      If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
+    (*     Print["deleting item ", j, " of ", Length[slis]];  *)
+         slis = Delete[slis, j];
+         j -= 1
+        ,
+    (*    Print["deleting item ", j + 1, " of ", Length[slis]];  *)
+         slis = Delete[slis, j + k];
+         j -= 1
+        ,
+   (*      Print["deleting item ", j, " of ", Length[slis]];  *)
+         slis = Delete[slis, j];
+         j -= 1
+      ]
      ]
-    ];
-   If[theyareclose, (*Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];*)
-    counter += 1;
-    If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
-  (*     Print["deleting item ", j, " of ", Length[slis]];  *)
-       slis = Delete[slis, j];
-       j -= 1
-      ,
-  (*    Print["deleting item ", j + 1, " of ", Length[slis]];  *)
-       slis = Delete[slis, j + k];
-       j -= 1
-      ,
- (*      Print["deleting item ", j, " of ", Length[slis]];  *)
-       slis = Delete[slis, j];
-       j -= 1
     ]
-   ]
-]
   ];
   Print["Omitted ", counter, " duplicates"];
   Print["Trimmed list length: ", Length[slis]];
