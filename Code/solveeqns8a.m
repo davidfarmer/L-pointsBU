@@ -1019,7 +1019,10 @@ theunknowns[ep_,lim_]:=Block[{j,fi,ans={},deg,badps,badpunks,theprime,theexponen
 	   theposition=Position[badps,theprime][[1,1]];
 	   If[theexponent<= (absbadpunks[[ theposition ]]),
 		If[ (badpunks[[ theposition ]])>0,
-			AppendTo[ans,{bb1[j],bb2[j]}], AppendTo[ans,bb1[j]]]
+                   (* self-dual applies to the bad facrots, too *)
+                   If[deg > 0, AppendTo[ans,{bb1[j],bb2[j]}], AppendTo[ans,{bb1[j]}]]
+                ,
+                  AppendTo[ans,bb1[j]]]
 	     ],  (*else, good prime case *)
 	   If[theexponent<=Floor[absdeg/2] || theexponent >=5, 
 	     If[deg>0, AppendTo[ans,{bb1[j],bb2[j]}], AppendTo[ans,bb1[j]] ]
