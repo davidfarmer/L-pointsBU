@@ -1050,7 +1050,7 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, k, nn},
       theyareclose = False];
      If[Norm[thisitem[[1, 1]] - nextitem[[1, 1]]] > tolerance,
       theyareclose = False];
-     For[nn = 1, nn <= 6, ++nn,
+     For[nn = 1, nn <= Min[6,Length[nextitem[[1, 4]] ]], ++nn,
       If[Abs[thisitem[[1, 4, nn]] - nextitem[[1, 4, nn]]] > tolerance,
        theyareclose = False
        ]
