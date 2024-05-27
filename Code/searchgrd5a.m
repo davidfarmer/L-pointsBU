@@ -1035,6 +1035,7 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, k, nn},
   fullcounter = 0;
   For[j = 1, j <= Length[slis] - 1, ++j,
    fullcounter += 1;
+   deletedatleastonek = False;
     For[k = 1, k <= Length[slis] - j, ++k,
      If[NumberQ[slis[[1,1,1,1]]],  (* could be ldata or zdata *)
          thisitem = slis[[j]];
@@ -1050,6 +1051,9 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, k, nn},
       theyareclose = False];
      If[Norm[thisitem[[1, 1]] - nextitem[[1, 1]]] > tolerance,
       theyareclose = False];
+(*
+Print[{j,k,counter,fullcounter},"at AA", Length[nextitem[[1, 4]]]];
+*)
      For[nn = 1, nn <= Min[6,Length[nextitem[[1, 4]] ]], ++nn,
       If[Abs[thisitem[[1, 4, nn]] - nextitem[[1, 4, nn]]] > tolerance,
        theyareclose = False
@@ -1057,21 +1061,23 @@ tossRepeats[lis_, tolerance_] := Block[{slis, j, k, nn},
       ];
      If[theyareclose, (*Print[fullcounter," ", N[thisitem[[1,1]]]," near ",N[nextitem[[1,1]]]," FE: ",InputForm[thisitem[[1,2]]]];*)
       counter += 1;
+      deletedatleastonek = True;
       If[thisitem[[2, 1, 1]] > nextitem[[2, 1, 1]],
     (*     Print["deleting item ", j, " of ", Length[slis]];  *)
          slis = Delete[slis, j];
-         j -= 1
+      (*   j -= 1 *)
         ,
     (*    Print["deleting item ", j + 1, " of ", Length[slis]];  *)
          slis = Delete[slis, j + k];
-         j -= 1
+    (*     j -= 1 *)
         ,
    (*      Print["deleting item ", j, " of ", Length[slis]];  *)
          slis = Delete[slis, j];
-         j -= 1
+   (*  j -= 1 *)
       ]
      ]
-    ]
+    ];
+    If[deletedatleastonek, j -= 1];
   ];
   Print["Omitted ", counter, " duplicates"];
   Print["Trimmed list length: ", Length[slis]];
