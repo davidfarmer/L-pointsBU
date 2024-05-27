@@ -513,7 +513,10 @@ tmpeqsolv = eqsolv[starN];
 
   (* the 200 below was changed from 100 on 3/14/24, to help with degree 3 conductor 8 *)
 
+(*
         ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 200,targeteps,{4,0.1}];
+*)
+        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 200,targeteps,{8,0.1}];
 (*
         Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
 *)
