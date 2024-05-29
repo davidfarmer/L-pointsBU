@@ -590,6 +590,7 @@ realsubs[numterms_]:=Table[bb2[j]->0,{j,1,numterms}];
 meaning that we know an upper bound on its degree and nothing else *)
 badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprimes,baddegree},
     eqnsTMP=eqns;
+    {degree,char}=EP[[1]];
     badprimes=EP[[2,1]];
     absbadprimes=Abs[badprimes];
     baddegs=EP[[2,2]];
@@ -608,7 +609,8 @@ badprimepowersubs[EP_, eqns_, numterms_]:=Block[{eqnsTMP,p,j,deg,char,cp,badprim
         ]; (* if a bad prime *)
 	++j
     ];  (* while *)
-    eqnsTMP
+    If[degree<0,eqnsTMP/.realsubs[numterms],eqnsTMP]
+  (*  eqnsTMP  *)
 ];
 
 (* general good degree 5 Euler factor *)
