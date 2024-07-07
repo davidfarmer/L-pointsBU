@@ -1,0 +1,590 @@
+#!/usr/bin/perl -w
+
+######################
+#
+#  Search for CC self dual, particularly k > 12
+#
+#######################
+
+if($#ARGV != 5){  # 6
+     die "\nThis program searches CCSD level 1 at {twokappaone, twokappatwo}, {twokappa, lamstart + 1/step}, ..., {twokappa, lamstart + (numsteps-1)/step}  \n",
+            "The syntax is:  \n\t  degree4conductor1CCSD_1b.prl twokappaone twokappa lamstart step numsteps outputdir\n\n",$#ARGV
+} # ARGV if
+
+my ($twokappaone, $twokappatwo, $lamstart) = ($ARGV[0],$ARGV[1],$ARGV[2]);
+
+my ($recipstep, $numsteps) = ($ARGV[3],$ARGV[4]);
+
+my $outputdir = $ARGV[5];
+
+my $username = `whoami`;
+chomp $username;
+
+my $mmafile = "/home/$username/L-pointsBU/Degree4/Tmp1/searchCCSD_".$twokappaone."_1b_".$twokappatwo."_".$lamstart."_".$recipstep."_".$numsteps.".m";
+my $batchfile = "/home/$username/L-pointsBU/Degree4/Tmp1/batchCCSD_".$twokappaone."_1b_".$twokappatwo."_".$lamstart."_".$recipstep."_".$numsteps.".txt";
+my $outbatchfile = "~/L-pointsBU/Degree4/Tmp1/out.batchCCSD_".$twokappaone."_1b_".$twokappatwo."_".$lamstart."_".$recipstep."_".$numsteps.".out";
+
+open(OUTmmaFILE, ">$mmafile") or die "the file $mmafile can't be opened: $! \n";
+open(OUTbatchFILE, ">$batchfile") or die "the file $batchfile can't be opened: $! \n";
+
+$lamstart =~ s/n/-/;
+
+print OUTmmaFILE <<header;
+
+Print["input 1"];
+
+<< ~/L-pointsBU/Code/findL2a.m;
+
+Print["input 2"];
+<< ~/L-pointsBU/Code/searchgrd5a.m;
+
+Print["input 3"];
+<< ~/L-pointsBU/Code/solveeqns8a.m;
+
+versionnumber = "L2a_searchgrd5a_solveeqns8a"
+
+versioneqns = "mygandslistC2"
+
+useWarnings = False
+
+Print["starting"];
+
+myEV = {3, 13}
+
+EPSL3Z = {{3, {1}}, {{}, {}}}
+
+EPSL3Zp[p_] := {{3, {1}}, {{p}, {2}}}
+
+EPdegree3[4] := {{3, {1}}, {{2}, {1}}}
+
+EPdegree3[4,3] := {{3, {1}}, {{2}, {1}, { {EPSILONpR[2]/2 - bb1[2], EPSILONpI[2]/2 + bb2[2]} }}}
+
+EPdegree3[8,0] := {{3, {1}}, {{2}, {0}}}
+
+EPdegree3[8,1] := {{3, {1}}, {{2}, {1}, {{ EPSILONpR[2]^2 - EPSILONpI[2]^2 - bb1[2]^3 + 3 bb1[2] bb2[2]^2, 2 EPSILONpR[2] EPSILONpI[2] + 3 bb1[2]^2 bb2[2] - bb2[2]^3}} }}
+
+EPdegree3[8,1, "no"] := {{3, {1}}, {{2}, {1}}}
+
+EPSL4Zsd = {{-4, {1}}, {{}, {}}}
+
+EPdegree4[1] := {{4, {1}}, {{}, {}}}
+
+mydatadir = "$outputdir";
+
+FEdegree3["rc", rdelta_, twokappa_, n_]:= {{ {rdelta,XX[1]} }, { {twokappa/2, (-1/2) XX[1]} }, n, EpsilonR + I EpsilonI};
+FEdegree3["rc", rdelta_, twokappa_, n_, sign_]:= {{ {rdelta,XX[1]} }, { {twokappa/2, (-1/2) XX[1]} }, n, sign};
+
+FEdegree4["cc", twokappaone_, twokappatwo_] = {{}, { {twokappaone/2, XX[1]}, {twokappatwo/2,  -1 * XX[1]} }, 1, I^(twokappaone + twokappatwo + 2)};
+
+mystarpts1 = {{-101/100}, {99/100}}
+
+mystarpts2 = {{0, 98/100}, {0, -102/100}, {99/100, 0}, {-101/100, 0}}
+
+myabsflag = 1
+
+mygflag = 1
+
+globalc = 0
+
+mygandslistA4 = {{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I}, 
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I}, 
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistB4 = {
+{{0, 0, 0}, {0, 28/23, globalc}, 1/2+ 5 I},
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 27/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 26/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 25/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 24/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I}, 
+{{0, 0, 0}, {0, 101/100, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I}, 
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistC4 = {
+{{0, 0, 0}, {0, 5/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 7/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 8/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 9/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I}, 
+{{0, 0, 0}, {0, 10/23, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I}, 
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistC4a = {
+{{0, 0, 0}, {0, 15/23, globalc}, 1/2+9I},
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 16/23, globalc}, 1/2+9I},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 17/23, globalc}, 1/2+9I},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 18/23, globalc}, 1/2+9I},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 19/23, globalc}, 1/2+9I},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I},
+{{0, 0, 0}, {0, 20/23, globalc}, 1/2+9I},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I},
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2},
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I},
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2},
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I},
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+mygandslistC4b := {
+{{0, 0, 0}, {0, 1/2, globalc}, 1/2}, {{0, 0, 0}, {0, 1/3, globalc}, 1/2},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2}, {{0, 0, 0}, {0, 1/4, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2}, {{0, 0, 0}, {0, 1/5, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2+ 5I}, {{0, 0, 0}, {0, 3/5, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 4 I}, {{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 7I},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2}, {{0, 0, 0}, {0, 1/7, globalc}, 1/2+6I},
+{{0, 0, 0}, {0, 2/7, globalc}, 1/2+2I}, {{0, 0, 0}, {0, 3/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/7, globalc}, 1/2}, {{0, 0, 0}, {0, 5/7, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/7, globalc}, 1/2}, {{0, 0, 0}, {0, 1/8, globalc}, 1/2+I},
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2}, {{0, 0, 0}, {0, 5/8, globalc}, 1/2},
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2}, {{0, 0, 0}, {0, 1/9, globalc}, 1/2+5I},
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 6I}, {{0, 0, 0}, {0, 4/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2}, {{0, 0, 0}, {0, 7/9, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2}, {{0, 0, 0}, {0, 1/10, globalc}, 1/2+3I},
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2}, {{0, 0, 0}, {0, 7/10, globalc}, 1/2},
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2}, {{0, 0, 0}, {0, 1/11, globalc}, 1/2-I},
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2-2I}, {{0, 0, 0}, {0, 3/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2}, {{0, 0, 0}, {0, 5/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2}, {{0, 0, 0}, {0, 7/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2}, {{0, 0, 0}, {0, 9/11, globalc}, 1/2},
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2}};
+
+globalc = 1/500;
+
+(* see previous version for mygandslistD1b500b *)
+
+mygandslistD1b500da := {{{0, 0, 0}, {0, 1/2, globalc}, 1/2 + 41 I/11}, 
+{{0, 0, 0}, {0, 1/3, globalc}, 1/2 + 42 I/11}, 
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2 + 53 I/11}, 
+{{0, 0, 0}, {0, 1/4, globalc}, 1/2 + 34 I/11}, 
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2 + 50 I/11}, 
+{{0, 0, 0}, {0, 1/5, globalc}, 1/2 + 3 I}, 
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2 + 46 I/11}, 
+{{0, 0, 0}, {0, 3/5, globalc}, 1/2 + 57 I/11}, 
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 68 I/11}, 
+{{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 29 I/11}, 
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2 + 60 I/11}, 
+{{0, 0, 0}, {0, 100/107, globalc}, 1/2 + 72 I/11}, 
+{{0, 0, 0}, {0, 102/107, globalc}, 1/2 + 78 I/11}, 
+{{0, 0, 0}, {0, 104/107, globalc}, 1/2 + 84 I/11}, 
+{{0, 0, 0}, {0, 106/107, globalc}, 1/2 + 80 I/11}, 
+{{0, 0, 0}, {0, 108/107, globalc}, 1/2 + 76 I/11}, 
+{{0, 0, 0}, {0, 1/8, globalc}, 1/2 + 38 I/11}, 
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2 + 59 I/11}, 
+{{0, 0, 0}, {0, 5/8, globalc}, 1/2 + 50 I/11}, 
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2 + 61 I/11}, 
+{{0, 0, 0}, {0, 1/9, globalc}, 1/2 + 22 I/11}, 
+{{0, 0, 0}, {0, 2/9, globalc}, 1/2 + 23 I/11}, 
+{{0, 0, 0}, {0, 4/9, globalc}, 1/2 + 24 I/11}, 
+{{0, 0, 0}, {0, 5/9, globalc}, 1/2 + 25 I/11}, 
+{{0, 0, 0}, {0, 7/9, globalc}, 1/2 + 26 I/11}, 
+{{0, 0, 0}, {0, 8/9, globalc}, 1/2 + 27 I/11}, 
+{{0, 0, 0}, {0, 1/10, globalc}, 1/2 + 28 I/11}, 
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2 + 29 I/11}, 
+{{0, 0, 0}, {0, 7/10, globalc}, 1/2 + 30 I/11}, 
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2 + 31 I/11}, 
+{{0, 0, 0}, {0, 1/11, globalc}, 1/2 + 32 I/11}, 
+{{0, 0, 0}, {0, 2/11, globalc}, 1/2 + 33 I/11}, 
+{{0, 0, 0}, {0, 3/11, globalc}, 1/2 + 34 I/11}, 
+{{0, 0, 0}, {0, 4/11, globalc}, 1/2 + 35 I/11}, 
+{{0, 0, 0}, {0, 5/11, globalc}, 1/2 + 36 I/11}, 
+{{0, 0, 0}, {0, 6/11, globalc}, 1/2 + 37 I/11}, 
+{{0, 0, 0}, {0, 7/11, globalc}, 1/2 + 38 I/11}, 
+{{0, 0, 0}, {0, 8/11, globalc}, 1/2 + 39 I/11}, 
+{{0, 0, 0}, {0, 9/11, globalc}, 1/2 + 40 I/11}, 
+{{0, 0, 0}, {0, 10/11, globalc}, 1/2 + 41 I/11}, 
+{{0, 0, 0}, {0, 1/12, globalc}, 1/2 + 42 I/11}, 
+{{0, 0, 0}, {0, 5/12, globalc}, 1/2 + 43 I/11}, 
+{{0, 0, 0}, {0, 7/12, globalc}, 1/2 + 44 I/11}, 
+{{0, 0, 0}, {0, 11/12, globalc}, 1/2 + 45 I/11}, 
+{{0, 0, 0}, {0, 1/13, globalc}, 1/2 + 46 I/11}, 
+{{0, 0, 0}, {0, 2/13, globalc}, 1/2 + 47 I/11}, 
+{{0, 0, 0}, {0, 3/13, globalc}, 1/2 + 48 I/11}, 
+{{0, 0, 0}, {0, 4/13, globalc}, 1/2 + 49 I/11}, 
+{{0, 0, 0}, {0, 5/13, globalc}, 1/2 + 50 I/11}, 
+{{0, 0, 0}, {0, 6/13, globalc}, 1/2 + 51 I/11}, 
+{{0, 0, 0}, {0, 7/13, globalc}, 1/2 + 52 I/11}, 
+{{0, 0, 0}, {0, 8/13, globalc}, 1/2 + 53 I/11}, 
+{{0, 0, 0}, {0, 9/13, globalc}, 1/2 + 54 I/11}, 
+{{0, 0, 0}, {0, 10/13, globalc}, 1/2 + 55 I/11}, 
+{{0, 0, 0}, {0, 11/13, globalc}, 1/2 + 56 I/11}, 
+{{0, 0, 0}, {0, 12/13, globalc}, 1/2 + 57 I/11}};
+
+mygandslistD1b500j := {
+{{0, 8/23, 0}, {0, 1/2, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/3, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 2/3, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/4, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 3/4, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/5, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -1/5, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 2/5, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -3/5, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 3/5, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 4/5, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/6, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 5/6, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -1/2, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -1/3, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -2/3, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -1/4, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -3/4, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -4/5, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/8, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 3/8, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 5/8, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -7/8, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 7/8, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -1/9, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -2/9, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 4/9, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -4/9, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -5/9, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -7/9, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -8/9, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/10, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 3/10, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 7/10, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 9/10, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -2/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 3/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -4/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 5/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -6/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 7/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -8/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 9/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -10/11, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -1/12, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -5/12, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -7/12, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 11/12, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 1/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -2/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -3/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, -4/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 5/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 6/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 7/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 8/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 9/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 10/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 11/13, globalc}, 1/2 + 6 I},
+{{0, 8/23, 0}, {0, 12/13, globalc}, 1/2 + 6 I}};
+
+mygandslistD1b500i := {{{0, 0, 0}, {0, 1/2, globalc}, 1/2 + 141 I/11},
+{{0, 0, 0}, {0, 1/3, globalc}, 1/2 + 92 I/11},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2 + 123 I/11},
+{{0, 0, 0}, {0, 1/4, globalc}, 1/2 + 134 I/11},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2 + 113 I/11},
+{{0, 0, 0}, {0, 1/5, globalc}, 1/2 + 13 I},
+{{0, 0, 0}, {0, -1/5, globalc}, 1/2 - 4 I},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2 + 146 I/11},
+{{0, 0, 0}, {0, -3/5, globalc}, 1/2 - 157 I/41},
+{{0, 0, 0}, {0, 3/5, globalc}, 1/2 + 107 I/11} (* 10 *),
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 108 I/11},
+{{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 129 I/11},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2 + 100 I/11},
+{{0, 0, 0}, {0, -1/2, globalc}, 1/2 - 152 I/43},
+{{0, 0, 0}, {0, -1/3, globalc}, 1/2 - 138 I/43},
+{{0, 0, 0}, {0, -2/3, globalc}, 1/2 - 194 I/43},
+{{0, 0, 0}, {0, -1/4, globalc}, 1/2 - 120 I/43},
+{{0, 0, 0}, {0, -3/4, globalc}, 1/2 - 186 I/43},
+{{0, 0, 0}, {0, -4/5, globalc}, 1/2 - 197 I/43},
+{{0, 0, 0}, {0, 1/8, globalc}, 1/2 + 138 I/11} (* 20 *),
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2 + 109 I/11},
+{{0, 0, 0}, {0, 5/8, globalc}, 1/2 + 150 I/11},
+{{0, 0, 0}, {0, -7/8, globalc}, 1/2 - 181 I/41},
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2 + 101 I/11},
+{{0, 0, 0}, {0, -1/9, globalc}, 1/2 - 132 I/33},
+{{0, 0, 0}, {0, -2/9, globalc}, 1/2 - 113 I/33},
+{{0, 0, 0}, {0, 4/9, globalc}, 1/2 + 155 I/13},
+{{0, 0, 0}, {0, -4/9, globalc}, 1/2 - 124 I/23},
+{{0, 0, 0}, {0, -5/9, globalc}, 1/2 - 125 I/23},
+{{0, 0, 0}, {0, -7/9, globalc}, 1/2 - 126 I/23} (* 30 *),
+{{0, 0, 0}, {0, -8/9, globalc}, 1/2 - 127 I/23},
+{{0, 0, 0}, {0, 1/10, globalc}, 1/2 + 128 I/11},
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2 + 129 I/11},
+{{0, 0, 0}, {0, 7/10, globalc}, 1/2 + 130 I/11},
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2 + 131 I/11},
+{{0, 0, 0}, {0, 1/11, globalc}, 1/2 + 132 I/11},
+{{0, 0, 0}, {0, -2/11, globalc}, 1/2 - 133 I/21},
+{{0, 0, 0}, {0, 3/11, globalc}, 1/2 + 134 I/11},
+{{0, 0, 0}, {0, -4/11, globalc}, 1/2 - 135 I/21},
+{{0, 0, 0}, {0, 5/11, globalc}, 1/2 + 136 I/11},
+{{0, 0, 0}, {0, -6/11, globalc}, 1/2 - 137 I/21},
+{{0, 0, 0}, {0, 7/11, globalc}, 1/2 + 138 I/11},
+{{0, 0, 0}, {0, -8/11, globalc}, 1/2 - 139 I/21},
+{{0, 0, 0}, {0, 9/11, globalc}, 1/2 + 140 I/11},
+{{0, 0, 0}, {0, -10/11, globalc}, 1/2 - 141 I/21},
+{{0, 0, 0}, {0, 1/12, globalc}, 1/2 + 142 I/11},
+{{0, 0, 0}, {0, 5/12, globalc}, 1/2 + 143 I/11},
+{{0, 0, 0}, {0, 7/12, globalc}, 1/2 + 144 I/11},
+{{0, 0, 0}, {0, 11/12, globalc}, 1/2 + 145 I/11},
+{{0, 0, 0}, {0, 1/13, globalc}, 1/2 + 146 I/11},
+{{0, 0, 0}, {0, 2/13, globalc}, 1/2 + 147 I/11},
+{{0, 0, 0}, {0, 3/13, globalc}, 1/2 + 148 I/11},
+{{0, 0, 0}, {0, 4/13, globalc}, 1/2 + 149 I/11},
+{{0, 0, 0}, {0, 5/13, globalc}, 1/2 + 150 I/11},
+{{0, 0, 0}, {0, 6/13, globalc}, 1/2 + 151 I/11},
+{{0, 0, 0}, {0, 7/13, globalc}, 1/2 + 152 I/11},
+{{0, 0, 0}, {0, 8/13, globalc}, 1/2 + 153 I/11},
+{{0, 0, 0}, {0, 9/13, globalc}, 1/2 + 154 I/11},
+{{0, 0, 0}, {0, 10/13, globalc}, 1/2 + 155 I/11},
+{{0, 0, 0}, {0, 11/13, globalc}, 1/2 + 156 I/11},
+{{0, 0, 0}, {0, 12/13, globalc}, 1/2 + 157 I/11}};
+
+mygandslistD1b500h := {{{0, 0, 0}, {0, 1/2, globalc}, 1/2 + 41 I/53},
+{{0, 0, 0}, {0, 1/3, globalc}, 1/2 + 42 I/53},
+{{0, 0, 0}, {0, 2/3, globalc}, 1/2 + 53 I/53},
+{{0, 0, 0}, {0, 1/4, globalc}, 1/2 + 34 I/53},
+{{0, 0, 0}, {0, 3/4, globalc}, 1/2 + 50 I/53},
+{{0, 0, 0}, {0, 1/5, globalc}, 1/2 + 3 I/8},
+{{0, 0, 0}, {0, -1/5, globalc}, 1/2 - 5 I/8},
+{{0, 0, 0}, {0, 2/5, globalc}, 1/2 + 46 I/53},
+{{0, 0, 0}, {0, -3/5, globalc}, 1/2 - 157 I/53},
+{{0, 0, 0}, {0, 3/5, globalc}, 1/2 + 57 I/53}, (* 10*)
+{{0, 0, 0}, {0, 4/5, globalc}, 1/2 + 68 I/53},
+{{0, 0, 0}, {0, 1/6, globalc}, 1/2 + 29 I/53},
+{{0, 0, 0}, {0, 5/6, globalc}, 1/2 + 60 I/53},
+{{0, 0, 0}, {0, -1/2, globalc}, 1/2 - 52 I/71},
+{{0, 0, 0}, {0, -1/3, globalc}, 1/2 - 38 I/71},
+{{0, 0, 0}, {0, -2/3, globalc}, 1/2 - 94 I/71},
+{{0, 0, 0}, {0, -1/4, globalc}, 1/2 - 20 I/71},
+{{0, 0, 0}, {0, -3/4, globalc}, 1/2 - 86 I/71},
+{{0, 0, 0}, {0, -4/5, globalc}, 1/2 - 97 I/71},
+{{0, 0, 0}, {0, 1/8, globalc}, 1/2 + 38 I/53}, (* 20 *)
+{{0, 0, 0}, {0, 3/8, globalc}, 1/2 + 59 I/53},
+{{0, 0, 0}, {0, 5/8, globalc}, 1/2 + 50 I/53},
+{{0, 0, 0}, {0, -7/8, globalc}, 1/2 - 81 I/53},
+{{0, 0, 0}, {0, 7/8, globalc}, 1/2 + 61 I/53},
+{{0, 0, 0}, {0, -1/9, globalc}, 1/2 - 22 I/71},
+{{0, 0, 0}, {0, -2/9, globalc}, 1/2 - 23 I/71},
+{{0, 0, 0}, {0, 4/9, globalc}, 1/2 + 55 I/71},
+{{0, 0, 0}, {0, -4/9, globalc}, 1/2 - 24 I/71},
+{{0, 0, 0}, {0, -5/9, globalc}, 1/2 - 25 I/71},
+{{0, 0, 0}, {0, -7/9, globalc}, 1/2 - 26 I/71} (* 30 *),
+{{0, 0, 0}, {0, -8/9, globalc}, 1/2 - 27 I/71},
+{{0, 0, 0}, {0, 1/10, globalc}, 1/2 + 28 I/53},
+{{0, 0, 0}, {0, 3/10, globalc}, 1/2 + 29 I/53},
+{{0, 0, 0}, {0, 7/10, globalc}, 1/2 + 30 I/53},
+{{0, 0, 0}, {0, 9/10, globalc}, 1/2 + 31 I/53},
+{{0, 0, 0}, {0, 1/11, globalc}, 1/2 + 32 I/53},
+{{0, 0, 0}, {0, -2/11, globalc}, 1/2 - 33 I/53},
+{{0, 0, 0}, {0, 3/11, globalc}, 1/2 + 34 I/53},
+{{0, 0, 0}, {0, -4/11, globalc}, 1/2 - 35 I/53},
+{{0, 0, 0}, {0, 5/11, globalc}, 1/2 + 36 I/53} (* 40 *),
+{{0, 0, 0}, {0, -6/11, globalc}, 1/2 - 37 I/53},
+{{0, 0, 0}, {0, 7/11, globalc}, 1/2 + 38 I/53},
+{{0, 0, 0}, {0, -8/11, globalc}, 1/2 - 39 I/53},
+{{0, 0, 0}, {0, 9/11, globalc}, 1/2 + 40 I/53},
+{{0, 0, 0}, {0, -10/11, globalc}, 1/2 - 41 I/53},
+{{0, 0, 0}, {0, 1/12, globalc}, 1/2 + 42 I/53},
+{{0, 0, 0}, {0, 5/12, globalc}, 1/2 + 43 I/53},
+{{0, 0, 0}, {0, 7/12, globalc}, 1/2 + 44 I/53},
+{{0, 0, 0}, {0, 11/12, globalc}, 1/2 + 45 I/53},
+{{0, 0, 0}, {0, 1/13, globalc}, 1/2 + 46 I/53} (* 50 *),
+{{0, 0, 0}, {0, 2/13, globalc}, 1/2 + 47 I/53},
+{{0, 0, 0}, {0, 3/13, globalc}, 1/2 + 48 I/53},
+{{0, 0, 0}, {0, 4/13, globalc}, 1/2 + 49 I/53},
+{{0, 0, 0}, {0, 5/13, globalc}, 1/2 + 50 I/53},
+{{0, 0, 0}, {0, 6/13, globalc}, 1/2 + 51 I/53},
+{{0, 0, 0}, {0, 7/13, globalc}, 1/2 + 52 I/53},
+{{0, 0, 0}, {0, 8/13, globalc}, 1/2 + 53 I/53},
+{{0, 0, 0}, {0, 9/13, globalc}, 1/2 + 54 I/53},
+{{0, 0, 0}, {0, 10/13, globalc}, 1/2 + 55 I/53},
+{{0, 0, 0}, {0, 11/13, globalc}, 1/2 + 56 I/53},
+{{0, 0, 0}, {0, 12/13, globalc}, 1/2 + 57 I/53}};
+
+
+basegp = {0,1/2 + Sqrt[5]/1000,0};
+basegm = {0, -1/2 + Sqrt[5]/1000,0};
+startbnum = 10;
+endbnum = 140;
+thedenom = 101;
+thetp = 7;
+thetm = -4;
+theincrement = 4;
+
+mygandslistC2 = Flatten[Table[{  { basegp, {0, j/thedenom, 0}, 1/2 + I thetp}, { basegm, {0, (-1*j + (theincrement/2))/thedenom, 0}, 1/2 + I thetm} }, {j, startbnum, endbnum, theincrement}] ,1];
+mygandslistC2b = Flatten[Table[{  { basegp, {0, j/thedenom, 0}, 1/2 + I thetp}, { basegm, {0, (-1*j + (theincrement/2))/thedenom, 0}, 1/2 + I thetm} }, {j, startbnum+1, endbnum, theincrement}] ,1];
+
+
+startlis = { {1/4, 1/5, 1/3, 1/3, 1, 1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1/4, -1/5, -1/3, -1/3, -1, -1, -1,1,1,1,1,1,1,1,1,1,1,1,1}, {1/4, -1/5, 1/3, -1/3, 1, -1, 1,1,1,1,1,1,1,1,1,1,1,1,1}, {-1/4, 1/5, -1/3, 1/3, -1, 1, -1,1,1,1,1,1,1,1,1,1,1,1,1} };
+
+myMod2Pi[x_] := Module[{tmpx}, tmpx = Mod[x, 2 Pi]; If[tmpx > Pi, tmpx - 2 Pi, tmpx]];
+
+myMod2Pi1[x_] := myMod2Pi[x]/(2 Pi);
+
+Print["searching near", {$twokappaone, $twokappatwo, $lamstart}];
+
+theglobalsignguess = I^($twokappaone + $twokappatwo + 2);
+
+thislabel = "CCSD" <> "_" <> ToString[$twokappaone] <> "_"  <> ToString[$twokappatwo] <> "_" <> ToString[$lamstart] <> "_" <>"1b";
+
+Print["this label: ", thislabel];
+
+
+
+linkedRandom[x_] := {Re[theglobalsignguess], Im[theglobalsignguess]} + Table[RandomReal[{-1,1},WorkingPrecision->100],{j,1,2}]/1000000;
+
+Print["this sign", theglobalsignguess, " = ",  Re[theglobalsignguess], "+", I Im[theglobalsignguess]];
+
+boxsizeIN = 1/1000;
+
+boxsizeIN = 1/1000;
+
+truncationerrorSTART = 1/10^7;
+truncationerrorSTART = 1/10^11;
+
+truncationerrorREFINE = 1/10^7;
+truncationerrorREFINE = 1/10^11;
+
+(*
+truncationerrorIN = 1/10000000000
+*)
+
+For[ij=0, ij < $numsteps, ++ij,
+  startindex = Mod[Floor[ij + 10 $lamstart] + 1, 4];
+  startcoefval = startlis[[startindex + 1]];
+
+  startcoefval = Flatten[{Re[theglobalsignguess], Im[theglobalsignguess], startcoefval}];
+
+  Print["looking for starting values at ", {$twokappaone, $twokappatwo, $lamstart + ij/$recipstep}];
+
+  thestartingvalues = findstartingvalues[{$lamstart + ij/$recipstep}, boxsizeIN, truncationerrorSTART, mygandslistC2,
+    FEdegree4["cc", $twokappaone, $twokappatwo], myEV, startcoefval, mygflag, 50,
+    myabsflag, EPSL4Zsd];
+
+  Print["found ", Length[thestartingvalues], " starting values"];
+
+  numbertotake = Min[16,Length[thestartingvalues[[1]]]];
+
+  thestartingvalues = Sort[thestartingvalues, Norm[Take[#1, numbertotake]] < Norm[Take[#2, numbertotake]] &];
+
+  If[Length[thestartingvalues] > 10, thestartingvalues = Take[thestartingvalues,5]];
+
+  For[ee=1,ee<=Length[thestartingvalues],++ee,
+          startcoefvalX = thestartingvalues[[ee]];
+Print["Starting values ",ee, " of ",Length[thestartingvalues], " : ", startcoefvalX];
+  testandsave[{$lamstart + ij/$recipstep}, unusedstarpts, boxsizeIN, truncationerrorREFINE, mygandslistC2b,
+    FEdegree4["cc", $twokappaone, $twokappatwo], myEV, startcoefvalX, mygflag, 50,
+    myabsflag, EPSL4Zsd, thislabel, 8, 2, 10^-12];
+
+  ClearGam[]
+
+  ]; (* for thestartingvalues *)
+
+];  (* For numsteps *)
+
+
+Print["about to quit"];
+
+Quit[]
+
+
+
+header
+
+my $batchname = "CkSD"."$twokappatwo"."_"."$lamstart";
+
+
+print OUTbatchFILE <<batch;
+#!/bin/bash
+#SBATCH -p short # partition (queue)
+#SBATCH -N 1 # (leave at 1 unless using multi-node specific code)
+#SBATCH -n 1 # number of cores
+#SBATCH --mem-per-cpu=8192 # memory per core
+#SBATCH --job-name="$batchname" # job name
+#SBATCH -o /home/$username/L-pointsBU/Degree4/Tmp1/slurm.%N.%j.stdout.txt # STDOUT
+#SBATCH -e /home/$username/L-pointsBU/Degree4/Tmp1/slurm.%N.%j.stderr.txt # STDERR
+#SBATCH --mail-user=farmer\@bucknell.edu # address to email
+#SBATCH --mail-type=ALL # mail events (NONE, BEGIN, END, FAIL, ALL)
+
+module load mathematica
+
+# run the program using the relative path
+math < $mmafile >> $outbatchfile
+
+
+batch
+
+close(OUTmmaFILE);
+close(OUTbatchFILE);
+
+select(undef, undef, undef, 1);  #pause for 1 second
+
+system("sbatch $batchfile");
+
+print "\n batched to Q \n";
+
