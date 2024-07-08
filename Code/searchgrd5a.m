@@ -1230,6 +1230,8 @@ addzerodatatoZ[elem_] := Block[{i, j, thisitem, thisfedata},
       thistrivzeroheights = Sort[{-thiseigs[[1]]-zeroprecision, -thiseigs[[1]]+zeroprecision, thiseigs[[1]]-zeroprecision, thiseigs[[1]]+zeroprecision}]];
     If[Length[thisparamR] == 2 && Length[thisparamC] == 1,
       thistrivzeroheights = Sort[{-thiseigs[[1]], thiseigs[[1]], -zeroprecision, zeroprecision}]];
+    If[Length[thisparamR] == 1 && Length[thisparamC] == 1,
+      thistrivzeroheights = Sort[{-thiseigs[[1]]/2, thiseigs[[1]]}]];
   ];
   If[Length[thiseigs] == 2 && Length[thisparamC] == 0,
    thistrivzeroheights = Sort[{-thiseigs[[1]], -thiseigs[[2]], thiseigs[[1]] + thiseigs[[2]]}]
