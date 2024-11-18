@@ -44,7 +44,7 @@ L2a: changes due to new EP format
    assuming it was always 1.
 *)
 
-masterversion = "2.0";
+masterversion = "3.0";
 
 FEnewtoold[fe_]:= Block[{j, reshifts, imshifts, sfactors, Qfactor, sign, phasefactor},
 (*	Print["fe in new notation", fe];  *)
