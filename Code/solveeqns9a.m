@@ -1128,12 +1128,3 @@ evaluateFromLpoint[mode_,Lpoint_, b_, s_, PRECIS_,extracoeffs_] :=
    convertedfunction/.theunknownssubstitutions
 ];
 
-boundtailsimple[obj_, lim_, deg_] := Block[{theerr},
-  theerr = 0;
-  For[j = 1, j <= lim, ++j, 
-   theerr += 
-    deg (Abs[Coefficient[obj, bb1[j]]] + Abs[Coefficient[obj, bb2[j]]])
-   ];
-  theerr
-  ];
-

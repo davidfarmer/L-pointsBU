@@ -283,29 +283,7 @@ roundfraction[frac_]:=roundfraction[frac,1];  (* 1 means 2 digits in numerator *
 
 linkedRandom[x_]:= {};
 
-(*
-convert[11.761250, 18.9024]
-{-1.19019, -7.07082}
-*)
-
 makeequations[FE_,eis_, glis_, svals_,Ev_,gflag_,PRECIS_] :=
-Block[{v,w,j,k,sol,bvals,eqns,numeqns},
-  FEtmp=FE;
-  FEtmp[[2]]=eis;
-  numeqns = Length[glis];
-  For[j = 1, j <= Length[glis], ++j,
-   For[k=1,k<=2,++k,
-   v[j,k] = Expand[
-       L[FEtmp,
-        glis[[j,k]],
-        svals[[j]], Ev,gflag,PRECIS]];
-   w[j,k] = v[j,k];
-    ]];
-  Table[Expand[w[je,1] - w[je,2]], {je, 1, numeqns}]
-(*  eqns = (eqns/.{bb1[1]->1, bb2[1]->0}); *)
-  ]
-
-makeequationsNEW[FE_,eis_, glis_, svals_,Ev_,gflag_,PRECIS_] :=
 Block[{v,w,j,k,sol,bvals,eqns,numeqns},
   FEtmp=FE;
   FEtmp = (FE/.Table[XX[j]-> eis[[j]],{j,1,Length[eis]}]);

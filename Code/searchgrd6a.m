@@ -336,9 +336,6 @@ numbertostring[num_, digits_] := Block[{ans},
 (* we make a new searchzoom program called "searchonce" which is used to do
 one step refinment of the functional equation parameters *)
 
-(* this required making a new version of makeequations, called
-makeequationsNEW  in gl3_4f.txt*)
-
 (* the major change is that the "current guess", which is a list
 of parameters, say {x_1,...,x_N}, are now interpreted as the
 values of XX[1],...,XX[N] in the functional equation.  Thus,
@@ -485,7 +482,7 @@ and the same for the detectors.  We use 8 detectors.
 
 Print["testing ",starN,", :",thept];
 
-        eq[starN] = makeequationsNEW[FEin, thept, gtab, stab, Ev,gflag,PRECIS];
+        eq[starN] = makeequations[FEin, thept, gtab, stab, Ev,gflag,PRECIS];
 
         eq[starN] = Flatten[{degree2eqns, signeqns, eq[starN]}];
 
@@ -627,7 +624,7 @@ and the same for the detectors.  We use 8 detectors.
 
         Print["testing ",starN,", :",thept];
 
-        eq[starN] = makeequationsNEW[FEin, thept, gtab, stab, Ev,gflag,PRECIS];
+        eq[starN] = makeequations[FEin, thept, gtab, stab, Ev,gflag,PRECIS];
         eq[starN] = Flatten[{degree2eqns, signeqns, eq[starN]}];
 
         eqsolv[starN] = converteqnsALL[EP, eq[starN], numterms, absflag];
@@ -655,7 +652,7 @@ and the same for the detectors.  We use 8 detectors.
            Return[]
         ];
 
-        detecteq[starN]=makeequationsNEW[FEin, thept, detectg, detects, Ev,gflag,DETECTPRECIS];
+        detecteq[starN]=makeequations[FEin, thept, detectg, detects, Ev,gflag,DETECTPRECIS];
         detecteq[starN]=converteqnsALL[EP, detecteq[starN],numterms,1];
 
 (*
@@ -733,98 +730,10 @@ Table[N[Floor[x[[j]]/10^diffpower[[j]]]10^diffpower[[j]],-diffpower[[j]]],{j,1,L
 Table[Ndigits[x[[j]],-diffpower[[j]]],{j,1,Length[x]}]
 ]
 ];
-(*
-Floor[x/10^diffpower]10^diffpower];
-*)
-
-makeequationsR[FE_, glis_, svals_,Ev_,gflag_,PRECIS_] :=
-Block[{v,w,j,k,sol,bvals,eqns,numeqns},
-  FEtmp=FE;
-  (*FEtmp[[2]]=eis; *)
-  numeqns = Length[glis];
-  For[j = 1, j <= Length[glis], ++j,
-   For[k=1,k<=2,++k,
-   v[j,k] = Expand[
-       L[FEtmp,
-        glis[[j,k]],
-        svals[[j]], Ev,gflag,PRECIS]];
-   w[j,k] = v[j,k];
-    ]];
-  Table[Expand[w[je,1] - w[je,2]], {je, 1, numeqns}]
-(*  eqns = (eqns/.{bb1[1]->1, bb2[1]->0}); *)
-  ]
-
-boundtailR[obj_, deg_, limsum_] := Block[{}, subs0 = {};
-  For[j = 1, j <= limsum, ++j, AppendTo[subs0, bb1[j] -> 0]; AppendTo[subs0,
-bb2[j] -> 0]];
-  For[j = 1, j <= Length[obj], ++j,
-   ans1[j] = Re[(obj[[j, 2]] /. subs0)];
-   errtot[j] = 0;
-   For[k = 1, k <= limsum, ++k,
-    errtot[j] +=
-     Abs[Coefficient[obj[[j, 2]], bb1[k]] ] RamaBound[k, deg];
-    errtot[j] +=
-     Abs[Coefficient[obj[[j, 2]], bb2[k]] ] RamaBound[k, deg]
-    ]];
-  Table[{obj[[j, 1]], ans1[j] + errtot[j] err}, {j, 1, Length[obj]}]]
 
 RamaBound[1, deg_] := 1
 
 RamaBound[j_, deg_] := Block[{fi, m, k}, fi = FactorInteger[j];
-  Product[m = fi[[k]];
-   Binomial[m[[2]] + deg - 1, deg - 1], {k, 1, Length[fi]}]]
-
-(* build in more restrictive vakues for the sharp Ramanujan bound for elliptic curves *)
-boundtailEC[obj_, deg_, limsum_] := Block[{}, subs0 = {};
-  For[j = 1, j <= limsum, ++j, AppendTo[subs0, bb1[j] -> 0]; AppendTo[subs0,
-bb2[j] -> 0]];
-  For[j = 1, j <= Length[obj], ++j,
-   ans1[j] = Re[(obj[[j, 2]] /. subs0)];
-   errtot[j] = 0;
-   For[k = 1, k <= limsum, ++k,
-    errtot[j] +=
-     Abs[Coefficient[obj[[j, 2]], bb1[k]] ] ECBound[k, deg];
-    errtot[j] +=
-     Abs[Coefficient[obj[[j, 2]], bb2[k]] ] ECBound[k, deg]
-    ]];
-  Table[{obj[[j, 1]], ans1[j] + errtot[j] err}, {j, 1, Length[obj]}]]
-
-boundtailECc[obj_, deg_, limsum_] := Block[{}, subs0 = {};
-  For[j = 1, j <= limsum, ++j, AppendTo[subs0, bb1[j] -> 0]; AppendTo[subs0,
-bb2[j] -> 0]];
-  For[j = 1, j <= Length[obj], ++j,
-   ans1[j] = (obj[[j, 2]] /. subs0);
-   errtotR[j] = 0;
-   errtotI[j] = 0;
-   For[k = 1, k <= limsum, ++k,
-    errtotR[j] +=
-     Abs[Re[Coefficient[obj[[j, 2]], bb1[k]] ]] ECBound[k, deg];
-    errtotI[j] +=
-     Abs[Im[Coefficient[obj[[j, 2]], bb1[k]] ]] ECBound[k, deg];
-    errtotR[j] +=
-     Abs[Re[Coefficient[obj[[j, 2]], bb2[k]] ]] ECBound[k, deg];
-    errtotI[j] +=
-     Abs[Im[Coefficient[obj[[j, 2]], bb2[k]] ]] ECBound[k, deg];
-    ]];
-  Table[{obj[[j, 1]], ans1[j] + errtotR[j] err + I errtotI[j] err}, {j, 1, Length[obj]}]]
-
-
-
-
-
-
-ECBound[1, deg_] := 1
-
-ECBound[2,2] = Sqrt[2]
-ECBound[3,2] = Sqrt[3]
-ECBound[4,2] = 3
-ECBound[5,2] = 4/Sqrt[5]
-ECBound[6,2] = Sqrt[6]
-ECBound[7,2] = 5/Sqrt[7]
-ECBound[8,2] = 3/(2 Sqrt[2])
-ECBound[9,2] = 2
-ECBound[10,2] = 4 Sqrt[2]/Sqrt[5]
-ECBound[j_, deg_] := Block[{fi, m, k}, fi = FactorInteger[j];
   Product[m = fi[[k]];
    Binomial[m[[2]] + deg - 1, deg - 1], {k, 1, Length[fi]}]]
 
