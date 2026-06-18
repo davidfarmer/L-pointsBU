@@ -29,6 +29,9 @@ L1b: changing the FE format.  Added functions to convert between formats.
 L2a: changes due to new EP format
      added masterversion (as a string)
 
+L3a: major changes due to new way of making the equations.
+     gg now centered at 0 and allows linear combinations
+
 ****************************** *)
 
 (* the new format for functional equations is
@@ -90,11 +93,32 @@ infinitysign[fenew_]:= Product[I^(fenew[[1,jo,1]]), {jo,1,Length[fenew[[1]]]}] P
 
 (* Rubinstein's g(s): test function in the approximate functional equation *)
 (* gg[b_,w_]:= (1+w)^(b[[1]]) E^(-1*b[[2]] I w + b[[3]] w^2) *)
-gg[b_,w_]:= (w - 1/2)^(b[[1]]) E^(-1*b[[2]] I w + b[[3]] w^2) 
+(* gg[b_,w_]:= (w - 1/2)^(b[[1]]) E^(-1*b[[2]] I w + b[[3]] w^2) *)
+gg[{0,o1_o2_},w_]:= E^(-1 o1 I w + o2 w^2) 
        (* NB: this function is indeterminate when encountering 0^0 *)
+gg[{o0_,o1_,o2_},w_]:= w^o0 E^(-1 o1 I w + o2 w^2) 
 
+gg[{offset_,0,o1_,o2_},w_]:=  E^(-1 o1 I (w - I offset) + o2 (w - I offset)^2) 
+gg[{offset_,o0_,o1_,o2_},w_]:= (w - I offset)^o0 E^(-1 o1 I (w - I offset) + o2 (w - I offset)^2) 
+(*
+gg[b_,w_]:= (w)^(b[[1]]) E^(-1 b[[2]] I w + b[[3]] w^2) 
+*)
+(* functions that are sums of the form a_j gg[b_j, w], represented by
+{{a1,b1},{a2,b2},...} *)
+gg[bb_,w_]:= Sum[b[[1]] gg[b[[2]],w], {b,bb}];
 
-gg[u_,b_,v_]:= (1+v-u)^(b[[1]]) E^(-1*b[[2]] I (v-u) + b[[3]] (v-u)^2)
+gg[u_,{0,o1_,o2_},v_]:=  E^(-1 o1 I (v-u) +  o2 (v-u)^2)
+gg[u_,{o0_,o1_,o2_},v_]:= (v-u)^(o0) E^(-1 o1 I (v-u) +  o2 (v-u)^2)
+gg[u_,{offset_,0,o1_,o2_},v_]:=  E^(-1 o1 I (v - u - I offset) +  o2 (v - u - I offset)^2)
+gg[u_,{offset_,o0_,o1_,o2_},v_]:= (v - u - I offset)^(o0) E^(-1 o1 I (v - u - I offset) +  o2 (v - u - I offset)^2)
+
+gg[u_,bb_,v_]:= Sum[b[[1]] gg[u,b[[2]],w], {b,bb}];
+(*
+(v-u)^(b[[1]]) E^(-1 b[[2]] I (v-u) + b[[3]] (v-u)^2)
+*)
+(*
+gg[u_,b_,v_]:= (v-u)^(b[[1]]) E^(-1 b[[2]] I (v-u) + b[[3]] (v-u)^2)
+*)
 
 gg[gflag_,u_,b_,v_]:=If[gflag==0,gg[b,v],gg[u,b,v]];  (* gflag ==1 is Stefan's g*)
 
@@ -206,6 +230,61 @@ Gam[xx_,PREC_]:=Gam[xx,PREC]=N[Gamma[xx],PREC]);
 
 stepsizeRM[nu_, PREC_] := Floor[100 (nu 2 Pi/Log[10]/PREC)]/100;
 
+(* new findSumlim
+findSumlim[FE_, g_, Ev_, acc_]
+
+*)
+
+findSumlim[allfedata_, g_, Ev_, acc_] := (* determine how many terms
+                are needed to compute L(s) to accuracy acc.
+                Returns a pair, where the first element is
+                the number of terms needed.
+                Note, since we usually givide by the coefficient of a_1,
+                if a_1 is small we need a corresponding amout of
+                extra accuracy. *)
+  Block[{},
+
+    H = allfedata[[1]];
+    al = Ev[[1,1]];
+    be = Ev[[1,2]];
+    prec = Ev[[2]];
+
+    Print["in findSumlim ", "g = ", g];
+    refinedacc = acc;
+    a1coefsize = Abs[bigI1[al, g, H, 1, refinedacc, prec]] + Abs[bigI2[be, g, H, 1, refinedacc, prec]];
+
+    If[Abs[a1coefsize] < 10,
+       refinedacc = a1coefsize acc;
+       a1coefsize = Abs[bigI1[al, g, H, 1, refinedacc, prec]] + Abs[bigI2[be, g, H, 1, refinedacc, prec]]
+    ];
+
+    thescale = a1coefsize;
+       (*need the nth scaled term to be less than acc *)
+    Print["thescale = ", thescale];
+    Print["pieces of a1:", bigI1[al, g, H, 1, refinedacc, prec], "    ",  - bigI2[be, g, H, 1, refinedacc, prec]];
+
+    n = 10;
+    While[(xx = 
+       Abs[bigI1[al, g, H, n, refinedacc, prec]/n^al] +
+       Abs[bigI2[be, g, H, n, refinedacc, prec]/n^(1-be)] +
+       Abs[bigI1[al, g, H, n+1, refinedacc, prec]/n^al] +
+       Abs[bigI2[be, g, H, n+1, refinedacc, prec]/n^(1-be)]) > 2 acc*thescale,
+         Print[n, "   ", xx];
+         n += 10; 
+         If[n>200,Print["Error: n>200:  ",thescale, " ",n,"  ",xx, " ",al,"  ",be,"  ",prec]; Return[{5,0}]]
+    ];
+
+    n = n - 8;
+    While[(yy = 
+       Abs[bigI1[al, g, H, n, refinedacc, prec]/n^al] +
+       Abs[bigI2[be, g, H, n, refinedacc, prec]/n^(1-be)] +
+       Abs[bigI1[al, g, H, n+1, refinedacc, prec]/n^al] +
+       Abs[bigI2[be, g, H, n+1, refinedacc, prec]/n^(1-be)]) > 2 acc*thescale,
+          n += 2];
+
+    {n, Log[Abs[a1coefsize]]}
+  ];
+
 findSumlim[FE_, b_, s_, Ev_, del_,gflag_,PRECIS_,absflag_] := (* determine how many terms
                 are needed to compute L(s) to accuracy del.
                 Returns a pair, where the first element is
@@ -299,6 +378,100 @@ Block[{v,w,j,k,sol,bvals,eqns,numeqns},
     ]];
   Table[Expand[w[je,1] - w[je,2]], {je, 1, numeqns}]
 (*  eqns = (eqns/.{bb1[1]->1, bb2[1]->0}); *)
+  ]
+
+(* new version, make equation directly instead of evaluate twice and subtract *)
+makeequations[FE_,eis_, glis_, Ev_,PRECIS_] :=
+Block[{v,w,j,k,sol,bvals,eqns,numeqns},
+  FEtmp=FE;
+  FEtmp = (FE/.Table[XX[j]-> eis[[j]],{j,1,Length[eis]}]);
+(*  FEtmp[[2]]=eis;  *)
+  numeqns = Length[glis];
+  For[j = 1, j <= Length[glis], ++j,
+   For[k=1,k<=2,++k,
+   v[j,k] = Expand[
+       L[FEtmp,
+        glis[[j,k]],
+        svals[[j]], Ev,gflag,PRECIS]];
+   w[j,k] = v[j,k];
+    ]];
+  Table[Expand[w[je,1] - w[je,2]], {je, 1, numeqns}]
+(*  eqns = (eqns/.{bb1[1]->1, bb2[1]->0}); *)
+  ]
+
+
+(* new way of making the equations: integrte a weight function,
+   instead of evaluate twice and subtract *)
+
+GammaC[s_] := GammaC[s, 100];
+GammaR[s_] := GammaR[s, 100];
+
+GammaC[s_, prec_] := GammaC[s, prec] = N[2 (2 Pi)^(-s) Gamma[s], prec];
+GammaR[s_, prec_] := GammaR[s, prec] = N[Pi^(-s/2) Gamma[s/2], prec];
+
+I1[alin_, gin_, Hin_, nin_, tmin_, tmax_, stepsize_, prec_] := 
+ Module[{t},
+  mysum = 
+   Sum[N[gin[alin + I t] Hin[alin + I t] nin^(-I t), prec], {t, tmin, 
+     tmax, stepsize}];
+  N[stepsize mysum, prec]
+  ]
+
+I2[bein_, gin_, Hin_, nin_, tmin_, tmax_, stepsize_, prec_] := 
+ Module[{t},
+  mysum = 
+   Sum[N[gin[bein - I t] Conjugate[Hin[1 - bein - I t]] nin^(-I t), 
+     prec], {t, tmin, tmax, stepsize}];
+  N[stepsize mysum, prec]
+  ]
+
+findTminTmax[fin_, epsin_] := Block[{tt},
+  tt = 10;
+  While[Abs[fin[tt]] > epsin/100000 && tt < 1000, ++tt];
+  tMax = tt;
+  tt = -10;
+  While[Abs[fin[tt]] > epsin/100000 && tt > -1000, --tt];
+  tMin = tt;
+  {tMin, tMax}
+  ]
+
+findStepsize[fin_, epsin_] := Block[{},
+  1/20
+]
+
+bigI1[al_, g_, H_, n_, acc_, prec_] := Block[{tt},
+  integrand[tt_] := g[al + I tt] H[al + I tt] n^(-I tt);
+  {tmin, tmax} = findTminTmax[integrand, acc];
+  stepsize = findStepsize[H, acc];
+  I1[al, g, H, n, tmin, tmax, stepsize, prec]
+  ]
+
+bigI2[be_, g_, H_, n_, acc_, prec_] := Block[{tt},
+  integrand[tt_] := g[be - I tt] Conjugate[H[1 - be - I tt]] n^(-I tt);
+  {tmin, tmax} = findTminTmax[integrand, acc];
+  stepsize = findStepsize[H, acc];
+  I2[be, g, H, n, tmin, tmax, stepsize, prec]
+  ]
+
+bigS1[al_, g_, H_, nmax_, acc_, prec_] := Block[{n},
+  Sum[(bb1[n] + I bb2[n])/n^al bigI1[al, g, H, n, acc, prec], {n, 1, nmax}]]
+
+bigS2[be_, g_, H_, nmax_, acc_, prec_] := Block[{n},
+  Sum[(bb1[n] - I bb2[n])/n^(1 - be) bigI2[be, g, H, n, acc, prec], {n, 1, nmax}]]
+
+rhs[al_, be_, g_, H_, sig_, nmax_, acc_, prec_] := 
+ Expand[bigS1[al, g, H, nmax, acc, prec] - 
+   sig bigS2[be, g, H, nmax, acc, prec] ]
+
+rhsnormalized[al_, be_, g_, H_, sig_, nmax_, acc_, prec_] := 
+ Block[{},
+  tmprhs = rhs[al, be, g, H, sig, nmax, acc, prec];
+  firstcoeff = Abs[Coefficient[tmprhs, bb1[1]]];
+  secondcoeff = 
+   Abs[Coefficient[tmprhs, bb1[2]]] + Abs[Coefficient[tmprhs, bb2[2]]];
+  normalizer = 
+   If[firstcoeff/secondcoeff < 10^-5, secondcoeff, firstcoeff];
+  Expand[tmprhs/normalizer]
   ]
 
 

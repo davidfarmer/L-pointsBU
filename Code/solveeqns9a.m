@@ -813,6 +813,9 @@ scalelist[numsolve_]:={0,1/10000000,1,1,1};
 scalelist[numsolve_]:=Join[{0,1/10000000,1/100000,1/10000},
 	Flatten[Table[{1/1000,1/100,1/10,1,10},{j,1,numsolve/5}]],Flatten[Table[{1/4,1/2,1/2,1,1,1,2,2,2,2,2,2,5,5,5,5,5,5,10,10,20,20},{j,1,numsolve}]]];
 
+scalelist[numsolve_]:=Join[{0,1/10000000,1/100000,1/10000},
+        Flatten[Table[{1/1000,1/100,1/10,1,10},{j,1,numsolve/5}]],Flatten[Table[{1/4,1/2,1/2,1,1,1,2,2,2,2,2,2,5,5,5,5,5,5,10,10,20,20},{j,1,1}]]];
+
 findsolone[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := Block[
           {ct, foundsols={},residuals={},tmp(*,startvals1*)},
    If[Length[eqns]<Length[testunksIN[[1]]],Print["not enough equations"];Return[{}]];
@@ -922,7 +925,7 @@ findsolmult[eqns_, theunkns_, testunksIN_,numsolve_,eps_,{numcheck_,eps2_}] := B
         ];
 
         test = FindRoot[SetPrecision[theeqns, eqnPRECISION], startvals1, Method -> "Secant",
-		WorkingPrecision->eqnPRECISION, MaxIterations->100];
+		WorkingPrecision->eqnPRECISION, MaxIterations->101];
         vec = theeqns /. test;
         vec = SetPrecision[vec, 100];  (* because sometimes a residual is too close to 0 *)
 

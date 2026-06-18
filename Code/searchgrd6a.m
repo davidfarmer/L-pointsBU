@@ -383,6 +383,183 @@ thestarpts[3] = {{9/10, -21/20, -31/30}, {-11/10, 19/20, -31/30}, {-11/10, -21/2
 
 thestarpts[4] = {{9/10, -21/20, -31/30,-41/40}, {-11/10, 19/20, -31/30,-42/41}, {-11/10, -21/20, 29/30, -16/15}, {-13/12, -14/13,-20/10, 12/13}, {9/10, 19/20, 29/30, 26/25}};
 
+(*
+new version:
+findstartingvalues[startpt_,boxsize_,acc_,glis_,allfedata_,evalparams_,startcoefval_, epdata_]
+
+allfedata = {N, H, eps}
+
+evalparams = {{leftintegralline, rightintegralline}, precision}
+
+This has a different number of inputs, so we reuse what we can.
+
+*)
+
+findstartingvalues[startpt_ (* the initial guess *),
+	boxsize_ (* how far to move the starpts *),
+	acc_ (* number of terms or truncation error *),
+	glis_ (* list of functions to make equations or detectors, sorted *),
+	allfedata_ (* functional equation, for parts that are not being sesarched *),
+	evalparams_  (* evaluation parameters *),
+	startcoefval_  (* starting values of the coefficients *),
+	epdata_ (* describes the shape of the Euler product *)]:=Block[
+              {(*jz,kz,numterms,FE,numtermsTAB,Ev*)},
+    starpts=thestarpts[Length[startpt]];
+    PRECIS = evalparams[[2]];
+    DETECTPRECIS=PRECIS;
+    detectedpoints={};
+    hitpoints={};
+    closepoints={};
+    startcoeffs=startcoefval;
+    starepssize=Floor[Log[10,boxsize]];
+    stareps=Ceiling[boxsize/10^(starepssize-1)] 10^(starepssize-1);
+    Print["Size of zooming neighborhood: ",stareps];
+    initguess = Floor[10 startpt/stareps] stareps/10;
+    Print["Initial guess: ",initguess, " which is approximately ",N[initguess,16], " rounded from ", startpt];
+    Print["Initial coefficients: ", N[startcoeffs]];
+    (* FE[[2]]=pairtotriple[initguess]; *)
+    Print["Functional equation ", allfedata];
+(*    FE = FEnewtoold[FEin]; *)
+    FE = allfedata;
+(*
+    FE = (FEin/.Table[XX[j]->initguess[[j]],{j,1,Length[initguess]}]);
+*)
+    FE = (FE/.Table[XX[j]->initguess[[j]],{j,1,Length[initguess]}]);
+
+    lev=allfedata[[1]];  
+    nu=evalparams[[1]];
+    istep=stepsizeRM[nu, PRECIS];
+    ev={nu,PRECIS,istep};
+
+    Print["finding starting values near ",N[initguess, PRECIS], " to ",stareps, ", level ",lev];
+
+(* find how many terms are needed to make the equations *)
+
+(*
+    {unknowns,gsCount,numterms,numdetectors} = findgsandnumterms[acc,FE,glis,ev,gflag,PRECIS, 
+      absflag,epdata,starpts];
+*)
+    {unknowns,gCount,numterms,numdetectors} = findgsandnumterms[acc,FE,glis,ev, epdata,starpts];
+
+    If[gCount ==0 || gCount<Length[unknowns]+numdetectors,
+       Print["Error:  not enough detectors"];
+       Return[]
+    ];
+
+(* now gCount is the number of g we need, numterms is the
+number of terms we need in the Dirichlet series, and unknowns is the
+list of unknowns.
+
+We need to create the list of {g1,g2} and s's for making the equations,
+and the same for the detectors.  We use 8 detectors.
+
+*)
+
+    degree2eqns= finddegree2eqns[epdata,unknowns];
+    signeqns= findsigneqns[FE,epdata];
+    signunknowns= findSIGNunknowns[FE, epdata];
+
+    unknowns = Flatten[{signunknowns, unknowns}];
+
+(*
+    badfactoreqns = findbadfactoreqns[epdata];
+    badfactorsubstitutions = findbadfactorsubstitutions[epdata];
+*)
+
+(*
+    Ev={nu,numterms};
+*)
+
+    eqngs={};
+    detectgs={};
+    detectmod=3;
+    gs8=1+Floor[gCount/8];
+    For[j=1,j<=gCount,++j,
+      If[(Mod[j,gs8]==detectmod && Length[detectgs]<numdetectors) || Length[eqngs]>= Length[unknowns],
+          AppendTo[detectgs,glis[[gCount-j+1]]],
+          AppendTo[eqngs,glis[[gCount-j+1]]]
+      ]
+    ];
+
+(* we now have detectgs and eqngs *)
+
+(*
+    gtab=Table[{eqngs[[j,1]],eqngs[[j,2]]},{j,1,Length[eqngs]}];
+    stab=Table[eqngs[[j,3]],{j,1,Length[eqngs]}];
+    detectg=Table[{detectgs[[j,1]],detectgs[[j,2]]},{j,1,Length[detectgs]}];
+    detects=Table[detectgs[[j,3]],{j,1,Length[detectgs]}];
+*)
+
+    While[Length[unknowns]>Length[startcoeffs],
+        AppendTo[startcoeffs,0]];  (* pad starting values with 0 if necessary*)
+
+    detectpts={};
+
+(* need to remove the meaningless For loop *)
+    For[starN=1,starN<=1,++starN,  (* startN indexes the starpts *)
+        thept=initguess;  (* +stareps starpts[[starN]]; *)
+        AppendTo[detectpts,thept];
+
+Print["testing ",starN,", :",thept];
+
+(*
+        eq[starN] = makeequations[allfedata, thept, gtab, stab, Ev,gflag,PRECIS];  XXXXX
+now we want to use
+
+   rhsnormalized[al_, be_, g_, H_, sig_, nmax_, acc_, prec_]
+
+*)
+(*
+        eq[starN] = Table[rhsnormalized[nu[[1]],nu[[2]], thisg, FE[[1]], FE[[2]], numterms, acc, ev[[2]]], {thisg, eqngs}];
+*)
+        eq[starN] = Table[rhsnormalized[nu[[1]],nu[[2]], thisg, FE[[1]], FE[[2]], numterms, 10^-10 acc, ev[[2]]], {thisg, eqngs}];
+
+        eq[starN] = Flatten[{degree2eqns, signeqns, eq[starN]}];
+
+(*
+        If[Length[degree2andSIGNeqns]>0 && Not[debugging1],
+            Print["adding degree 2 equaitons"];
+            eq[starN] = Flatten[{degree2andSIGNeqns,eq[starN]}];
+        ];
+*)
+
+        eqsolv[starN] = converteqnsALL[epdata, eq[starN], numterms];
+
+tmpeqsolv = eqsolv[starN];
+
+  (* should the badfactorsubstitutions be called from converteqnsALL? *)
+  (*
+        If[Length[badfactorsubstitutions]>0,
+            Print["adding badfactorsubstitutions", badfactorsubstitutions];
+            eqsolv[starN] = Expand[eqsolv[starN]/.badfactorsubstitutions];
+        ];
+   *)
+
+        startvals={Table[{unknowns[[jz]],startcoeffs[[jz]]},{jz,1,Length[unknowns]}]};
+        targeteps = 10.0^(-DETECTPRECIS/2);
+
+  (* the 200 below was changed from 100 on 3/14/24, to help with degree 3 conductor 8 *)
+
+(*
+        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 200,targeteps,{4,0.1}];
+*)
+(*
+        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 200,targeteps,{8,0.1}];
+*)
+        ans[starN]= findsolmult[eqsolv[starN], unknowns, startvals, 20,targeteps,{8,0.1}];
+(*
+        Print["First up to 5 initial answers",If[Length[ans[starN]]>5,Take[ans[starN],5], ans[starN]]];
+*)
+        Print["found ", Length[ans[starN]], " initial answers"];
+        If[ans[starN]=={},
+           Print["No solution at point ",starN, " from startvals A ", Take[N[startvals[[1]]],10], ". Stopping."];
+           Return[{}]
+        ];
+     ];
+     unknowns/.ans[1]
+
+];
+
 findstartingvalues[initguessIN_ (* the initial guess *),
 	starepsIN_ (* how far to move the starpts *),
 	numtermsIN_ (* number of terms or truncation error *),
@@ -757,6 +934,57 @@ Flatten[Table[{bb1[n]->Re[aa[n]],bb2[n]->Im[aa[n]]},{n,1,numterms}]]
 ];
 
 
+(*
+new version:
+findgsandnumterms[acc,FE,glis,ev, epdata,starpts];
+
+PRECIS is included in ev
+
+different number of arguments, so reuse 
+*)
+
+findgsandnumterms[acc_,allfedata_,glis_,ev_, EP_,starpts_]:=Block[{unknowns,gCount,numterms,numdetectors},
+
+  If[acc > 1,
+      numterms=acc
+      ,
+      numterms = findSumlim[allfedata, glis[[1]], ev, acc][[1]];
+  ];  (* If  *)
+
+  If[numterms < 3, numterms = 3];  (* later code assumes at least 4 unknowns.
+                                      with numterms=3, the unknowns are bb1[2], bb2[2], bb1[3], bb2[3] *)
+
+  unknowns=theunknowns[EP,numterms];
+  Print["terms for first equation: ", numterms, " with ", Length[unknowns], " unknowns, which are ", unknowns];
+
+  (* now build up the list of gs for solving and detecting *)
+  (* keep adding until there are enough, adjusting the target along the way*)
+
+  gCount=1;
+  If[Length[starpts]==1,numdetectors=0,numdetectors=8];  (* usually 8 detectors *)
+  If[acc > 1,
+    numterms=acc; unknowns=theunknowns[EP,numterms];gCount=Length[unknowns]
+    ,
+    While[(gCount<Length[unknowns]+numdetectors && gCount<Length[glis]) || gCount<8,
+       ++gCount;
+       numterms2=findSumlim[allfedata, glis[[gCount]], ev, acc][[1]];
+       Print["numterms : ", numterms,  " gCount = ",gCount,"   numterms2 = ",numterms2];
+       If[numterms2 > numterms
+         ,
+         numterms=numterms2;
+         unknowns=theunknowns[EP,numterms];
+         Print["Increasing numterms ", gCount,"  ",numterms2, ", num unknowns needed now: ",Length[unknowns]];
+       ];  (* If numterms2 is bigger *)
+    ]; (* While *)
+  ]; (* If acc > 1 *)
+
+  If[gCount<Length[unknowns]+numdetectors,
+      Print["Error:  not enough detectors"];
+      Return[{0,0,0,0}]
+  ];  (* If *)
+
+  {unknowns,gCount,numterms,numdetectors}
+];
 
 findgsandnumterms[numtermsIN_,FE_,gANDsList_,ev_,gflag_,PRECIS_,
       absflag_,EP_,starpts_]:=Block[{unknowns,gsCount,numterms,numdetectors},
@@ -841,7 +1069,12 @@ finddegree2eqns[EP_,unknowns_]:=Block[{theconductor,degree2eqns,thecharacter},
 ];
 
 findsigneqns[feold_,ep_] := Block[{},
-    thesign = feold[[5]];
+    If[Length[feold] >= 5,
+        thesign = feold[[5]]
+        ,  (* actually, it is a new new equation *)
+        thesign = feold[[2]]
+    ]
+
     If[Coefficient[thesign, EpsilonR] == 0,
         (* sign is known *)
         signeqns = {EpsilonR - Re[thesign], EpsilonI -  Im[thesign]}
